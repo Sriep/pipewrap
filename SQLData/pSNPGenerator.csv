@@ -1,0 +1,9 @@
+op_command,op_string,op_data_type,op_short_description,op_long_description,op_optional,op_in_out,op_group,op_postion,op_default_text,op_default_int
+Rscript pSNPgenerator.R,-c ,filename,File for location of pSNPs,,0,0,,,,
+Rscript pSNPgenerator.R,-t ,int,Number tandem repeats,,0,0,,,,
+Rscript pSNPgenerator.R,-p ,int,Number pSNPs per bin,,0,0,,,,
+Rscript pSNPgenerator.R,-b ,int,Frequency of pSNPs in each bin,,0,0,,,,
+Rscript pSNPgenerator.R,-i ,filename,Input fasta file,,0,1,,,,
+Rscript pSNPgenerator.R,-o ,filename,Output fasta file,,0,-1,,,,
+Rscript pSNPgenerator.R,> ,filename,Output fasta file,,0,1,,,,
+Rscript pSNPgenerator.R,2> ,filename,Error messages,,0,0,,,,
