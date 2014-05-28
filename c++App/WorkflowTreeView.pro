@@ -33,3 +33,6 @@ LIBS += -L"/usr/local/pgsql/lib"
 INCLUDEPATH += "/opt/mysql/server-5.6/include"
 INCLUDEPATH += "/usr/local/pgsql/include"
 
+RESOURCES += \
+    WorkflowTreeView.qrc
+

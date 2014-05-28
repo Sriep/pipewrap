@@ -32,16 +32,16 @@ WorkflowTreeView::~WorkflowTreeView()
 
 void WorkflowTreeView::Init()
 {
-    //qDebug("start\tWorkflowTreeView::Init");
     setWindowTitle(tr("Workflow"));
 
-    m_treeview_model = new QStandardItemModel;
-    QStandardItem* tool_items_root = m_treeview_model->invisibleRootItem();
+    m_treeview_model = new QStandardItemModel;    
     setModel(m_treeview_model);
 
-    QStandardItem* blank_item = new QStandardItem("...");
-    blank_item->setEditable(false);
-    tool_items_root->appendRow(blank_item);
+    //QStandardItem* tool_items_root = m_treeview_model->invisibleRootItem();
+    //QStandardItem* blank_item = new QStandardItem("...");
+    //blank_item->setData(DmmyUsageRole, UsageRole);
+    //blank_item->setEditable(false);
+    //tool_items_root->appendRow(blank_item);
     connect(this, SIGNAL(doubleClicked(QModelIndex)),
             this, SLOT(doubleClickedAddItemSlot(QModelIndex)));
     createMenu();
@@ -77,7 +77,8 @@ void WorkflowTreeView::executeSlot()
     while(item)
     {
 
-        QString shell_command = item->data(CommandStrRole).toString();
+        QString shell_command = COMMAND_PATH;
+        shell_command += item->data(CommandStrRole).toString();
         int row_relative = 0;
         QStandardItem* child = NULL;
         do
@@ -85,7 +86,7 @@ void WorkflowTreeView::executeSlot()
             child = item->child(row_relative++, item->column());
             if (child)
             {           
-                shell_command += "\t" + child->data(NameRole).toString();
+                shell_command += " " + child->data(NameRole).toString();
                 shell_command += child->data(ValueRole).toString();
             }
         }
@@ -93,7 +94,6 @@ void WorkflowTreeView::executeSlot()
         shell_script += "\n" + shell_command;
         item = m_treeview_model->item(row_num++);
     }
-    shell_script += '\n';
     qDebug() << shell_script;
     QProcess process;
     process.execute(shell_script);
@@ -118,6 +118,7 @@ void WorkflowTreeView::varyOpSlot()
             for_st += shell_var + " + "+ step + ")); do";
             QStandardItem* from_item = new QStandardItem(tr("Start For Loop"));
             from_item->setData(for_st,CommandStrRole);
+            from_item->setData(StructureUsageRole, UsageRole);
             QStandardItem* parent = item->parent();
             m_treeview_model->insertRow(parent->row(),from_item);
             //from_item->setChild(0,parent);
@@ -125,6 +126,7 @@ void WorkflowTreeView::varyOpSlot()
             QStandardItem* done_item = new QStandardItem(tr("End for loop"));
             done_item->setData("done",CommandStrRole);
             done_item->setData("done",NameRole);
+            done_item->setData(StructureUsageRole, UsageRole);
             m_treeview_model->appendRow(done_item);
         }
     }
@@ -157,27 +159,29 @@ void WorkflowTreeView::createMenu()
     connect(varyOpAction, SIGNAL(triggered()), this, SLOT(varyOpSlot()));
 }
 
+void WorkflowTreeView::addSlot()
+{
+    m_sql_list_model = new QSqlQueryModel;
+    m_sql_list_model->setQuery("SELECT tool_name, tool_shell_string FROM BioTools");
+    m_sql_list_model->setHeaderData(0, Qt::Horizontal, tr("tool_name"));
+
+    m_list_view  = new QListView();
+    m_list_view->setModel(m_sql_list_model);
+    connect(m_list_view, SIGNAL(doubleClicked(QModelIndex)),
+            this, SLOT(doubleClickedListViewSlot(QModelIndex)));
+    m_list_view->show();
+}
+
 void WorkflowTreeView::doubleClickedAddItemSlot(const QModelIndex& index)
 {
     //qDebug("start\tWorkflowTreeView::doubleClickedAddItemSlot");
     QStandardItem* 	item = m_treeview_model->itemFromIndex(index);
     if (item->text() == "...")
     {
-        m_sql_list_model = new QSqlQueryModel;
-        //m_sql_list_model->setQuery("SELECT tool_name FROM BioTools");
-        m_sql_list_model->setQuery("SELECT tool_name, tool_shell_string FROM BioTools");
-        m_sql_list_model->setHeaderData(0, Qt::Horizontal, tr("tool_name"));
-
-        m_list_view  = new QListView();
-        m_list_view->setModel(m_sql_list_model);
-        connect(m_list_view, SIGNAL(doubleClicked(QModelIndex)),
-                this, SLOT(doubleClickedListViewSlot(QModelIndex)));
-        m_list_view->show();
+        addSlot();
     }
     else
     {
-        //ToolTreeItem* tt_item = dynamic_cast<ToolTreeItem*>(item);
-        //if (tt_item)
         {
             ToolOptionsDialog *options_dialog = new ToolOptionsDialog(item);
             options_dialog->exec();
@@ -192,6 +196,7 @@ void WorkflowTreeView::doubleClickedListViewSlot(const QModelIndex& index)
 {
     QString text = m_sql_list_model->data(index,Qt::DisplayRole).toString();
     QStandardItem* tree_item = new QStandardItem(text);
+    tree_item->setData(ToolUsageRole, UsageRole);
 
     QSqlRecord sql_record = m_sql_list_model->record(index.row());
     QString comd = sql_record.value("tool_shell_string").toString();
@@ -206,6 +211,55 @@ void WorkflowTreeView::doubleClickedListViewSlot(const QModelIndex& index)
     }
 }
 
+void WorkflowTreeView::cutSlot()
+{
+    QModelIndexList index_list = selectedIndexes();
+    QModelIndex index = index_list.first();
+    QStandardItem* first_item = m_treeview_model->itemFromIndex(index);
+    int UsageType = first_item->data(UsageRole).toInt();
+    if (UsageType == StructureUsageRole ||  UsageType == ToolUsageRole)
+    {
+        item_clipboard = m_treeview_model->takeRow(index_list.first().row());
+    }
+    emit pasteAvailable(true);
+}
+
+void WorkflowTreeView::copySlot()
+{
+    //QModelIndexList index_list = selectedIndexes();
+    //QModelIndex* first_item = index_list.first();
+    //emit pasteAvailiable(true);
+}
+
+void WorkflowTreeView::pasteSlot()
+{
+    QModelIndexList index_list = selectedIndexes();
+    QModelIndex index = index_list.first();
+    QStandardItem* item = m_treeview_model->itemFromIndex(index);
+    int UsageType = item->data(UsageRole).toInt();
+    if (UsageType == DataUsageRole)
+    {
+        item = item->parent();
+    }
+    m_treeview_model->insertRow(item->row(), item_clipboard);
+    emit pasteAvailable(false);
+}
+
+void WorkflowTreeView::upSlot()
+{
+
+}
+
+void WorkflowTreeView::downSlot()
+{
+    cutSlot();
+    pasteSlot();
+}
+
+void WorkflowTreeView::deleteSlot()
+{
+    cutSlot();
+}
 
 QStandardItem* WorkflowTreeView::getItemFromName(QStandardItem* parent,
                                                  const QString& name)
@@ -221,6 +275,20 @@ QStandardItem* WorkflowTreeView::getItemFromName(QStandardItem* parent,
     }
     return NULL;
 }
+
+bool WorkflowTreeView::isModified()
+{
+    return isWindowModified();
+}
+
+void WorkflowTreeView::selectionChanged(const QItemSelection & selected,
+                                        const QItemSelection & deselected)
+{
+    emit copyAvailable(!selected.isEmpty());
+    emit cutAvailable(!selected.isEmpty());
+    return QAbstractItemView::selectionChanged(selected, deselected);
+}
+
 
 void WorkflowTreeView::write(QDataStream& out)
 {

@@ -11,44 +11,77 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-private:
-    void Init();
-
 signals:
 
 private slots:
     void newSlot();
     void openSlot();
-    void saveSlot();
-    void saveAsSlot();
-    void openRecentFileSlot();
+    bool saveSlot();
+    bool saveAsSlot();
     void aboutSlot();
+    void openRecentFileSlot();
+    void documentModifiedSlot();
 
 private:
     void createActions();
     void createMenus();
+    void createToolBars();
+    void createStatusBar();
+    void readSettings();
+    void writeSettings();
+    bool maybeSave();
+
     void loadFile(const QString &fileName);
-    void saveFile(const QString &fileName);
+    bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     void updateRecentFileActions();
     QString strippedName(const QString &fullFileName);
+    void Init();
 
-QString curFile;
-    WorkflowTreeView* m_tree_view;
+    QString curFile;
+    WorkflowTreeView* tree_view;
+
     QMenu *fileMenu;
     QMenu *recentFilesMenu;
+    QMenu *actionsMenu;
     QMenu *helpMenu;
+    QToolBar* fileToolBar;
+    QToolBar* editToolBar;
+    QToolBar* actionsToolBar;
     QAction *newAct;
     QAction *openAct;
     QAction *saveAct;
     QAction *saveAsAct;
     QAction *exitAct;
-    QAction *aboutAct;
-    QAction *separatorAct;
 
+    QAction *separatorAct;
+    QAction *cutAct;
+    QAction *copyAct;
+    QAction *pasteAct;
+    QAction *executeAct;
+
+    QAction *addAct;
+    QAction *upAct;
+    QAction *downAct;
+    QAction *deleteAct;
+
+    QAction *aboutAct;
     enum { MaxRecentFiles = 5 };
     QAction *recentFileActs[MaxRecentFiles];
 
 };
 
 #endif // MAINWINDOW_H
+
+
+
+
+
+
+
+
+
+
+
+
+

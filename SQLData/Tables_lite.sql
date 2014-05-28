@@ -12,7 +12,7 @@ CREATE TABLE BioTools (
 DROP TABLE IF EXISTS ToolOptions;
 CREATE TABLE ToolOptions (
 	id_tool_options serial  primary key,
-	op_command varchar(63)  NOT NULL REFERENCES BioTools(tool_shell_string),	
+	op_command varchar(63)  REFERENCES BioTools(tool_shell_string),	
 	op_string varchar(255),
 	op_data_type varchar(31),
 	op_short_description varchar(63),

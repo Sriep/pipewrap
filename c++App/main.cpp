@@ -9,17 +9,24 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     //QSqlDatabase* db = connectPsql();
-    QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
+ /*    QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
     db.setHostName( "localhost" );
     db.setDatabaseName( "It1" );
     db.setUserName( "piers" );
     db.setPassword( "piers" );
- /*
+
     QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL","It1");
     db.setHostName( "localhost" );
     db.setDatabaseName( "It1" );
     db.setUserName( "root" );
     db.setPassword( "" );*/
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setHostName( "main" );
+    db.setDatabaseName( "/media/sdb2/Projects/Source/Dissertation/SQLData/SqliteData" );
+    db.setUserName( "" );
+    db.setPassword( "" );
+
     if( !db.open() )
     {
         qDebug() << db.lastError();
