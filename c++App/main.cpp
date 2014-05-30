@@ -2,14 +2,15 @@
 #include <QtSql>
 #include "workflowtreeview.h"
 #include "mainwindow.h"
+#include "databasedialog.h"
 
 
 int main(int argc, char *argv[])
 {    
     QApplication a(argc, argv);
-
+/*
     //QSqlDatabase* db = connectPsql();
- /*    QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
+    QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
     db.setHostName( "localhost" );
     db.setDatabaseName( "It1" );
     db.setUserName( "piers" );
@@ -19,7 +20,7 @@ int main(int argc, char *argv[])
     db.setHostName( "localhost" );
     db.setDatabaseName( "It1" );
     db.setUserName( "root" );
-    db.setPassword( "" );*/
+    db.setPassword( "" );
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setHostName( "main" );
@@ -33,6 +34,28 @@ int main(int argc, char *argv[])
         qFatal( "Failed to connect." );
     }    
     qDebug( "Connected!" );
+*/
+    int portnumber = 5432;
+    DatabaseConnectionDialog* dialog = new DatabaseConnectionDialog(0);
+    // optional: set the data that will be presented to the user as auto-filled form
+    dialog->setDatabaseName("It1");
+    dialog->setDatabasePortNumber(portnumber);
+    dialog->setDatabaseHostName("localhost");
+    dialog->setDatabaseUsername("piers");
+    dialog->setDatabaseDriverName("QPSQL");
+    dialog->setDatabasePassword("piers");
+
+    // enable the connect button if all the data is correct
+    dialog->checkFormData();
+    // connect the dialog signal to a slot where I will use the connection
+    /*connect( dialog,
+             SIGNAL(databaseConnect(QSqlDatabase&)),
+             &a,
+             SLOT(slotHandleNewDatabaseConnection(QSqlDatabase&)));
+*/
+     // show the dialog (without auto-connection)
+    dialog->run( false );
+
 
     MainWindow mw;
     mw.show();
@@ -42,26 +65,3 @@ int main(int argc, char *argv[])
 }
 
 
-/*
-QSqlDatabase* connectPsql()
-{
-    QSqlDatabase* db = NULL;
-    *db = QSqlDatabase::addDatabase("QPSQL");
-    qDebug("QSqlDatabase::addDatabase");
-    db->setHostName( "localhost" );
-    db->setDatabaseName( "test" );
-    db->setUserName( "piers" );
-    db->setPassword( "piers" );
-    return db;
-}
-
-QSqlDatabase* connectMysql()
-{
-    QSqlDatabase* db = NULL;
-    *db = QSqlDatabase::addDatabase("QMYSQL","It1");
-    db->setHostName( "localhost" );
-    db->setDatabaseName( "test" );
-    db->setUserName( "root" );
-    db->setPassword( "" );
-    return db;
-}*/

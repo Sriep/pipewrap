@@ -27,7 +27,7 @@ void MainWindow::Init()
     setWindowTitle(tr("Shell command tool"));
     setAttribute(Qt::WA_DeleteOnClose);
 
-    tree_view = new WorkflowTreeView;
+    tree_view = new WorkflowTreeView(this);
     setCentralWidget(tree_view);
 
     createActions();
@@ -42,12 +42,6 @@ void MainWindow::Init()
     resize(600, 400);
 }
 
-void MainWindow::newSlot()
-{
-    tree_view = new WorkflowTreeView;
-    setCentralWidget(tree_view);;
-    tree_view->show();
-}
 void MainWindow::openSlot()
 {
     QString fileName = QFileDialog::getOpenFileName(this);
@@ -95,7 +89,7 @@ void MainWindow::createActions()
     newAct = new QAction(QIcon(":/images/new.png"), tr("&New"), this);
     newAct->setShortcuts(QKeySequence::New);
     newAct->setStatusTip(tr("Create a new file"));
-    connect(newAct, SIGNAL(triggered()), this, SLOT(newSlot()));
+    connect(newAct, SIGNAL(triggered()), tree_view, SLOT(newSlot()));
 
     openAct = new QAction(QIcon(":/images/open.png"), tr("&Open..."), this);
     openAct->setShortcuts(QKeySequence::Open);
@@ -140,11 +134,6 @@ void MainWindow::createActions()
                             "clipboard"));
     connect(cutAct, SIGNAL(triggered()), tree_view, SLOT(cutSlot()));
 
-    //copyAct = new QAction(QIcon(":/images/copy.png"), tr("&Copy"), this);
-    //copyAct->setShortcuts(QKeySequence::Copy);
-    //copyAct->setStatusTip(tr("Copy the current selection's contents to the "
-    //                         "clipboard"));
-    //connect(copyAct, SIGNAL(triggered()), tree_view, SLOT(copySlot()));
 
     pasteAct = new QAction(QIcon(":/images/paste.png"), tr("&Paste"), this);
     pasteAct->setShortcuts(QKeySequence::Paste);
@@ -167,27 +156,18 @@ void MainWindow::createActions()
     downAct->setStatusTip(tr("Move selected tool down one"));
     connect(downAct, SIGNAL(triggered()), tree_view, SLOT(downSlot()));
 
-    deleteAct = new QAction(QIcon(":/images/remove.png"), tr("&Delete"), this);
-    //deleteAct->setShortcuts(QKeySequence::Paste);
-    deleteAct->setStatusTip(tr("Remove selected tool"));
-    connect(deleteAct, SIGNAL(triggered()), tree_view, SLOT(deleteSlot()));
+    addAct->setEnabled(true);
 
     cutAct->setEnabled(false);
     upAct->setEnabled(false);
     downAct->setEnabled(false);
-    deleteAct->setEnabled(false);
-    //copyAct->setEnabled(false);
     pasteAct->setEnabled(false);
     connect(tree_view, SIGNAL(cutAvailable(bool)),
             cutAct, SLOT(setEnabled(bool)));
-    connect(upAct, SIGNAL(cutAvailable(bool)),
-            cutAct, SLOT(setEnabled(bool)));
-    connect(downAct, SIGNAL(cutAvailable(bool)),
-            cutAct, SLOT(setEnabled(bool)));
-    connect(deleteAct, SIGNAL(cutAvailable(bool)),
-            cutAct, SLOT(setEnabled(bool)));
-    //connect(tree_view, SIGNAL(copyAvailable(bool)),
-    //        copyAct, SLOT(setEnabled(bool)));
+    connect(tree_view, SIGNAL(upAvailable(bool)),
+            upAct, SLOT(setEnabled(bool)));
+    connect(tree_view, SIGNAL(downAvailable(bool)),
+            downAct, SLOT(setEnabled(bool)));
     connect(tree_view, SIGNAL(pasteAvailable(bool)),
             pasteAct, SLOT(setEnabled(bool)));
 
@@ -206,9 +186,8 @@ void MainWindow::createToolBars()
     editToolBar->addAction(pasteAct);
     editToolBar->addAction(executeAct);
     editToolBar->addAction(addAct);
-    editToolBar->addAction(upAct);
-    editToolBar->addAction(downAct);
-    editToolBar->addAction(deleteAct);
+    //editToolBar->addAction(upAct);
+    //editToolBar->addAction(downAct);
 }
 
 void MainWindow::createStatusBar()
@@ -271,9 +250,8 @@ void MainWindow::createMenus()
     //actionsMenu->addAction(copyAct);
     actionsMenu->addAction(pasteAct);
     actionsMenu->addAction(executeAct);
-    actionsMenu->addAction(upAct);
-    actionsMenu->addAction(downAct);
-    actionsMenu->addAction(deleteAct);
+    //actionsMenu->addAction(upAct);
+    //actionsMenu->addAction(downAct);
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
@@ -291,7 +269,7 @@ void MainWindow::loadFile(const QString &fileName)
     }
 
     QDataStream in(&file);
-    newSlot();
+    tree_view->newSlot();
     tree_view->read(in);
     setCurrentFile(fileName);
     statusBar()->showMessage(tr("File loaded"), 2000);

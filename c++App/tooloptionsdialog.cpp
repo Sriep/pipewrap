@@ -17,13 +17,13 @@
 #include <QFlag>
 #include "workflowtreeview.h"
 #include "tooloptionsdialog.h"
-#include "oplineedit.h"
 
 ToolOptionsDialog::ToolOptionsDialog(QStandardItem* tree_item, QWidget *parent)
    : QDialog(parent), m_tree_item(tree_item)
 {
     Init();
 }
+
 ToolOptionsDialog::~ToolOptionsDialog()
 {
 }
@@ -80,26 +80,42 @@ void ToolOptionsDialog::addNewDataItem(int child_row, const QString& value)
 {
     QString key = m_tool_option_table->value(1).toString();
     QString datatype = m_tool_option_table->value(2).toString();
-    //QString label = m_tool_option_table->value(3).toString();
+    QString label = m_tool_option_table->value(3).toString();
     QString tooltip = m_tool_option_table->value(4).toString();
-    //QString text = key +  ": " + label + " = \t" + value;
+    QString text = key +  ": " + label;
     QString shell_text = key + value;    
-    QStandardItem* item = new QStandardItem(getOptionLabel(value));
+    QStandardItem* item = new QStandardItem(text);
     item->setToolTip(tooltip);
     item->setData(datatype,DataTypeRole);
     item->setData(shell_text,CommandStrRole);
     item->setData(key,NameRole);
-    item->setData(value,ValueRole);
-    item->setData(DataUsageRole, UsageRole);
+    item->setData(LabelUsageRole, UsageRole);
+    item->setEditable(false);
     m_tree_item->setChild(child_row,item);
-}
 
+    QStandardItem* value_item = new QStandardItem(value);
+    value_item->setToolTip(tooltip);
+    value_item->setData(datatype,DataTypeRole);
+    value_item->setData(shell_text,CommandStrRole);
+    value_item->setData(key,NameRole);
+    value_item->setData(DataUsageRole, UsageRole);
+    m_tree_item->setChild(child_row,1,value_item);
+}
+/*
 QString ToolOptionsDialog::getOptionLabel(const QString& value)
 {
     QString key = m_tool_option_table->value(1).toString();
     QString label = m_tool_option_table->value(3).toString();
-    return key +  ": " + label + " = \t" + value;
-}
+    QString datatype = m_tool_option_table->value(2).toString();
+    if ("" == datatype)
+    {
+        return key +  ": " + label;
+    }
+    else
+    {
+        return key +  ": " + label + " = \t" + value;
+    }
+}*/
 
 void ToolOptionsDialog::readControlsDB()
 {
@@ -119,7 +135,6 @@ void ToolOptionsDialog::readControlsDB()
         "op_short_description, op_long_description, op_optional, op_in_out,"
         "op_group, op_postion, op_default_text,op_default_int "
         "FROM ToolOptions WHERE op_command like '%";
-
     select_query += command + "%' ORDER BY op_postion";
     m_tool_option_table = new QSqlQuery(select_query);
 
@@ -129,13 +144,14 @@ void ToolOptionsDialog::readControlsDB()
 
         QString option = m_tool_option_table->value(1).toString();
         QString description = m_tool_option_table->value(3).toString();
+        QString tool_tip = m_tool_option_table->value(4).toString();
         QString label_text = option;
         label_text += "\t" + description;
 
         QVector<QWidget*> next_widgets(getNextWidget());
         for (int i = 0; i < next_widgets.size(); ++i)
         {
-            next_widgets.at(i)->setToolTip(description);
+            next_widgets.at(i)->setToolTip(tool_tip);
             m_forms_layout->addRow(new QLabel(label_text), next_widgets.at(i));
         }
     }
@@ -146,6 +162,18 @@ void ToolOptionsDialog::readControlsDB()
     setLayout(m_forms_layout);
 }
 
+void ToolOptionsDialog::setFilenameSlot(QWidget* widget)
+{
+    //const QFileDialog::Options options = QFlag();
+    QString fileName = QFileDialog::getOpenFileName(this,tr("Select filename"));
+    //QString fileName = QFileDialog::getOpenFileName();
+    if (!fileName.isEmpty())
+    {
+        QLineEdit* line_edit = qobject_cast<QLineEdit*>(widget);
+        line_edit->setText(fileName);
+    }
+}
+
 QVector<QWidget*> ToolOptionsDialog::getFilenameWidget()
 {
     QLineEdit* line_edit = new QLineEdit;
@@ -154,25 +182,30 @@ QVector<QWidget*> ToolOptionsDialog::getFilenameWidget()
 
     m_fileEditMapper->setMapping(setFileBut, line_edit);
     connect(setFileBut, SIGNAL(clicked()),m_fileEditMapper, SLOT(map()));
+    //connect(setFileBut, SIGNAL(released()),m_fileEditMapper, SLOT(map()));
     connect(m_fileEditMapper, SIGNAL(mapped(QWidget*)),
             this, SLOT(setFilenameSlot(QWidget*)));
 
+    QString option = m_tool_option_table->value(1).toString();
+    SetFromExistingItem(m_tree_item, option, line_edit);
     QVector<QWidget*> rtv;
     rtv.append(line_edit);
     rtv.append(setFileBut);
     return rtv;
 }
 
-void ToolOptionsDialog::setFilenameSlot(QWidget* widget)
+void ToolOptionsDialog::SetFromExistingItem(QStandardItem* parent,
+                                             const QString& name,
+                                             QLineEdit* line_edit)
 {
-    //const QFileDialog::Options options = QFlag();
-    QString fileName = QFileDialog::getOpenFileName(this,
-                                tr("QFileDialog::getOpenFileName()"));
-
-    if (!fileName.isEmpty())
+    for (int r=0 ; r < parent->rowCount() ; r++)
     {
-        QLineEdit* line_edit = qobject_cast<QLineEdit*>(widget);
-        line_edit->setText(fileName);
+        QStandardItem* child = parent->child(r,1);
+        if (child && (name == child->data(NameRole).toString()))
+        {
+            line_edit->setText(child->text());
+            return;
+        }
     }
 }
 
@@ -204,14 +237,10 @@ QVector<QWidget*> ToolOptionsDialog::getNextWidget()
             QIntValidator* validator = new QIntValidator;
             line_edit->setValidator(validator);
         }
-        QString option = m_tool_option_table->value(1).toString();
-        QStandardItem * existing_item
-           = WorkflowTreeView::getItemFromName(m_tree_item, option);
-        if (existing_item)
-        {
-            QString value = existing_item->data(ValueRole).toString();
-            line_edit->setText(value);
-        }
+
+        QString option = m_tool_option_table->value(1).toString(); //op_string
+        SetFromExistingItem(m_tree_item, option, line_edit);
+
         m_line_edits.enqueue(line_edit);
         QVector<QWidget*> rtv;
         rtv.append(line_edit);

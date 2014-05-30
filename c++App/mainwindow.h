@@ -14,7 +14,6 @@ public:
 signals:
 
 private slots:
-    void newSlot();
     void openSlot();
     bool saveSlot();
     bool saveAsSlot();

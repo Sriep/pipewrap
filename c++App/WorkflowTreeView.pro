@@ -17,16 +17,16 @@ QTPLUGIN += qsqlmysql
 SOURCES += main.cpp\
         workflowtreeview.cpp \
     tooloptionsdialog.cpp \
-    oplineedit.cpp \
     fromtodialog.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    databasedialog.cpp
 
 HEADERS  += workflowtreeview.h \
     main.h \
     tooloptionsdialog.h \
-    oplineedit.h \
     fromtodialog.h \
-    mainwindow.h
+    mainwindow.h \
+    databasedialog.h
 
 LIBS += -L"/opt/mysql/server-5.6/lib"
 LIBS += -L"/usr/local/pgsql/lib"

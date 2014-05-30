@@ -27,7 +27,10 @@ private:
     QString getOptionLabel(const QString& value);
     void addNewDataItem(int child_row, const QString& value);
     void readControlsDB();
-    void Init();    
+    void Init();
+    void SetFromExistingItem(QStandardItem* parent,
+                             const QString& name,
+                             QLineEdit* line_edit);
 
     QSqlQuery* m_tool_option_table;
     QFormLayout* m_forms_layout;
