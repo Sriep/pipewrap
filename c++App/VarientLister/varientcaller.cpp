@@ -26,28 +26,10 @@ VarientCaller::VarientCaller(const string& in_file,
 
 void VarientCaller::callVarants()
 {
-
-    std::vector<unsigned int> coverage(t.length(), 0);
-    std::vector<unsigned int> ave_quality(t.length(), 0);
-    BamAlignment al;
-    while(bam_reader.GetNextAlignment(al))
-    {
-        for (unsigned int base = 0 ; base < al.Length ; base++)
-        {
-            if (base + al.Position  < t.length())
-            {
-                coverage[base + al.Position] += 1;
-                ave_quality[base + al.Position] += al.Qualities[base]-33;
-            }
-        }
-    }
-    for (unsigned int i = 0 ; i < t.length() ; i++ )
-    {
-        ave_quality[i] = (int)(((double) ave_quality[i])
-                               / ((double) coverage[i]));
-    }
-
+    populateCoverage();
+    populateAveQuality();
     bam_reader.Rewind();
+    BamAlignment al;
     out << "Read\tPosRead\tBaseRead\tPosTemp\tBaseTemp\tPhred"
         << "\tAveQuality\tCoverage\n";
     while(bam_reader.GetNextAlignment(al))
@@ -115,12 +97,34 @@ char VarientCaller::visBase(char bamChar)
     return '-';
 }
 
-std::vector<unsigned int> VarientCaller::getCoverage()
+void VarientCaller::populateCoverage()
 {
-
+    coverage = std::vector<unsigned int>(t.length(), 0);
+    std::vector<unsigned int> ave_quality(t.length(), 0);
+    bam_reader.Rewind();
+    BamAlignment al;
+    while(bam_reader.GetNextAlignment(al))
+    {
+        for (unsigned int base = 0 ; base < al.Length ; base++)
+        {
+            if (base + al.Position  < t.length())
+            {
+                coverage[base + al.Position] += 1;
+                ave_quality[base + al.Position] += al.Qualities[base]-33;
+            }
+        }
+    }
 }
 
-
+void VarientCaller::populateAveQuality()
+{
+     ave_quality = std::vector<unsigned int>(t.length(), 0);
+     for (unsigned int i = 0 ; i < t.length() ; i++ )
+     {
+         ave_quality[i] = (int)(((double) ave_quality[i])
+                                / ((double) coverage[i]));
+     }
+}
 
 
 

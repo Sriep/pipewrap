@@ -22,8 +22,9 @@ public:
 private:
     void basesFromFasta();
     char visBase(char bamChar);
-    std::vector<unsigned int> getCoverage();
-    double pvalueBionomial(int N, int K, double p);
+    void populateCoverage();
+    void populateAveQuality();
+    double pvalueBionomial(int N, int K, int ave);
     double pvaluePoisson(int N, int K, double p);
     double pvalueBionomialPoisson(int t_pos, int N, int K);
 
@@ -33,7 +34,9 @@ private:
     int error_threshold;
     std::vector<unsigned int> coverage;
     std::vector<unsigned int> ave_quality;
-
+    std::vector<unsigned int> p_value_bionomial;
+    std::vector<unsigned int> p_value_poission;
+    std::vector<unsigned int> p_value_b_poisson;
 };
 
 #endif // VARIENTCALLER_H

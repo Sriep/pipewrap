@@ -48,8 +48,8 @@ int main(int argc, char *argv[])
 
 void configCommandLineParser(QCommandLineParser& parser)
 {
-    QCoreApplication::setApplicationName("Turnip2");
-    QCoreApplication::setApplicationVersion("0.0.0.0");
+    QCoreApplication::setApplicationName("VarientLister");
+    QCoreApplication::setApplicationVersion("1.0.0.0");
 
     //QCommandLineParser parser;
     parser.setApplicationDescription("Generate pSNPs from BAM format file");
