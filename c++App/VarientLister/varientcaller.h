@@ -4,39 +4,46 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <memory>
+#include <unordered_set>
 #include <api/BamReader.h>
 #include <api/BamAlignment.h>
 
 using namespace std;
 using namespace BamTools;
 
+class LocusInfo;
+
 class VarientCaller
 {
 public:
     VarientCaller(const string& in_file,
                   const string& t_filename,                  
-                  int ethreshold,
-                  ostream &out_stream = cout);
-    void callVarants();
+                  int ethreshold = 100,
+                  ostream& read_stream = cout,
+                  ostream& loci_steam = cout);
+    ~VarientCaller();
+    void Init();
+    void writeReadInfo();
+    void writeLociInfo();
 
 private:
+    void filterReads();
     void basesFromFasta();
     char visBase(char bamChar);
-    void populateCoverage();
-    void populateAveQuality();
-    double pvalueBionomial(int N, int K, int ave);
-    double pvaluePoisson(int N, int K, double p);
-    double pvalueBionomialPoisson(int t_pos, int N, int K);
+    void populateLociInfo();
+    double pBionomial(unsigned int N,unsigned int K,unsigned int aphred);
+    double pPoisson(unsigned int N, unsigned int K, unsigned aphred);
+    double pBionomialPoisson(int t_pos, int N, int K);
 
     BamReader bam_reader;
     string t;
-    ostream& out;
-    int error_threshold;
-    std::vector<unsigned int> coverage;
-    std::vector<unsigned int> ave_quality;
-    std::vector<unsigned int> p_value_bionomial;
-    std::vector<unsigned int> p_value_poission;
-    std::vector<unsigned int> p_value_b_poisson;
+    vector<unique_ptr<LocusInfo>> als_info;
+    unordered_set<string> invalid;
+
+    unsigned int error_threshold;
+    ostream& rout;
+    ostream& lout;
 };
 
 #endif // VARIENTCALLER_H

@@ -1,37 +1,24 @@
 # QDoc is a tool that constantly evolves to suit our needs,
 # and there are some compatibility issues between old and new
 # practices. For that reason, any QDoc configuration file needs to
-# include compat.qdocconf.
+include(/opt/Qt/5.3/Src/qtbase/src/tools/qdoc/doc/files/compat.qdocconf)
 
-#include(compat.qdocconf)
-
-# The outputdir variable specifies the directory
-# where QDoc will put the generated documentation.
-
-outputdir   = /doc/html
-
-# The headerdirs variable specifies the directories
-# containing the header files associated
-# with the .cpp source files used in the documentation.
+project = pipewarp
+description = Wraps shell command line scripts
+#url = https://github.com/Sriep/pipewrap
 
 headerdirs  = .
+sourcedirs = .
+imagedirs = ./images
+sources.fileextensions = "*.cpp *.qdoc *.mm *.qml"
+headers.fileextensions = "*.h *.ch *.h++ *.hh *.hpp *.hxx"
 
-# The sourcedirs variable specifies the
-# directories containing the .cpp or .qdoc
-# files used in the documentation.
+#exampledirs = <path to examples directory>
+#examples.fileextensions = "*.cpp *.h *.js *.xq *.svg *.xml *.ui *.qhp *.qhcp *.qml"
+#examples.imageextensions = "*.png *.jpeg *.jpg *.gif *.mng"
 
-#sourcedirs  = .
-
-# The exampledirs variable specifies the directories containing
-# the source code of the example files.
-
-exampledirs = .
-
-# The imagedirs variable specifies the
-# directories containing the images used in the documentation.
-
-imagedirs   = ./images
-
-# HTML configuration
+outputdir   = ./Docs/html
 outputformats = HTML
-HTML.templatedir = <path to templates>
+#outputdir  = $SAMPLE_PROJECT/doc/html
+
+HTML.templatedir = ./doc/html/templates

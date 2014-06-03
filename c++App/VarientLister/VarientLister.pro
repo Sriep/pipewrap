@@ -16,11 +16,16 @@ CONFIG += c++11
 TEMPLATE = app
 
 LIBS += -L$$PWD/../bamtools/lib/ -lbamtools
+//LIBS += -L$$PWD/../hdf5/lib/ -lhdf5_cpp
+
 INCLUDEPATH += $$PWD/../bamtools/include
+INCLUDEPATH += $$PWD/../hdf5/include
 
 SOURCES += main.cpp \
-    varientcaller.cpp
+    varientcaller.cpp \
+    locusalingmentinfo.cpp
 
 HEADERS += \
     varientcaller.h \
-    main.h
+    main.h \
+    locusalingmentinfo.h
