@@ -23,9 +23,11 @@ INCLUDEPATH += $$PWD/../hdf5/include
 
 SOURCES += main.cpp \
     varientcaller.cpp \
-    locusalingmentinfo.cpp
+    pvalues.cpp \
+    locusinfo.cpp
 
 HEADERS += \
     varientcaller.h \
     main.h \
-    locusalingmentinfo.h
+    pvalues.h \
+    locusinfo.h

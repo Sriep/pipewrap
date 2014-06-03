@@ -8,115 +8,65 @@
 #include "varientcaller.h"
 #include "main.h"
 
-enum CommandLineParseResult
-{
-    CommandLineOk,
-    CommandLineError,
-    CommandLineVersionRequested,
-    CommandLineHelpRequested
-};
-
 int main(int argc, char *argv[])
 {
-
     QCoreApplication a(argc, argv);
     QCommandLineParser clp;
     configCommandLineParser(clp);
+    clp.process(a);
 
-
-
-
-
-
-    //stampy_sorted.bam -t Sc8915bp_cs.fasta -o varients.csv
-    //string out_file = "varients.csv";
-    string read_filename = clp.value("r").toStdString();
-    string loci_filename = clp.value("l").toStdString();
-    ofstream rout;
-    ofstream lout;
     try
     {
-        rout.open(read_filename.c_str(), ios_base::out | ios_base::trunc);
-        lout.open(loci_filename.c_str(), ios_base::out | ios_base::trunc);
-        runProgram(clp.value("i").toStdString(),
-                   clp.value("t").toStdString(),
-                   clp.value("e").toInt(),
-                   rout,
-                   lout);
-        rout.close();
-        lout.close();
+        runProgram(clp);
     }
     catch (...)
     {
-        rout.close();
-        lout.close();
         return 1;
     }
-    return 0;// a.exec();
+    return 0;
 }
 
 void configCommandLineParser(QCommandLineParser& parser)
 {
     QCoreApplication::setApplicationName("VarientLister");
-    QCoreApplication::setApplicationVersion("1.1.0.0");
+    QCoreApplication::setApplicationVersion("1.1.0.2");
 
     //QCommandLineParser parser;
     parser.setApplicationDescription("Generate pSNPs from BAM format file");
     parser.addHelpOption();
     parser.addVersionOption();
-
-    //-i stampy_sorted.bam -t Sc8915bp_cs.fasta -o varients.csv
-    //input Bam file
-    const QCommandLineOption in_bam_op(
-                QStringList() << "i" << "in-Bam",
-                "Input BAM file to be searched for pSNPs",
-                "filename",
-                "stampy_sorted.bam");
-    parser.addOption(in_bam_op);
-    //input template fasta file
-    const QCommandLineOption template_op(
-                QStringList() << "t" << "template",
-               "Input template fasta file",
-               "filename",
-                "Sc8915bp_cs.fasta");
-    parser.addOption(template_op);
-    //per read output filename
-    const QCommandLineOption read_csv_op(
-                QStringList() << "r" << "readout",
-                "Output filename for Read centric output data",
-                "filename",
-                "read_data.csv");
-    parser.addOption(read_csv_op);
-    //per loci output filename
-    const QCommandLineOption loci_csv_op(
-                QStringList() << "l" << "lociout",
-                "Output filename for per locus in template data",
-                "filename",
-                "loci_data.csv");
-    parser.addOption(loci_csv_op);
-
-
-    //error threshold
-    const QCommandLineOption err_th_op(
-                QStringList() << "e" << "err-threshold",
-                "Ignore reads with errors abvove threhold",
-                "percentage",
-                "10");
-    parser.addOption(err_th_op);
-
+    parser.addOption(bamFilename);
+    parser.addOption(templateFilename);
+    parser.addOption(readCsvOutfile);
+    parser.addOption(lociCsvOutfile);
+    parser.addOption(fisherFilename);
+    parser.addOption(bionomialFilename);
+    parser.addOption(poissonFilename);
+    parser.addOption(poissonBinomialFilename);
+    parser.addOption(errorThreshold);
     return;
 }
 
-void runProgram(const string& in_file,
-                const string& tp,
-                int err_t,
-                ostream& read_out,
-                ostream& loci_out)
+void runProgram(QCommandLineParser& clp)
 {
+    string read_filename = clp.value("r").toStdString();
+    string loci_filename = clp.value("l").toStdString();
+    ofstream rout;
+    ofstream lout;
 
-    VarientCaller vc(in_file, tp, err_t, read_out, loci_out);
-    vc.writeReadInfo();
-    vc.writeLociInfo();
+    rout.open(read_filename.c_str(), ios_base::out | ios_base::trunc);
+    lout.open(loci_filename.c_str(), ios_base::out | ios_base::trunc);
+
+    VarientCaller vc(clp.value(bamFilename).toStdString(),
+                     clp.value(templateFilename).toStdString(),
+                     clp.value(readCsvOutfile).toStdString(),
+                     clp.value(lociCsvOutfile).toStdString(),
+                     clp.value(fisherFilename).toStdString(),
+                     clp.value(bionomialFilename).toStdString(),
+                     clp.value(poissonFilename).toStdString(),
+                     clp.value(poissonBinomialFilename).toStdString(),
+                     clp.value(errorThreshold).toInt());
+    vc.write();
 }
 
 
@@ -146,7 +96,7 @@ long double log_n_C_r(unsigned int n,unsigned  int r)
 long double log_fac(unsigned int N)
 {
     long double log_fac = 0.0;
-    for (int i = 2 ; i <= N ; i++)
+    for (unsigned int i = 2 ; i <= N ; i++)
         log_fac += log10((long double)i);
     return log_fac;
 }
@@ -154,7 +104,7 @@ long double log_fac(unsigned int N)
 long double log_sfac(unsigned int N, unsigned  int NpK)
 {
     long double log_fac = 0.0;
-    for (int i = N+1 ; i <= NpK ; i++)
+    for (unsigned int i = N+1 ; i <= NpK ; i++)
         log_fac += log10((long double)(i));
     return log_fac;
 }
@@ -166,10 +116,10 @@ long double log_sfac(unsigned int N, unsigned  int NpK)
 //   return (n * n_C_r(n - 1, r - 1)) / r;
 //}
 
-int factorial(int N)
+int factorial(unsigned int N)
 {
     int fac = 1;
-    for (int i = 1 ; i <= N ; i++)
+    for (unsigned int i = 1 ; i <= N ; i++)
         fac = fac * i;
     return fac;
 }

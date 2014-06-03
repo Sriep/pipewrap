@@ -12,18 +12,33 @@
 #include "api/BamAlignment.h"
 #include "varientcaller.h"
 #include "main.h"
-#include "locusalingmentinfo.h"
+#include "locusinfo.h"
 
 
-VarientCaller::VarientCaller(const string& in_file,
-                             const string& t_filename,
-                             int e_threshold,
-                             ostream& read_stream,
-                             ostream& loci_steam)
-    : error_threshold(e_threshold), rout(read_stream), lout(loci_steam)
+VarientCaller::VarientCaller(const string& bamInfile,
+                             const string& tepInile,
+                             const string &readOutfile,
+                             const string &lociOutfile,
+                             const string &fisherFilename,
+                             const string &bionomialFilename,
+                             const string &poissonFilename,
+                             const string &poissonBinomialFilename,
+                             int errorThreshold)
+    : readOutfile(readOutfile),
+      lociOutfile(lociOutfile),
+      //fisherFilename(fisherFilename),
+      //bionomialFilename(bionomialFilename),
+      //poissonFilename(poissonFilename),
+      //poissonBinomialFilename(poissonBinomialFilename),
+      errorThreshold(errorThreshold)
 {
-    bam_reader.Open(in_file);
-    t = get_file_contents(t_filename.c_str());
+    pvMethodsFilename.clear();
+    pvMethodsFilename.push_back(fisherFilename);
+    pvMethodsFilename.push_back(bionomialFilename);
+    pvMethodsFilename.push_back(poissonFilename);
+    pvMethodsFilename.push_back(poissonBinomialFilename);
+    bam_reader.Open(bamInfile);
+    t = get_file_contents(tepInile.c_str());
     Init();
 }
 
@@ -49,28 +64,43 @@ void VarientCaller::filterReads()
 
     while(bam_reader.GetNextAlignment(al))
     {
-        unsigned int num_mismatching = 0;
+        unsigned int numMismatching = 0;
         unsigned int base = 0;
-        bool too_many_missmatches = false;
-        while ((base < (unsigned int) al.Length) && !too_many_missmatches)
+        bool tooManyMissmatches = false;
+        while ((base < (unsigned int) al.Length) && !tooManyMissmatches)
         {
             if (al.AlignedBases[base] != t[base + al.Position])
             {
-                num_mismatching++;
-                if (((100 * num_mismatching) / al.Length) > error_threshold)
-                    too_many_missmatches = true;
+                numMismatching++;
+                if (((100 * numMismatching) / al.Length) > errorThreshold)
+                    tooManyMissmatches = true;
             }
             base++;
         }
-        if (too_many_missmatches) invalid.insert(al.Name);
-        num_mismatching++;
+        if (tooManyMissmatches) invalid.insert(al.Name);
+        numMismatching++;
      }
+}
+void VarientCaller::write()
+{
+    if (!readOutfile.empty()) writeReadInfo();
+    if (!lociOutfile.empty()) writeLociInfo();
+
+    for (int method = PValues::FisherExact;
+             method != PValues::NumOfMethods;
+             method++)
+    {
+        if (!pvMethodsFilename[method].empty())
+            write(static_cast<PValues::Method>(method));
+    }
 }
 
 void VarientCaller::writeReadInfo()
 {
     bam_reader.Rewind();
     BamAlignment al;
+    ofstream rout;
+    rout.open(readOutfile, ios_base::out | ios_base::trunc);
     rout << "Read\tPosRead\tBaseRead\tPosTemp\tBaseTemp\tPhred"
         << "\tAveQuality\tCoverage\tpvBionomial\tpvPoissionan\tFisher\n";
     while(bam_reader.GetNextAlignment(al))
@@ -80,7 +110,6 @@ void VarientCaller::writeReadInfo()
             for (int base = 0 ; base < al.Length ; base++)
             {
                 int locus = base + al.Position;
-
                 if (al.AlignedBases[base] != t[locus])
                 {
                     rout << "\"" << al.Name
@@ -94,15 +123,16 @@ void VarientCaller::writeReadInfo()
                         rout << "\"\t\"" << als_info[locus]->getAvePhred()
                             << "\"\t\"" << als_info[locus]->getCoverage()
                             << "\"\t\"" << setprecision(64)
-                            << als_info[locus]->getPVBionomial()
+                            << als_info[locus]->getPValue(PValues::Bionomial)
                             << "\"\t\"" << setprecision(64)
-                            << als_info[locus]->getPVPoission()
+                            << als_info[locus]->getPValue(PValues::Poisson)
                             << "\"\t\"" << setprecision(64)
-                            << als_info[locus]->getPVFisher();
+                            << als_info[locus]->getPValue(PValues::FisherExact);
                     }
                     else
                     {
-                        rout  << "\"\t\"0\"\t\"0" << "\"\t\"0\"\t\"0";
+                        rout << "\"\t\"0\"\t\"0" << "\"\t\"0\"\t\"0";
+                        rout << "\"\t\"0";
                     }
                     rout  << "\"\n";
                 }
@@ -113,16 +143,17 @@ void VarientCaller::writeReadInfo()
 
 void VarientCaller::writeLociInfo()
 {
-    lout << "Locus\tBase\tCoverage\tAveQuality\tpSNP\tpSNPCount\rpSNP%"
+    ofstream lout;
+    lout.open(lociOutfile, ios_base::out | ios_base::trunc);
+    lout << "Locus\tBase\tCoverage\tAveQuality\tpSNP\tpSNPCount\tpSNP%"
         << "\tpvBionomial\tpvPoissionan\tFisher\n";
 
-    for (int locus = 0 ; locus < t.length() ; locus++)
+    for (unsigned int locus = 0 ; locus < t.length() ; locus++)
     {
         int pct;
         if (als_info[locus]->countBestEx() != 0)
             pct = 100*als_info[locus]->countBestEx()/als_info[locus]->getCoverage();
         else pct = 0;
-
 
         lout    << "\"" << locus
                 << "\"\t\"" << visBase(t[locus])
@@ -132,14 +163,24 @@ void VarientCaller::writeLociInfo()
                 << "\"\t\"" << als_info[locus]->countBestEx()
                 << "\"\t\"" << pct
                 << "\"\t\"" << setprecision(64)
-                << als_info[locus]->getPVBionomial()
+                << als_info[locus]->getPValue(PValues::Bionomial)
                 << "\"\t\"" << setprecision(64)
-                << als_info[locus]->getPVPoission()
+                << als_info[locus]->getPValue(PValues::Poisson)
                 << "\"\t\"" << setprecision(64)
-                << als_info[locus]->getPVFisher()
+                << als_info[locus]->getPValue(PValues::FisherExact)
                 << "\"\n";
     }
 
+}
+
+void VarientCaller::write(PValues::Method method)
+{
+    ofstream pvout;
+    pvout.open(pvMethodsFilename[method], ios_base::out | ios_base::trunc);
+    for (unsigned int locus = 0 ; locus < t.length() ; locus++)
+    {
+        pvout << setprecision(64) << als_info[locus]->getPValue(method) << "\n";
+    }
 }
 
 void VarientCaller::basesFromFasta()
@@ -182,11 +223,6 @@ void VarientCaller::populateLociInfo()
                                                al.Qualities[base]-33);
                 }
             }
-        }
-        else
-        {
-            int i =5;
-            i++;
         }
     }
 

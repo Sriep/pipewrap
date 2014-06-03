@@ -1,0 +1,190 @@
+#include "locusinfo.h"
+#include "pvalues.h"
+
+LocusInfo::LocusInfo(char newbase)
+    : base(newbase)
+{
+    base = newbase;
+}
+
+void LocusInfo::inc_calls(char new_base, int phred)
+{
+    coverage++;
+    total_phred += phred;
+    if (ave_phred) ave_phred = 0;
+    switch (new_base)
+    {
+    case 'a':
+    case'A':
+        a_calls++;
+        break;
+    case 'c':
+    case'C':
+        c_calls++;
+        break;
+    case 'g':
+    case'G':
+        g_calls++;
+        break;
+    case 't':
+    case 'T':
+        t_calls++;
+        break;
+    default:
+        bad_calls++;
+        base = '-';
+    }
+}
+
+int LocusInfo::countBestEx() const
+{
+    switch (base)
+    {
+    case 'a':
+    case'A':
+        return max(c_calls, max(g_calls, t_calls));
+    case 'c':
+    case'C':
+        return max(a_calls, max(g_calls, t_calls));
+    case 'g':
+    case'G':
+        return max(a_calls, max(c_calls, t_calls));
+    case 't':
+    case 'T':
+        return max(a_calls, max(c_calls, g_calls));
+    default:
+        return 0;
+    }
+}
+
+char LocusInfo::bestbaseEx() const
+{
+    if ( (0 == a_calls || 'a' == base || 'A' == base)
+         && (0 == t_calls || 't' == base || 'T' == base)
+         && (0 == g_calls || 'g' == base || 'G' == base)
+         && (0 == c_calls || 'c' == base || 'C' == base) )
+        return '=';
+
+    switch (base)
+    {
+    case 'a':
+    case'A':
+        if (c_calls > t_calls && c_calls > g_calls)
+            return 'c';
+        return t_calls > g_calls ? 't' : 'g';
+    case 'c':
+    case'C':
+        if (a_calls > t_calls && a_calls > g_calls)
+            return 'a';
+        return t_calls > g_calls ? 't' : 'g';
+    case 'g':
+    case'G':
+        if (c_calls > t_calls && c_calls > a_calls)
+            return 'c';
+        return t_calls > a_calls ? 't' : 'a';
+    case 't':
+    case 'T':
+        if (c_calls > a_calls && c_calls > g_calls)
+            return 'c';
+        return a_calls > g_calls ? 'a' : 'g';
+    default:
+        return '-';
+    }
+}
+
+long double LocusInfo::getPValue(PValues::Method method) const
+{
+    return pValues[method];
+}
+
+void LocusInfo::populate()
+{
+    if (coverage)
+    {
+        ave_phred = total_phred/coverage;
+    }
+
+    for (int method = PValues::FisherExact;
+             method != PValues::NumOfMethods;
+             method++)
+    {
+        pValues.push_back(PValues::pValue(static_cast<PValues::Method>(method),
+                                         coverage,
+                                         countBestEx(),
+                                         ave_phred));
+
+    }
+    /*
+
+    if (countBestEx()>0)
+    {
+        p_value_bionomial = pBionomial(coverage, countBestEx(), ave_phred);
+        p_value_poission = pPoisson(coverage, countBestEx(), ave_phred);
+        p_value_fisher = pFisher(coverage, countBestEx(), ave_phred);
+        p_value_b_poisson = 0;
+    }
+    else
+    {
+        p_value_bionomial = 1;
+        p_value_poission = 1;
+        p_value_fisher = 1;
+        p_value_b_poisson = 1;
+    }*/
+}
+
+int LocusInfo::getCoverage() const
+{
+    return coverage;
+}
+
+int LocusInfo::getAvePhred() const
+{
+    return ave_phred;
+}
+
+char LocusInfo::getBase() const
+{
+    return base;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
