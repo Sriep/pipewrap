@@ -4,7 +4,6 @@
 #include "mainwindow.h"
 #include "databasedialog.h"
 
-
 int main(int argc, char *argv[])
 {    
     QApplication a(argc, argv);
@@ -54,7 +53,7 @@ int main(int argc, char *argv[])
              SLOT(slotHandleNewDatabaseConnection(QSqlDatabase&)));
 */
      // show the dialog (without auto-connection)
-    dialog->run( false );
+    dialog->run(false);
 
 
     MainWindow mw;

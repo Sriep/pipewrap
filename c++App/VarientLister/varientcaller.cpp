@@ -26,10 +26,6 @@ VarientCaller::VarientCaller(const string& bamInfile,
                              int errorThreshold)
     : readOutfile(readOutfile),
       lociOutfile(lociOutfile),
-      //fisherFilename(fisherFilename),
-      //bionomialFilename(bionomialFilename),
-      //poissonFilename(poissonFilename),
-      //poissonBinomialFilename(poissonBinomialFilename),
       errorThreshold(errorThreshold)
 {
     pvMethodsFilename.clear();
@@ -38,7 +34,7 @@ VarientCaller::VarientCaller(const string& bamInfile,
     pvMethodsFilename.push_back(poissonFilename);
     pvMethodsFilename.push_back(poissonBinomialFilename);
     bam_reader.Open(bamInfile);
-    t = get_file_contents(tepInile.c_str());
+    t = getFileContents(tepInile.c_str());
     Init();
 }
 
@@ -66,18 +62,26 @@ void VarientCaller::filterReads()
     {
         unsigned int numMismatching = 0;
         unsigned int base = 0;
+        unsigned int varients = 0;
         bool tooManyMissmatches = false;
-        while ((base < (unsigned int) al.Length) && !tooManyMissmatches)
+        while ((base < (unsigned int) al.Length))// && !tooManyMissmatches)
         {
             if (al.AlignedBases[base] != t[base + al.Position])
             {
                 numMismatching++;
                 if (((100 * numMismatching) / al.Length) > errorThreshold)
                     tooManyMissmatches = true;
+                varients++;
             }
             base++;
+
         }
         if (tooManyMissmatches) invalid.insert(al.Name);
+        else
+        {
+            totalBaseReads += base;
+            totalReadVareints += varients;
+        }
         numMismatching++;
      }
 }

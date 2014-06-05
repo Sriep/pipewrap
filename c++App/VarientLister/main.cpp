@@ -49,14 +49,6 @@ void configCommandLineParser(QCommandLineParser& parser)
 
 void runProgram(QCommandLineParser& clp)
 {
-    string read_filename = clp.value("r").toStdString();
-    string loci_filename = clp.value("l").toStdString();
-    ofstream rout;
-    ofstream lout;
-
-    rout.open(read_filename.c_str(), ios_base::out | ios_base::trunc);
-    lout.open(loci_filename.c_str(), ios_base::out | ios_base::trunc);
-
     VarientCaller vc(clp.value(bamFilename).toStdString(),
                      clp.value(templateFilename).toStdString(),
                      clp.value(readCsvOutfile).toStdString(),
@@ -71,7 +63,7 @@ void runProgram(QCommandLineParser& clp)
 
 
 // http://insanecoding.blogspot.co.uk/2011/11/how-to-read-in-file-in-c.html
-std::string get_file_contents(const char *filename)
+std::string getFileContents(const char *filename)
 {
   std::ifstream in(filename, std::ios::in | std::ios::binary);
   if (in)

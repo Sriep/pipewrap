@@ -44,9 +44,9 @@ private:
     void basesFromFasta();
     char visBase(char bamChar);
     void populateLociInfo();
-    double pBionomial(unsigned int N,unsigned int K,unsigned int aphred);
-    double pPoisson(unsigned int N, unsigned int K, unsigned aphred);
-    double pBionomialPoisson(int t_pos, int N, int K);
+    //long double pBionomial(unsigned int N,unsigned int K,unsigned int aphred);
+    //long double pPoisson(unsigned int N, unsigned int K, unsigned aphred);
+    //long double pBionomialPoisson(int t_pos, int N, int K);
 
     BamReader bam_reader;
     string t;
@@ -54,12 +54,10 @@ private:
     string lociOutfile;
 
     vector<string> pvMethodsFilename;
-    //string fisherFilename;
-    //string bionomialFilename;
-    //string poissonFilename;
-    //string poissonBinomialFilename;
 
     unsigned int errorThreshold;
+    long int totalBaseReads = 0;
+    long int totalReadVareints = 0;
 
     vector<unique_ptr<LocusInfo>> als_info;
     unordered_set<string> invalid;

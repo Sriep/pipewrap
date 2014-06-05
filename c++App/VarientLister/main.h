@@ -11,7 +11,7 @@ void configCommandLineParser(QCommandLineParser& parser);
 void runProgram(QCommandLineParser& parser);
 
 //http://insanecoding.blogspot.co.uk/2011/11/how-to-read-in-file-in-c.html
-string get_file_contents(const char *filename);
+string getFileContents(const char *filename);
 
 int n_C_r(int n,int r);
 int factorial(int N);
@@ -55,22 +55,22 @@ const QCommandLineOption fisherFilename(
             QStringList() << "f" << "fisher",
             "Output filename for fisher exact test p_values",
             "filename",
-            "fisher.csv");
+            "fisher.pvalues.csv");
 const QCommandLineOption bionomialFilename(
             QStringList() << "b" << "bionomial",
             "Output filename for bionomial p_values",
             "filename",
-            "bionomial.csv");
+            "bionomial.pvalues.csv");
 const QCommandLineOption poissonFilename(
             QStringList() << "p" << "poisson",
             "Output filename for poission p_values",
             "filename",
-            "poission.csv");
+            "poission.pvalues.csv");
 const QCommandLineOption poissonBinomialFilename(
             QStringList() << "n" << "poisson-bionomial",
             "Output filename for poission bionomial p_values",
             "filename",
-            "poissionBiomomial.csv");
+            "poissionBiomomial.pvalues.csv");
 
 
 

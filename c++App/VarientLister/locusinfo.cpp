@@ -11,6 +11,7 @@ void LocusInfo::inc_calls(char new_base, int phred)
 {
     coverage++;
     total_phred += phred;
+    base_qualities.push_back(phred);
     if (ave_phred) ave_phred = 0;
     switch (new_base)
     {
@@ -111,25 +112,10 @@ void LocusInfo::populate()
         pValues.push_back(PValues::pValue(static_cast<PValues::Method>(method),
                                          coverage,
                                          countBestEx(),
-                                         ave_phred));
+                                         ave_phred,
+                                         base_qualities));
 
     }
-    /*
-
-    if (countBestEx()>0)
-    {
-        p_value_bionomial = pBionomial(coverage, countBestEx(), ave_phred);
-        p_value_poission = pPoisson(coverage, countBestEx(), ave_phred);
-        p_value_fisher = pFisher(coverage, countBestEx(), ave_phred);
-        p_value_b_poisson = 0;
-    }
-    else
-    {
-        p_value_bionomial = 1;
-        p_value_poission = 1;
-        p_value_fisher = 1;
-        p_value_b_poisson = 1;
-    }*/
 }
 
 int LocusInfo::getCoverage() const
