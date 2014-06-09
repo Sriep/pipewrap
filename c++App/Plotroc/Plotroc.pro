@@ -21,7 +21,7 @@ SOURCES += main.cpp \
     plotwindow.cpp \
     qcpdocumentobject.cpp \
     qcustomplot.cpp \
-    rocdata.cpp
+    rocdata.cpp \
 
 OTHER_FILES += \
     Plotroc.pro.user

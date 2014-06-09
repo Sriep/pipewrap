@@ -5,11 +5,12 @@
 #include "pvalues.h"
 
 using namespace std;
+class FrequencyPartition;
 
 class LocusInfo
 {
 public:
-    LocusInfo(char newbase);
+    LocusInfo(char newbase, FrequencyPartition* freqPartition);
     void inc_calls(char base, int phred);
     void populate();
 
@@ -19,6 +20,7 @@ public:
     long double getPValue(PValues::Method method) const;
     char bestbaseEx() const;
     int countBestEx() const;
+    std::vector<unsigned int> phredBestEx() const;
 private:
     char base;
     int coverage = 0;
@@ -29,12 +31,15 @@ private:
     int g_calls = 0;
     int t_calls = 0;
     int bad_calls = 0;
-    std::vector<unsigned int> base_qualities;
+    std::vector<unsigned int> aPhred;
+    std::vector<unsigned int> tPhred;
+    std::vector<unsigned int> gPhred;
+    std::vector<unsigned int> cPhred;
     //std::vector<char> base_calls;
     //std::vector<string> read_id;
 
     vector<long double> pValues;
-
+    FrequencyPartition* freqPartition;
     //std::vector<unsigned int> DeletionQV;
     //std::vector<unsigned int> InsertionQV;
     //std::vector<unsigned int> MergeQV;

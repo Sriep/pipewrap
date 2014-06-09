@@ -1,8 +1,8 @@
 #include "locusinfo.h"
 #include "pvalues.h"
 
-LocusInfo::LocusInfo(char newbase)
-    : base(newbase)
+LocusInfo::LocusInfo(char newbase, FrequencyPartition *freqPartition)
+    : base(newbase), freqPartition(freqPartition)
 {
     base = newbase;
 }
@@ -11,29 +11,34 @@ void LocusInfo::inc_calls(char new_base, int phred)
 {
     coverage++;
     total_phred += phred;
-    base_qualities.push_back(phred);
+    //baseQualities.push_back(phred);
+    //alignedBases.push_back(new_base);
     if (ave_phred) ave_phred = 0;
     switch (new_base)
     {
     case 'a':
     case'A':
         a_calls++;
+        aPhred.push_back(phred);
         break;
     case 'c':
     case'C':
         c_calls++;
+        cPhred.push_back(phred);
         break;
     case 'g':
     case'G':
         g_calls++;
+        gPhred.push_back(phred);
         break;
     case 't':
     case 'T':
         t_calls++;
+        tPhred.push_back(phred);
         break;
     default:
         bad_calls++;
-        base = '-';
+        //base = '-';
     }
 }
 
@@ -55,6 +60,28 @@ int LocusInfo::countBestEx() const
         return max(a_calls, max(c_calls, g_calls));
     default:
         return 0;
+    }
+}
+
+std::vector<unsigned int> LocusInfo::phredBestEx() const
+{
+    switch (bestbaseEx())
+    {
+    case 'a':
+    case'A':
+        return aPhred;
+    case 'c':
+    case'C':
+        return cPhred;
+    case 'g':
+    case'G':
+        return gPhred;
+    case 't':
+    case 'T':
+        return tPhred;
+    default:
+        std::vector<unsigned int> empty;
+        return empty;
     }
 }
 
@@ -113,7 +140,8 @@ void LocusInfo::populate()
                                          coverage,
                                          countBestEx(),
                                          ave_phred,
-                                         base_qualities));
+                                         phredBestEx(),
+                                         freqPartition));
 
     }
 }

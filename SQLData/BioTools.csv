@@ -11,7 +11,6 @@ pIRS simulate,"pIRS is a program for simulating Illumina PE reads, with a series
   sequencing data.
     To simulate reads from diploid genome, users should simulate the diploid genome sequence firstly 
   by setting the ratio of heterozygosis SNP, heterozygosis InDel and structure variation. ",./pirs simulate,,1
-PBSIM,PBSIM,PBSIM,,1
 BWA,BWA,BWA,,1
 stampy.py,"Stampy is a package for the mapping of short reads from illumina sequencing machines onto a reference genome. It's recommended for most workflows, including those for genomic resequencing, RNA-Seq and Chip-seq. Stampy excels in the mapping of reads containing that contain sequence variation relative to the reference, in particular for those containing insertions or deletions. It can map reads from a highly divergent species to a reference genome for instance. Stampy achieves high sensitivity and speed by using a fast hashing algorithm and a detailed statistical model. Stampy has the following features:
 

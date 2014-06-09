@@ -6,9 +6,14 @@
 #include <string>
 
 using namespace std;
+static const long double Ten = 10.0;
+static const long double One = 1.0;
+static const long double Zero = 0.0;
 
 void configCommandLineParser(QCommandLineParser& parser);
 void runProgram(QCommandLineParser& parser);
+bool compareBases(char c1, char c2);
+long double phred2prob(int phred);
 
 //http://insanecoding.blogspot.co.uk/2011/11/how-to-read-in-file-in-c.html
 string getFileContents(const char *filename);
@@ -33,6 +38,11 @@ const QCommandLineOption templateFilename(
            "Input template fasta file",
            "filename",
             "Sc8915bp_cs.fasta");
+const QCommandLineOption freqPartitionFilename(
+            QStringList() << "q" << "frequency",
+           "File with freqyency of pSNP bins",
+           "filename",
+            "");
 //per read output filename
 const QCommandLineOption readCsvOutfile(
             QStringList() << "r" << "readout",
@@ -49,7 +59,7 @@ const QCommandLineOption errorThreshold(
             QStringList() << "e" << "error-threshold",
             "Ingnore a read if more than percentage of reads are errors",
             "percentage",
-            "20");
+            "30");
 //output p-values
 const QCommandLineOption fisherFilename(
             QStringList() << "f" << "fisher",
@@ -71,6 +81,11 @@ const QCommandLineOption poissonBinomialFilename(
             "Output filename for poission bionomial p_values",
             "filename",
             "poissionBiomomial.pvalues.csv");
+const QCommandLineOption knownFrequencyFilename(
+            QStringList() << "k" << "known-frequency",
+            "Output filename for known freqyency p_values",
+            "filename",
+            "knwonFrequency.pvalues.csv");
 
 
 

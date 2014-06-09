@@ -165,12 +165,11 @@ void WorkflowTreeView::executeSlot()
     QProcess process;
     process.execute("PATH=PATH:$PWD");
     process.execute("./shell_script.sh");
-    copyResultFiles(time);
-    file.rename("./shell_script.sh/Results/" + time.toString() + "/");
-    //QFile::rename("./shell_script.sh", archive + fn);
+    copyResultFiles(time, shell_script);
 }
 
-void WorkflowTreeView::copyResultFiles(const QDateTime &start_time)
+void WorkflowTreeView::copyResultFiles(const QDateTime &start_time,
+                                       QString script)
 {
     qDebug() << "WorkflowTreeView::copyResultFiles";
     QDir working = QDir::current();
@@ -198,7 +197,11 @@ void WorkflowTreeView::copyResultFiles(const QDateTime &start_time)
         QFile::rename(fn, archive + fn);
     }
 
-
+    QFile file(archive + "shell_script.sh");
+    file.open(QIODevice::WriteOnly);
+    QTextStream out(&file);
+    out << script;
+    file.close();
 
 }
 

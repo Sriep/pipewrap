@@ -1,7 +1,11 @@
 #include <algorithm>
 #include <vector>
+#include <QDebug>
+#include <QProcess>
+#include  <cstdlib>
 #include "pvalues.h"
 #include "main.h"
+#include "frequencypartition.h"
 
 PValues::PValues()
 {
@@ -14,7 +18,8 @@ long double PValues::pValue(Method method,
                    unsigned int N,
                    unsigned int K,
                    unsigned int Q,
-                   std::vector<unsigned int>& Phreds)
+                   std::vector<unsigned int> Phreds,
+                   FrequencyPartition* freqPartition)
 {
     if (K == 0) return 1.0;
     //if (K == N) return 0.0;
@@ -27,7 +32,9 @@ long double PValues::pValue(Method method,
     case Poisson:
         return pPoisson(N,K,Q);
     case PiossonBionomial:
-        //return pPoissionBionomial(N,K,Phreds);
+        return pPoissionBionomial(N,K,Phreds);
+    case KnownFrequency:
+        return pKnownFrequency(N,K,Phreds,freqPartition);
     default:
         return 0.0;
     }
@@ -38,15 +45,17 @@ long double PValues::pBionomial(unsigned int N,
                                 unsigned int K, unsigned int ave_phred)
 {
     long double avQ = (long double) ave_phred;
-    long double p = pow(10.0,-avQ/10.0);
-    long double pvalue = 0.0;
+    long double p = pow(Ten,-avQ/Ten);
+    long double pvalue = Zero;
     long double logPk;
     if (K >= N/2)
     {
         for (unsigned int i = K ; i <= N ; i++)
         {
-            logPk = log_n_C_r(N,i) - i*avQ/10.0 + (N-i)*log10((long double)1-p);
-            pvalue += pow((long double)10,logPk);
+            logPk = log_n_C_r(N,i) - i*avQ/Ten + (N-i)*log10(One-p);
+
+            long double p10 = pow(Ten,logPk);
+            pvalue += p10;//pow(Ten,logPk);
             //pvalue += n_C_r(N,i) * pow((long double)10.0,-i*avQ/10.0) * pow((long double)1-p,N-i);
 
         }
@@ -57,8 +66,10 @@ long double PValues::pBionomial(unsigned int N,
 
         for (unsigned int i = 0 ; i < K ; i++)
         {
-            logPk = log_n_C_r(N,i) - i*avQ/10 + (N-i)*log10((long double)1-p);
-            pvalue += pow((long double)10,logPk);
+            logPk = log_n_C_r(N,i) - i*avQ/Ten + (N-i)*log10(One-p);
+
+            long double p10 = pow(Ten,logPk);
+            pvalue += p10;//pow(Ten,logPk);
             //pvalue += n_C_r(N,i) * pow(10,-i*avQ/10.0) * pow(1-p,N-i);
         }
         return 1-pvalue;
@@ -69,7 +80,7 @@ long double PValues::pPoisson(unsigned int N,
                               unsigned int K, unsigned int ave_phred)
 {
     long double avQ = (long double) ave_phred;
-    long double p = pow(10,-avQ/10.0);
+    long double p = pow(Ten,-avQ/Ten);
     long double pvalue = 0.0;
     long double logPk;
     if (K>=N/2)
@@ -79,19 +90,21 @@ long double PValues::pPoisson(unsigned int N,
             logPk = - ((long double)i)*avQ/Ten
                     - p * log10(exp(One))
                     - log_fac(i);
-            pvalue += pow(Ten, logPk);
+            long double p10 = pow(Ten, logPk);
+            pvalue += p10;//pow(Ten, logPk);
             //pvalue += pow(avQ, i)*exp(-avQ)/(long double)factorial(i);
         }
         return pvalue;
     }
     else
     {
-        for (unsigned int i = 0 ; i < N ; i++)
+        for (unsigned int i = 0 ; i < K ; i++)
         {
             logPk = - ((long double)i)*avQ/Ten
                     - p * log10(exp((long double) 1.0))
                     - log_fac(i);
-            pvalue += pow(Ten, logPk);
+            long double p10 = pow(Ten, logPk);
+            pvalue += p10;//pow(Ten, logPk);
             //pvalue += pow(avQ, i)*exp(-avQ)/(long double)factorial(i);
         }
         return 1-pvalue;
@@ -104,11 +117,48 @@ long double PValues::pFisher(unsigned int N,
     //long double avQ = (long double) ave_phred;
     //long double p = pow(10,-avQ/10.0);
     //long int pN = 1;
+    return 0.0;
     long int OmpN = pow(Ten, ((long double) ave_phred)/Ten);
     long double pv_log = log_sfac(K,K+1)
                         + log_sfac(N-K, N)
                         - log_sfac(N+OmpN-K, N+OmpN+1);
-    return pow(Ten, pv_log);
+    long double rtv = pow(Ten, pv_log);
+#ifdef QT_DEBUG
+    //Rscript fisherExact.R
+    /*QString headSh2 =    "echo " +  QVariant((double)rtv).toString()
+                        + " <- Me R ->"
+                        + "Rscript fisherExact.R -N " + QVariant(N).toString()
+                        + " -K " + QVariant(K).toString()
+                        + " -Q " + QVariant(ave_phred).toString() + "\n";
+    string fisherShD =  "Rscript fisherExact.R -N " + QVariant(N).toString()
+                        + " -K " + QVariant(K).toString()
+                        + " -Q " + QVariant(ave_phred).toString() + "\n";
+    string fisherSh =  "Rscript fisherExact.R -N " + QVariant(N).toString()
+                        + " -K " + QVariant(K).toString()
+                        + " -Q " + QVariant(ave_phred).toString()
+                        + "| cat >> pFisherExactR.pvalues.csv\n";
+
+    string headSh =    "echo " +  to_string((long double)rtv)  + "  Me R "                       + "Rscript fisherExact.R -N " + to_string(N)
+                        + " -K " + to_string(K)
+                        + " -Q " + to_string(ave_phred) + "\n";
+    string fisherShD =  "Rscript fisherExact.R -N " + to_string(N)
+                        + " -K " + to_string(K)
+                        + " -Q " + to_string(ave_phred) + "\n";*/
+
+    //string fisherSh =  "Rscript fisherExact.R -N " + to_string(N)
+    //                    + " -K " + to_string(K)
+    //                    + " -Q " + to_string(ave_phred)
+    //                    + "| cat >> pFisherExactR.pvalues.csv\n";
+    //QProcess process;
+    //process.execute(headSh);
+   // process.execute(fisherShD);
+    //process.execute(fisherSh);
+
+    //std::system(string(headSh2.toStdString()).c_str());
+    //std::system(fisherShD.c_str());
+    //std::system(fisherSh.c_str());
+#endif
+    return rtv;
 }
 
 
@@ -116,45 +166,50 @@ long double PValues::pPoissionBionomial(unsigned int N,
                                         unsigned int K,
                                         std::vector<unsigned int>& phreds)
 {
-    //std::vector<std::vector<long double>> lP(N, std::vector<long double>(K));
+    return 0.0;
     std::vector<std::vector<long double>> lP;
-    for (int n = 1 ; n<=N ; n++)
+    for (unsigned int n = 1 ; n<=N ; n++)
     {
-        for (int k = 0 ; k <= (n<K ? n : K) ; k++)
+        for (unsigned int k = 0 ; k <= (n<K ? n : K) ; k++)
         {
             if (n == k)
             {
-                //lP.at(n)).at(k-1).appened(logAllErrors(n, phreds));
-                //std::vector<long double> aa = lP[n];
-                //aa.at(k-1) = logAllErrors(n, phreds);
                 lP[n].at(k-1) = logAllErrors(n, phreds);
             }
             else if (0 == k)
             {
                 std::vector<long double> newV;
                 newV.push_back(logNoErrors(n, phreds));
-                lP[n].push_back(newV);
+                lP.push_back(newV);
             }
             else
             {
                 long double Pnk;
-                Pnk = pow(Ten, lP[n-1].at(k-1) - (long double)phard[n]/Ten)
+                Pnk = pow(Ten, lP[n-1].at(k-1) - (long double)phreds[n]/Ten)
                         + pow(Ten, lP[n-1].at(k))
-                        - pow(Ten, lP[n-1].at(k) - (long double)phard[n]/Ten);
+                        - pow(Ten, lP[n-1].at(k) - (long double)phreds[n]/Ten);
                 Pnk = log10(Pnk);
-                lT[n].at(k-1).appened(Pnk);
+                lP[n].push_back(Pnk);
             }
         }
     }
 
-    long double lT = lT[K].at(K);
-    for (int k = K+1 ; k <= N ; k++)
+    long double lT = lP[K].at(K);
+    for (unsigned int k = K+1 ; k <= N ; k++)
     {
         long double Tnk = 0.0;
-        Tnk = pow(Ten,T) + pow(Ten, lP(n-1,k-1) - (long double) phreds[n]/Ten);
+        Tnk = pow(Ten,lT) + pow(Ten, lP[k-1].at(K-1)-(long double) phreds[k]/Ten);
         lT += log(Tnk);
     }
-    return pow(ten, lT);
+    return pow(Ten, lT);
+}
+
+long double PValues::pKnownFrequency(unsigned int N,
+                                   unsigned int K,
+                                   std::vector<unsigned int>& phreds,
+                                   FrequencyPartition *P)
+{
+    return P->getPartionFreq(MatchPartition, N, phreds);
 }
 
 long double PValues::logAllErrors(int n, std::vector<unsigned int>& phreds)
@@ -164,15 +219,17 @@ long double PValues::logAllErrors(int n, std::vector<unsigned int>& phreds)
     {
         allErrors += -(long double)phreds[i]/Ten;
     }
+    return allErrors;
 }
 
 long double PValues::logNoErrors(int n, std::vector<unsigned int>& phreds)
 {
-    long double allErrors = 0.0;
+    long double noErrros = 0.0;
     for (int i = 0 ; i < n ; i++)
     {
-        allErrors += log10(One + pow(Ten, -(long double)phreds[i]/Ten
+        noErrros += log10(One + pow(Ten, -(long double)phreds[i]/Ten));
     }
+    return noErrros;
 }
 
 

@@ -2,6 +2,7 @@
 #include <QTextStream>
 #include <algorithm>
 #include <QVector>
+#include <vector>
 #include "rocdata.h"
 #include "main.h"
 #include <cfloat>
@@ -55,12 +56,13 @@ void RocData::readData()
             if (fileLenght > maxFileLenght) maxFileLenght = fileLenght;
         }
     }
-    readTruePositeves(maxFileLenght);
+    readPsnpDetails(maxFileLenght);
 }
 
-void RocData::readTruePositeves(int maxFileLenght)
+void RocData::readPsnpDetails(int maxFileLenght)
 {
     QList<int> vareintLoci;
+    //QList<int> frequencies;
     QFile inFile(clp.value(inpSNPs));
     if (inFile.open((QFile::ReadOnly)))
     {
@@ -69,8 +71,13 @@ void RocData::readTruePositeves(int maxFileLenght)
         do
         {
             int inNum;
-            inv >> inNum;
+            char csBase;
+            char pSnpBase;
+            int frequency;
+
+            inv >> inNum;// >> csBase >> pSnpBase >> frequency;
             vareintLoci.append(--inNum); // rebase from 1 to 0
+            //frequencies.append(frequency);
             inv.readLine();
         } while (!inv.atEnd());
     }

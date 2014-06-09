@@ -11,14 +11,14 @@
 PlotWindow::PlotWindow(QCommandLineParser& clp, QWidget *parent)
     : QMainWindow(parent), clp(clp), rocData(clp)
 {
-    Init();
+    init();
 }
 
 PlotWindow::~PlotWindow()
 {
 }
 
-void PlotWindow::Init()
+void PlotWindow::init()
 {
     double width = 900;
     double height = 700;
@@ -65,4 +65,61 @@ void PlotWindow::Init()
                                                             height));
 
     textEdit->setTextCursor(cursor);
+    writeToPdf("ROCcurve.pdf");
 }
+
+void PlotWindow::writeToPdf(const QString& fileName)
+{
+    QPdfWriter* pdfWriter = new QPdfWriter(fileName);
+    textEdit->print(pdfWriter);
+/*
+    QString fileName = QFileDialog::getSaveFileName(this, "Save document...", qApp->applicationDirPath(), "*.pdf");
+    if (!fileName.isEmpty())
+    {
+      QPrinter printer;
+      printer.setFullPage(true);
+      printer.setPaperSize(QPrinter::A4);
+      printer.setOrientation(QPrinter::Portrait);
+      printer.setOutputFormat(QPrinter::PdfFormat);
+      printer.setOutputFileName(fileName);
+      ui->textEdit->document()->print(&printer);
+    }*/
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

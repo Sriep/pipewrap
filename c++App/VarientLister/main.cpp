@@ -2,6 +2,7 @@
 #include <QCommandLineOption>
 #include <QCoreApplication>
 #include <QString>
+#include <algorithm>
 #include <fstream>
 #include <string>
 #include <cerrno>
@@ -29,7 +30,7 @@ int main(int argc, char *argv[])
 void configCommandLineParser(QCommandLineParser& parser)
 {
     QCoreApplication::setApplicationName("VarientLister");
-    QCoreApplication::setApplicationVersion("1.1.0.2");
+    QCoreApplication::setApplicationVersion("1.1.0.3");
 
     //QCommandLineParser parser;
     parser.setApplicationDescription("Generate pSNPs from BAM format file");
@@ -37,12 +38,14 @@ void configCommandLineParser(QCommandLineParser& parser)
     parser.addVersionOption();
     parser.addOption(bamFilename);
     parser.addOption(templateFilename);
+    parser.addOption(freqPartitionFilename);
     parser.addOption(readCsvOutfile);
     parser.addOption(lociCsvOutfile);
     parser.addOption(fisherFilename);
     parser.addOption(bionomialFilename);
     parser.addOption(poissonFilename);
     parser.addOption(poissonBinomialFilename);
+    parser.addOption(knownFrequencyFilename);
     parser.addOption(errorThreshold);
     return;
 }
@@ -51,12 +54,14 @@ void runProgram(QCommandLineParser& clp)
 {
     VarientCaller vc(clp.value(bamFilename).toStdString(),
                      clp.value(templateFilename).toStdString(),
+                     clp.value(freqPartitionFilename).toStdString(),
                      clp.value(readCsvOutfile).toStdString(),
                      clp.value(lociCsvOutfile).toStdString(),
                      clp.value(fisherFilename).toStdString(),
                      clp.value(bionomialFilename).toStdString(),
                      clp.value(poissonFilename).toStdString(),
                      clp.value(poissonBinomialFilename).toStdString(),
+                     clp.value(knownFrequencyFilename).toStdString(),
                      clp.value(errorThreshold).toInt());
     vc.write();
 }
@@ -150,8 +155,20 @@ int n_C_r( int n, int r )
     return sum;
 }
 
+bool compareBases(char c1, char c2)
+{
+    if (c1 == c2) return true;
+    if (('a' == c1 && 'A' == c2) || ('a' == c2 && 'A' == c1)) return true;
+    if (('g' == c1 && 'G' == c2) || ('g' == c2 && 'G' == c1)) return true;
+    if (('c' == c1 && 'C' == c2) || ('c' == c2 && 'C' == c1)) return true;
+    if (('t' == c1 && 'T' == c2) || ('t' == c2 && 'T' == c1)) return true;
+    return false;
+}
 
-
+long double phred2prob(int phred)
+{
+    return pow(Ten, -((long double) phred)/Ten);
+}
 
 
 

@@ -20,7 +20,8 @@ signals:
 public slots:
 
 private:
-    void Init();
+    void init();
+    void writeToPdf(const QString &fileName);
 
     QTextEdit* textEdit;
     QCustomPlot* customPlot;

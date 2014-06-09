@@ -112,7 +112,7 @@ private:
                                            UsageRoleType usage,
                                            const QString& match_text,
                                            int column);
-    void copyResultFiles(const QDateTime& start_time);
+    void copyResultFiles(const QDateTime& start_time, QString script);
 
     QSqlQueryModel* m_sql_list_model;
     QListView* m_list_view;

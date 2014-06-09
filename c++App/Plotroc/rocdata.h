@@ -3,6 +3,7 @@
 #include <QString>
 #include <QVector>
 #include <QCommandLineParser>
+//#include "frequencypartition.h"
 
 
 class RocData
@@ -23,7 +24,7 @@ public:
 private:
     void init();
     void readData();
-    void readTruePositeves(int maxFileLenght);
+    void readPsnpDetails(int maxFileLenght);
     void genRocValues();
 
     QList<QString> pvFilenames;
@@ -33,6 +34,7 @@ private:
     QList<QVector< double>> rocFprs;
 
     QCommandLineParser& clp;
+    //FrequencyPartition freqPartition;
 };
 
 #endif // ROCDATA_H
