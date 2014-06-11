@@ -170,6 +170,50 @@ long double phred2prob(int phred)
     return pow(Ten, -((long double) phred)/Ten);
 }
 
+//http://en.wikipedia.org/wiki/Kahan_summation_algorithm
+long double kahanSum(const vector<long double>& sumees)
+{
+    long double sum = Zero;
+    long double c = Zero;            // A running compensation for lost low-order bits.
+    for (unsigned int i = 0 ; i < sumees.size() ; i++)
+    {
+        long double y = sumees[i] - c;     // So far, so good: c is zero.
+        long double t = sum + y;    // Alas, sum is big, y small, so low-order digits of y are lost.
+        c = (t - sum) - y;          // (t - sum) recovers the high-order part of y; subtracting y recovers -(low part of y)
+        sum = t;                    // Algebraically, c should always be zero. Beware overly-aggressive optimizing compilers!
+                                    // Next time around, the lost low part will be added to y in a fresh attempt.
+    }
+    return sum;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

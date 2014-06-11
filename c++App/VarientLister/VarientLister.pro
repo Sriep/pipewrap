@@ -10,17 +10,25 @@ QT       -= gui
 TARGET  = VarientLister
 CONFIG   += console
 CONFIG   -= app_bundle
-CONFIG  += staticlib
+#CONFIG  += staticlib
+#CONFIG += static
 CONFIG  += c++11
 
 #-i stampy_sorted.bam -t Sc8915bp_cs.fasta -o varients.csv
 TEMPLATE = app
 
-LIBS += -L$$PWD/../bamtools/lib/ -lbamtools
-LIBS += -L$$PWD/../hdf5/lib/ -lhdf5_cpp
+#/media/sdb2/Projects/Source/Dissertation/c++App/bamtools/lib
 
-INCLUDEPATH += $$PWD/../bamtools/include
-INCLUDEPATH += $$PWD/../hdf5/include
+#DEPENDPATH += $$PWD/../bamtools/include
+#INCLUDEPATH += $$PWD/../bamtools/include
+#LIBS += -L$$PWD/../bamtools/lib/ -lbamtools
+
+LIBS += -L/media/sdb2/Projects/Source/Dissertation/c++App/bamtools/lib -lbamtools
+DEPENDPATH += /media/sdb2/Projects/Source/Dissertation/c++App/bamtools/include
+INCLUDEPATH += /media/sdb2/Projects/Source/Dissertation/c++App/bamtools/include
+
+#LIBS += -L$$PWD/../hdf5/lib/ -lhdf5_cpp
+#INCLUDEPATH += $$PWD/../hdf5/include
 
 SOURCES += main.cpp \
     varientcaller.cpp \
@@ -33,3 +41,5 @@ HEADERS += \
     pvalues.h \
     locusinfo.h \
     frequencypartition.h
+
+

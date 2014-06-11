@@ -15,12 +15,14 @@ void FrequencyPartition::setParmeters(long long tReads,
     totalReads = tReads;
     //totalPsnps = tVarients -(long long) tReads*(1 - exp(Ten, -avePhred/Ten));
     totalPsnps = tVarients;
+    if (0 == totalReads) return;
+    if (0 == totalPsnps) totalPsnps = tVarients /2;
     ifstream fin(dataFile.c_str(), ios_base::in);
-    if (fin.is_open())
+    //if (fin.is_open())
     {
 
     }
-    else
+    //else
     {
         const int NumPartitions = 100;
         pMatch.push_back(1);

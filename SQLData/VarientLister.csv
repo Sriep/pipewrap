@@ -1,0 +1,12 @@
+"op_command","op_string","op_data_type","op_short_description","op_long_description","op_optional","op_in_out","op_group","op_postion","op_default_text","op_default_int"
+"./VarientLister.sh","-i ","filename","Input BAM file.",,,,,,,
+"./VarientLister.sh","-t ","filename","Template fasta",,,,,,,
+"./VarientLister.sh","-q ","filename","Frequency of pSNP bins",,,,,,,
+"./VarientLister.sh","-r ","filename","Read centric data",,,,,,,
+"./VarientLister.sh","-l ","filename","Loci centric data",,,,,,,
+"./VarientLister.sh","-f ","filename","Fisher exact values out",,,,,,,
+"./VarientLister.sh","-b ","filename","Bionomial values out",,,,,,,
+"./VarientLister.sh","-p ","filename","Poission pvalues out",,,,,,,
+"./VarientLister.sh","-k ","filename","KF pvalues out",,,,,,,
+"./VarientLister.sh","-n ","filename","Poisson bionomial pvalues",,,,,,,
+"./VarientLister.sh","-e ","int","Error threshold",,,,,,,

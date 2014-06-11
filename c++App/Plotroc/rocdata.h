@@ -14,12 +14,14 @@ public:
     QVector<  double> getTprs(int pos) const;
     QVector<  double> getFprs(int pos) const;
     QList<QString> getPVFilenames() const;
-
+    QList<int> getFrequencies() const;
 
 
     QVector<bool> getIsTruePositives() const;
-    QList<QVector<  double> > getPVVectors() const;
+    QList<QVector< double> > getPVVectors() const;
     QVector<  double> getPvVector(int pos) const;
+
+
 
 private:
     void init();
@@ -32,6 +34,7 @@ private:
     QList<QVector< double>> pvVectors;
     QList<QVector< double>> rocTprs;
     QList<QVector< double>> rocFprs;
+    QList<int> frequencies;
 
     QCommandLineParser& clp;
     //FrequencyPartition freqPartition;

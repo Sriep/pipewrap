@@ -62,7 +62,7 @@ void RocData::readData()
 void RocData::readPsnpDetails(int maxFileLenght)
 {
     QList<int> vareintLoci;
-    //QList<int> frequencies;
+    frequencies.clear();
     QFile inFile(clp.value(inpSNPs));
     if (inFile.open((QFile::ReadOnly)))
     {
@@ -70,17 +70,19 @@ void RocData::readPsnpDetails(int maxFileLenght)
         inv.readLine();
         do
         {
-            int inNum;
-            char csBase;
-            char pSnpBase;
-            int frequency;
+            QString row = "";
+            int inNum = 0;
+            QString csBase = "";
+            QString pSnpBase = "";
+            int frequency = 0;
 
-            inv >> inNum;// >> csBase >> pSnpBase >> frequency;
+            inv >> row >> inNum >> csBase >> pSnpBase >> frequency;
             vareintLoci.append(--inNum); // rebase from 1 to 0
-            //frequencies.append(frequency);
+            frequencies.append(frequency);
             inv.readLine();
         } while (!inv.atEnd());
     }
+
     std::sort(vareintLoci.begin(), vareintLoci.end());
     int varient = 0;
     for (int i = 0 ; i < maxFileLenght ; i++)
@@ -132,6 +134,10 @@ void RocData::genRocValues()
         int i;
         i++;
     }
+}
+QList<int> RocData::getFrequencies() const
+{
+    return frequencies;
 }
 
 QVector< double> RocData::getTprs(int pos) const

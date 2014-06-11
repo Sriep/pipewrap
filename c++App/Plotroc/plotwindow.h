@@ -22,12 +22,15 @@ public slots:
 private:
     void init();
     void writeToPdf(const QString &fileName);
+    void setSecondAxis(QList<int> frequencies);
 
     QTextEdit* textEdit;
     QCustomPlot* customPlot;
     QCommandLineParser& clp;
     RocData rocData;
 
+    QVector<double> ticPositions;
+    QVector<QString> ticLabels;
 };
 
 #endif // PLOTWINDOW_H

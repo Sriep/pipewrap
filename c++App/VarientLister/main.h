@@ -4,6 +4,7 @@
 #include <QCommandLineParser>
 #include <fstream>
 #include <string>
+#include <vector>
 
 using namespace std;
 static const long double Ten = 10.0;
@@ -14,6 +15,8 @@ void configCommandLineParser(QCommandLineParser& parser);
 void runProgram(QCommandLineParser& parser);
 bool compareBases(char c1, char c2);
 long double phred2prob(int phred);
+
+long double kahanSum(const vector<long double>& sumees);
 
 //http://insanecoding.blogspot.co.uk/2011/11/how-to-read-in-file-in-c.html
 string getFileContents(const char *filename);
@@ -63,29 +66,34 @@ const QCommandLineOption errorThreshold(
 //output p-values
 const QCommandLineOption fisherFilename(
             QStringList() << "f" << "fisher",
-            "Output filename for fisher exact test p_values",
+            "Output filename prefix for fisher exact test p_values."
+            "<.pvalues.csv> stem will be added to filename",
             "filename",
-            "fisher.pvalues.csv");
+            "");
 const QCommandLineOption bionomialFilename(
             QStringList() << "b" << "bionomial",
-            "Output filename for bionomial p_values",
+            "Output filename prefix for bionomial p_values"
+            "<.pvalues.csv> stem will be added to filename",
             "filename",
-            "bionomial.pvalues.csv");
+            "bionomial");
 const QCommandLineOption poissonFilename(
             QStringList() << "p" << "poisson",
-            "Output filename for poission p_values",
+            "Output filename prefix for poission p_values"
+            "<.pvalues.csv> stem will be added to filename",
             "filename",
-            "poission.pvalues.csv");
+            "poission");
 const QCommandLineOption poissonBinomialFilename(
             QStringList() << "n" << "poisson-bionomial",
-            "Output filename for poission bionomial p_values",
+            "Output filename prefix for poission bionomial p_values"
+            "<.pvalues.csv> stem will be added to filename",
             "filename",
-            "poissionBiomomial.pvalues.csv");
+            "");
 const QCommandLineOption knownFrequencyFilename(
             QStringList() << "k" << "known-frequency",
-            "Output filename for known freqyency p_values",
+            "Output filename prefix for known freqyency p_values"
+            "<.pvalues.csv> stem will be added to filename",
             "filename",
-            "knwonFrequency.pvalues.csv");
+            "knwonFrequency");
 
 
 

@@ -84,5 +84,5 @@ for (i in 1:numPct)
 #SequenceHeader = paste("pSNP_added_to_", 50xSc8915bp_cs.fasta, "_TR:", numTR)
 write.fasta(csTR, "pSNPadded", nbchar = 80, fastaOutFileName)
 changes = data.frame(position,csBase,pSNPBase,frequency,StartTR)
-write.table(changes, changesOutFileName, sep = "\t")
+write.table(changes.csv, changesOutFileName, sep = "\t")
 

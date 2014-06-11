@@ -5,6 +5,8 @@
 #include <QStandardItem>
 #include <QDataStream>
 #include <QString>
+#include <QProcess>
+#include <QDateTime>
 
 class QStandardItemModel;
 class QListView;
@@ -12,7 +14,8 @@ class QSqlQueryModel;
 class QMenuBar;
 class QMainWindow;
 class QTime;
-
+class QTextEdit;
+class QProcess;
 
 Q_DECLARE_METATYPE(QStandardItem*)
 const int UsageRole = Qt::UserRole + 1;
@@ -68,6 +71,8 @@ public slots:
     void inPipeSlot();
     void outPipeSlot();
 
+    void processOutSlot();
+    void processFinishedSlot(int exitCode, QProcess::ExitStatus exitStatus);
 private slots:
     void doubleClickedEditSlot(const QModelIndex& index);
     void doubleClickedListViewSlot(const QModelIndex& index);
@@ -112,12 +117,17 @@ private:
                                            UsageRoleType usage,
                                            const QString& match_text,
                                            int column);
-    void copyResultFiles(const QDateTime& start_time, QString script);
+    void copyResultFiles();
+    void runPipe();
 
     QSqlQueryModel* m_sql_list_model;
     QListView* m_list_view;
     QStandardItemModel* m_listview_model;
     QStandardItemModel* m_treeview_model;
+    QTextEdit* pipeStatus;
+    QProcess* process;
+    QDateTime timePipeStarted;
+    QString shellScript;
 
     QList<QStandardItem*> item_clipboard;
     QStandardItem* dragdrop_clipboard;

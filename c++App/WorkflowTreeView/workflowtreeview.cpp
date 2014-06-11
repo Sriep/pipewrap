@@ -22,6 +22,7 @@
 #include <QClipboard>
 #include <QApplication>
 #include <QDir>
+#include <QTextEdit>
 #include <QFileInfo>
 #include <iostream>
 #include "workflowtreeview.h"
@@ -116,13 +117,21 @@ void WorkflowTreeView::executeSlot()
     qDebug() << "WorkflowTreeView::executeSlot()";
     GetMainWindow()->statusBar()->showMessage(tr("Execute"));
 
-    QString shell_script = "#!/bin/bash\n";
+    shellScript = "#!/bin/bash\n";
     int row_num = 0;
-    QStandardItem* item = m_treeview_model->item(row_num++);
+    QStandardItem* item = m_treeview_model->item(row_num);
     while(item)
     {
-        QString shell_command = COMMAND_PATH; //"./Bin/"
-        shell_command += item->data(CommandStrRole).toString();
+        QString shellCommand = COMMAND_PATH; //"./Bin/"        
+        if (item->data(UsageRole) == StructureUsageRole)
+        {
+            QStandardItem* sib = m_treeview_model->item(row_num,1);
+            shellCommand += sib->text();
+        }
+        else
+        {
+            shellCommand += item->data(CommandStrRole).toString();
+        }
         int row_relative = 0;
         bool pipe_out = false;
         QStandardItem* child = NULL;
@@ -141,39 +150,72 @@ void WorkflowTreeView::executeSlot()
                 }
                 else
                 {
-                    shell_command += " " + child->data(NameRole).toString();
-                    shell_command += child->text();
+                    shellCommand += " " + child->data(NameRole).toString();
+                    shellCommand += child->text();
                 }
             }
         }
         while(child);
-        shell_script += shell_command;
-        shell_script += pipe_out ? " | " : "\n";
+        shellScript += shellCommand;
+        shellScript += pipe_out ? " | " : "\n";
         pipe_out = false;
-        item = m_treeview_model->item(row_num++);
+        item = m_treeview_model->item(++row_num);
     }
 
-    QDateTime time = QDateTime::currentDateTime();
+    runPipe();
+}
+
+void WorkflowTreeView::runPipe()
+{
+    timePipeStarted = QDateTime::currentDateTime();
     QFile file("shell_script.sh");
     file.remove();
     file.open(QIODevice::WriteOnly);
     QTextStream out(&file);
-    out << shell_script;
+    out << shellScript;
     file.close();
 
-    qDebug() << shell_script;    
-    QProcess process;
-    process.execute("PATH=PATH:$PWD");
-    process.execute("./shell_script.sh");
-    copyResultFiles(time, shell_script);
+    qDebug() << shellScript;
+    process = new QProcess;
+    process->execute("PATH=PATH:$PWD");
+    process->setReadChannel(QProcess::StandardError);
+
+    pipeStatus = new QTextEdit();
+    pipeStatus->setWindowTitle("Pipe status");
+
+    connect(process, SIGNAL(readyReadStandardError()),
+            this, SLOT(processOutSlot()));
+    connect(process,
+            SIGNAL(finished(int exitCode, QProcess::ExitStatus exitStatus)),
+            this,
+            SLOT(processFinishedSlot(int exitCode,
+                                     QProcess::ExitStatus exitStatus)));
+    pipeStatus->show();
+    //process->execute("./shell_script.sh");
+    process->start("./shell_script.sh");
+
+    //pipeStatus->close();
+    //process = NULL;
 }
 
-void WorkflowTreeView::copyResultFiles(const QDateTime &start_time,
-                                       QString script)
+void WorkflowTreeView::processOutSlot()
+{
+    QByteArray ba = process->readAllStandardError();
+    pipeStatus->append(QString(ba));
+}
+
+void WorkflowTreeView::processFinishedSlot(int exitCode,
+                                           QProcess::ExitStatus exitStatus)
+{
+    pipeStatus->append(QString("!!!!!Finshed!!!!!"));
+    copyResultFiles();
+}
+
+void WorkflowTreeView::copyResultFiles()
 {
     qDebug() << "WorkflowTreeView::copyResultFiles";
     QDir working = QDir::current();
-    QString archive = "./Results/" + start_time.toString() + "/";
+    QString archive = "./Results/" + timePipeStarted.toString() + "/";
     working.mkdir(archive);
 
     //QList<QFileInfo>.
@@ -184,7 +226,7 @@ void WorkflowTreeView::copyResultFiles(const QDateTime &start_time,
     int i = 0;
     while (i<files.size())
     {
-        if (files[i].created() < start_time)
+        if (files[i].created() < timePipeStarted)
             files.removeAt(i);
         else
             i++;
@@ -200,11 +242,10 @@ void WorkflowTreeView::copyResultFiles(const QDateTime &start_time,
     QFile file(archive + "shell_script.sh");
     file.open(QIODevice::WriteOnly);
     QTextStream out(&file);
-    out << script;
+    out << shellScript;
     file.close();
 
 }
-
 
 void WorkflowTreeView::varyOpSlot()
 {

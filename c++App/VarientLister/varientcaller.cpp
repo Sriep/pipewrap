@@ -168,7 +168,7 @@ void VarientCaller::writeLociInfo()
     ofstream lout;
     lout.open(lociOutfile, ios_base::out | ios_base::trunc);
     lout << "Locus\tBase\tCoverage\tAveQuality\tpSNP\tpSNPCount\tpSNP%"
-        << "\tpvBionomial\tpvPoissionan\tFisher\n";
+        << "\tpvBionomial\tpvPoissionan\tKF\n";
 
     for (unsigned int locus = 0 ; locus < t.length() ; locus++)
     {
@@ -188,8 +188,8 @@ void VarientCaller::writeLociInfo()
                 << als_info[locus]->getPValue(PValues::Bionomial)
                 << "\"\t\"" << setprecision(64)
                 << als_info[locus]->getPValue(PValues::Poisson)
-                << "\"\t\"" << setprecision(64)
-                << als_info[locus]->getPValue(PValues::FisherExact)
+                << "\"\t\"" << setprecision(64) //std::numeric_limits<long double>:
+                << als_info[locus]->getPValue(PValues::KnownFrequency)
                 << "\"\n";
     }
 
@@ -198,7 +198,7 @@ void VarientCaller::writeLociInfo()
 void VarientCaller::write(PValues::Method method)
 {
     ofstream pvout;
-    pvout.open(pvMethodsFilename[method], ios_base::out | ios_base::trunc);
+    pvout.open(pvMethodsFilename[method] + ".pvalues.csv", ios_base::out | ios_base::trunc);
     for (unsigned int locus = 0 ; locus < t.length() ; locus++)
     {
         pvout << setprecision(64) << als_info[locus]->getPValue(method) << "\n";

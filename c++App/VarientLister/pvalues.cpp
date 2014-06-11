@@ -44,27 +44,26 @@ long double PValues::pValue(Method method,
 long double PValues::pBionomial(unsigned int N,
                                 unsigned int K, unsigned int ave_phred)
 {
+    //return 0.0;
     long double avQ = (long double) ave_phred;
     long double p = pow(Ten,-avQ/Ten);
     long double pvalue = Zero;
     long double logPk;
-    if (K >= N/2)
+    //if (K >= N/2)
     {
-        for (unsigned int i = K ; i <= N ; i++)
+        for ( unsigned int i = K ; i <= N ; i++)
         {
             logPk = log_n_C_r(N,i) - i*avQ/Ten + (N-i)*log10(One-p);
 
             long double p10 = pow(Ten,logPk);
-            pvalue += p10;//pow(Ten,logPk);
-            //pvalue += n_C_r(N,i) * pow((long double)10.0,-i*avQ/10.0) * pow((long double)1-p,N-i);
-
+            pvalue += p10;//pow(Ten,logPk);            
         }
         return pvalue;
     }
-    else
+    /*else
     {
 
-        for (unsigned int i = 0 ; i < K ; i++)
+        for ( int i = 0 ; i < K ; i++)
         {
             logPk = log_n_C_r(N,i) - i*avQ/Ten + (N-i)*log10(One-p);
 
@@ -72,8 +71,9 @@ long double PValues::pBionomial(unsigned int N,
             pvalue += p10;//pow(Ten,logPk);
             //pvalue += n_C_r(N,i) * pow(10,-i*avQ/10.0) * pow(1-p,N-i);
         }
-        return 1-pvalue;
-    }
+        long double rtv = One-pvalue;
+        return rtv;
+    }*/
 }
 
 long double PValues::pPoisson(unsigned int N,
@@ -81,34 +81,44 @@ long double PValues::pPoisson(unsigned int N,
 {
     long double avQ = (long double) ave_phred;
     long double p = pow(Ten,-avQ/Ten);
-    long double pvalue = 0.0;
+    long double pvalue = Zero;
     long double logPk;
-    if (K>=N/2)
+    long double p10;
+    //vector<long double> dpois;
+    //if (K>=N/2)
     {
         for (unsigned int i = K ; i <= N ; i++)
+        //for (int i = N ; i >= K ; i--)
         {
             logPk = - ((long double)i)*avQ/Ten
                     - p * log10(exp(One))
                     - log_fac(i);
-            long double p10 = pow(Ten, logPk);
+            p10 = pow(Ten, logPk);
+            //dpois.push_back(pow(Ten, logPk));
             pvalue += p10;//pow(Ten, logPk);
             //pvalue += pow(avQ, i)*exp(-avQ)/(long double)factorial(i);
         }
+        //pvalue = kahanSum(dpois);
         return pvalue;
     }
-    else
+    /*else
     {
-        for (unsigned int i = 0 ; i < K ; i++)
+        //for (unsigned int i = 0 ; i < K ; i++)
+        for (int i = K-1 ; i >= 0 ; i--)
         {
-            logPk = - ((long double)i)*avQ/Ten
-                    - p * log10(exp((long double) 1.0))
-                    - log_fac(i);
-            long double p10 = pow(Ten, logPk);
-            pvalue += p10;//pow(Ten, logPk);
-            //pvalue += pow(avQ, i)*exp(-avQ)/(long double)factorial(i);
+            logPk = -((long double)i)*avQ/Ten - p*log10(exp(One)) - log_fac(i);
+            //pvalue = static_cast<long double>(pvalue + pow(Ten, logPk));
+            p10 = pow(Ten, logPk);// * pow(Ten, (long double) 100);
+            //dpois.push_back(pow(Ten, logPk));
+            pvalue += (long double)(p10);
+            //pvalue = ( double) ((( double) (pvalue)) + (( double) (pow(Ten, logPk))));
+            //pvalue += pow(Ten, logPk);
         }
-        return 1-pvalue;
-    }
+        //pvalue = kahanSum(dpois);
+        //pvalue = pvalue / pow(Ten, (long double) 100);
+        long double rtv = One-pvalue;
+        return rtv;
+    }*/
 }
 
 long double PValues::pFisher(unsigned int N,
