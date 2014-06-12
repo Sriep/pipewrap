@@ -11,6 +11,8 @@ static const long double Ten = 10.0;
 static const long double One = 1.0;
 static const long double Zero = 0.0;
 
+
+
 void configCommandLineParser(QCommandLineParser& parser);
 void runProgram(QCommandLineParser& parser);
 bool compareBases(char c1, char c2);
@@ -22,6 +24,11 @@ long double kahanSum(const vector<long double>& sumees);
 string getFileContents(const char *filename);
 
 int n_C_r(int n,int r);
+//#ifdef LOG_FACTORIALS
+static vector<long double> logFactorials;
+//#define LOG_FACTORIALS
+//#endif
+void preCalculateLogFactorials(int numToPrecaculate);
 int factorial(int N);
 long double log_n_C_r(unsigned int n, unsigned int r);
 long double log_fac(unsigned int N);
@@ -46,23 +53,36 @@ const QCommandLineOption freqPartitionFilename(
            "File with freqyency of pSNP bins",
            "filename",
             "");
-//per read output filename
-const QCommandLineOption readCsvOutfile(
-            QStringList() << "r" << "readout",
-            "Output filename for Read centric output data",
-            "filename",
-            "read_data.csv");
-//per loci output filename
-const QCommandLineOption lociCsvOutfile(
-            QStringList() << "l" << "lociout",
-            "Output filename for loci centric output data",
-            "filename",
-            "loci_data.csv");
+//Structuralparameters
 const QCommandLineOption errorThreshold(
             QStringList() << "e" << "error-threshold",
             "Ingnore a read if more than percentage of reads are errors",
             "percentage",
             "30");
+const QCommandLineOption numFreqPartitionBins(
+            QStringList() << "r" << "num-freq-partitions",
+            "Number of frequency bins used in FK pvalue estimation",
+            "int",
+            "100");
+const QCommandLineOption precaculateFactorials(
+            QStringList() << "c" << "precaculate-factorials",
+            "Precalculate factorials to store in look up table."
+            "Increase speed of some of the poisson, bionomial and"
+            "Fisher exact methods",
+            "int",
+            "");
+// Output options
+const QCommandLineOption readCsvOutfile(
+            QStringList() << "r" << "readout",
+            "Output filename for Read centric output data",
+            "filename",
+            "read_data.csv");
+const QCommandLineOption lociCsvOutfile(
+            QStringList() << "l" << "lociout",
+            "Output filename for loci centric output data",
+            "filename",
+            "loci_data.csv");
+
 //output p-values
 const QCommandLineOption fisherFilename(
             QStringList() << "f" << "fisher",
@@ -75,13 +95,13 @@ const QCommandLineOption bionomialFilename(
             "Output filename prefix for bionomial p_values"
             "<.pvalues.csv> stem will be added to filename",
             "filename",
-            "bionomial");
+            "");
 const QCommandLineOption poissonFilename(
             QStringList() << "p" << "poisson",
             "Output filename prefix for poission p_values"
             "<.pvalues.csv> stem will be added to filename",
             "filename",
-            "poission");
+            "");
 const QCommandLineOption poissonBinomialFilename(
             QStringList() << "n" << "poisson-bionomial",
             "Output filename prefix for poission bionomial p_values"
@@ -93,7 +113,7 @@ const QCommandLineOption knownFrequencyFilename(
             "Output filename prefix for known freqyency p_values"
             "<.pvalues.csv> stem will be added to filename",
             "filename",
-            "knwonFrequency");
+            "");
 
 
 

@@ -1,0 +1,58 @@
+op_command,op_string,op_data_type,op_short_description,op_long_description,op_optional,op_in_out,op_group,op_postion,op_default_text,op_default_int
+./blasr,,filename,Reads.fasta/bax.h5 genome.fasta,"   reads.fasta is a multi-fasta file of reads.  While any fasta file is valid input, it is preferable to use plx.h5 or bax.h5 files because they contain  more rich quality value information.
+   reads.bax.h5|reads.plx.h5 Is the native output format in Hierarchical Data Format of  SMRT reads. This is the preferred input to blasr because rich quality value (insertion,deletion, and substitution quality values) information is  maintained.  The extra quality information improves variant detection and mapping  speed.",0,,,1,,
+./blasr,-sa ,filename,Sawriter output,Use the suffix array 'sa' for detecting matches between the reads and the reference.  The suffix array has been prepared by the sawriter program.,1,,,2,,
+./blasr,-ctab ,filename ,printTupleCountTable output,"A table of tuple counts used to estimate match significance.  This is  by the program 'printTupleCountTable'.  While it is quick to generate on  the fly, if there are many invocations of blasr, it is useful to precompute the ctab.",1,,,2,,
+./blasr,-regionTable ,filename,Read region table,"Read in a read-region table in HDF format for masking portions of reads. This may be a single table if there is just one input file, or a fofn.  When a region table is specified, any region table inside  the reads.plx.h5 or reads.bax.h5 files are ignored.",1,,,2,,
+./blasr,-useccs ,,Align circular consensus sequence," Align the circular consensus sequence (ccs), then report alignments of the ccs subreads to the window that the ccs was mapped to.  Only alignments of the subreads are reported.",1,,,2,,
+./blasr,-useccsall,,All subreads are aligned,"Similar to -useccs, except all subreads are aligned, rather than just  the subreads used to call the ccs.  This will include reads that only  cover part of the template.",1,,,2,,
+./blasr,-useccsdenovo,,Only css alignment,"Align the circular consensus, and report only the alignment of the ccs  sequence.",1,,,2,,
+./blasr,-noSplitSubreads ,int,Do not split subreads ," Do not split subreads at adapters.  This is typically only  useful when the genome in an unrolled version of a known template, and  contains template-adapter-reverse_template sequence.",1,,,2,,
+./blasr,-ignoreRegions ,int,Ignore  region table.,Ignore any information in the region table.,1,,,2,,
+./blasr,-ignoreHQRegions ,int,Ignore hq in the region table.,(false)Ignore any hq regions in the region table.,1,,,2,,
+./blasr,-bestn ,int,Report h ton' alignments.,(10) Report the top 'n' alignments.,1,,,2,,
+./blasr,-sam ,,SAM futputoormat.,Write output in SAM format.,1,,,2,,
+./blasr,-clipping ,string,Clippint,[none|hard|soft] (none) Use no/hard/soft clipping for SAM output.,1,,,2,,
+./blasr,-out ,string,Write output to,(terminal)   Write output to 'out'.,1,,,2,,
+./blasr,-unaligned ,filename ,not aligned reads,Output reads that are not aligned to 'file',1,,,2,,
+./blasr,-m ,int,Blast like output,"If not printing SAM, modify the output of the alignment.
+t=0 Print blast like output with |'s connecting matched nucleotides.
+   1 Print only a summary: score and pos.
+   2 Print in Compare.xml format.
+   3 Print in vulgar format (deprecated).
+   4 Print a longer tabular version of the alignment.
+   5 Print in a machine-parsable format that is read by compareSequences.py.",1,,,2,,
+./blasr,-noSortRefinedAlignments ,int,Sort refined alignemnts,"(false)  Once candidate alignments are generated and scored via sparse dynamic  programming, they are rescored using local alignment that accounts  for different error profiles. Resorting based on the local alignment may change the order the hits are returned.",1,,,2,,
+./blasr,-allowAdjacentIndels,,Allow adjcent Indels,"When specified, adjacent insertion or deletions are allowed. Otherwise, adjacent   insertion and deletions are merged into one operation.  Using quality values to guide pairwise alignments may dictate that the higher probability alignment  contains adjacent insertions or deletions.  Current tools such as GATK do not permit  this and so they are not reported by default.",1,,,2,,
+./blasr,-header ,,Print header,Print a header as the first line of the output file describing the contents of each column.,1,,,2,,
+./blasr,-titleTable ,string,Table of sequence titles,"tab (NULL) Construct a table of reference sequence titles.  The reference sequences are  enumerated by row, 0,1,...  The reference index is printed in alignment results  rather than the full reference name.  This makes output concise, particularly when  very verbose titles exist in reference names.",1,,,2,,
+./blasr,-minPctIdentity ,int,Minimum identity,p (0)  Only report alignments if they are greater than p percent identity.,1,,,2,,
+./blasr,-unaligned ,filename,Restrict to file aligned,Output reads that are not aligned to 'file'.,1,,,2,,
+./blasr,-holeNumbers ,string,Only aligne readsin list,"When specified, only align reads whose ZMW hole numbers are in LIST. LIST is a comma-delimited string of ranges, such as '1,2,3,10-13'. This option only works when reads are in base or pulse h5 format.",1,,,2,,
+./blasr,-placeRepeatsRandomly ,int,Ramdom place equals.,"When there are multiple positions to map a read with equal alignment scores, place the  read randomly at one of them.",1,,,2,,
+./blasr,-minMatch ,int,Minimum seed length,"Minimum seed length.  Higher minMatch will speed up alignment,  but decrease sensitivity",1,,,2,,
+./blasr,-maxMatch ,string,Max lcp length,"Stop mapping a read to the genome when the lcp length reaches l.  This is useful when the query is part of the reference, for example when    constructing pairwise alignments for de novo assembly.",1,,,2,,
+./blasr,-maxLCPLength ,string,same as -maxMatch.,(inf) The same as -maxMatch.,1,,,2,,
+./blasr,-maxAnchorsPerPosition ,string,Max anchors,m (inf)  Do not add anchors from a position if it matches to more than 'm' locations in the target.,1,,,2,,
+./blasr,-advanceExactMatches ,int,trick for speeding up alignments,"Another trick for speeding up alignments with match - E fewer anchors.  Rather than  finding anchors between the read and the genome at every position in the read,  when an anchor is found at position i in a read of length L, the next position  in a read to find an anchor is at i+L-E.  Use this when alignining already assembled contigs.",1,,,2,,
+./blasr,-nCandidates ,int,Keep  candidates,n (10)  Keep up to 'n' candidates for the best alignment.  A large value of n will slow mapping because the slower dynamic programming steps are applied to more clusters of anchors   which can be a rate limiting step when reads are very long.,1,,,2,,
+./blasr,-concordant ,int,Map ubreads of zmw,Map all subreads of a zmw (hole) to where the longest full pass subread of the zmw  aligned to. This requires to use the region table and hq regions.  This option only works when reads are in base or pulse h5 format.,1,,,2,,
+./blasr,-sdpTupleSize ,int,Use mathces of length K,"Use matches of length K to speed dynamic programming alignments.  This controls  accuracy of assigning gaps in pairwise alignments once a mapping has been found,  rather than mapping sensitivity itself.",1,,,2,,
+./blasr,-scoreMatrix ,string,Alternative score matrix,"""score matrix string""   Specify an alternative score matrix for scoring fasta reads.  The matrix is  in the format 
+                  ACGTN
+                A abcde
+                C fghij
+                G klmno
+                T pqrst
+                N uvwxy . The values a...y should be input as a quoted space separated    string: ""a b c ... y"". Lower scores are better, so matches should be less   than mismatches e.g. a,g,m,s = -5 (match), mismatch = 6. ",1,,,2,,
+./blasr,-affineOpen ,int,Penalty opening alignment,value (10)  Set the penalty for opening an affine alignment.,1,,,2,,
+./blasr,-affineExtend ,int,Penalty gap penalty,a (0)  Change affine (extension) gap penalty. Lower value allows more gaps.,1,,,2,,
+./blasr,-useQuality ,int,Use quality,"(false) Use substitution/insertion/deletion/merge quality values to score gap and    mismatch penalties in pairwise alignments.  Because the insertion and deletion  rates are much higher than substitution, this will make many alignments  favor an insertion/deletion over a substitution.  Naive consensus calling methods   will then often miss substitution polymorphisms. This option should be  used when calling consensus using the Quiver method.  Furthermore, when  not using quality values to score alignments, there will be a lower consensus  accuracy in homolymer regions.",1,,,2,,
+./blasr,-affineAlig ,int,Refine alignemnt,(false)   Refine alignment using affine guided align.,1,,,2,,
+./blasr,-minReadLength ,,Skip short reads,l(50) Skip reads that have a full length less than l. Subreads may be shorter.,1,,,2,,
+./blasr,-minSubreadLength ,int,Skip subreads,l(0)   Do not align subreads of length less than l.,1,,,2,,
+./blasr,-maxScore ,int,Max score,"m (0)  Maximum score to output (high is bad, negative good).",1,,,2,,
+./blasr,-nproc ,int,Align using N processes,N (1) Align using N processes.  All large data structures such as the suffix array and    tuple count table are shared.,1,,,2,,
+./blasr,-start ,int,Index of first read,"S (0)  Index of the first read to begin aligning. This is useful when multiple instances  are running on the same data, for example when on a multi-rack cluster.",1,,,2,,
+./blasr,-stride ,int,Aligne one every S reads.,S (1)  Align one read every 'S' reads.,1,,,2,,
+./blasr,-subsample ,int,Reads to random sample,(0)  Proportion of reads to randomly subsample (expressed as a decimal) and align.,1,,,2,,

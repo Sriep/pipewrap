@@ -128,7 +128,7 @@ void PlotWindow::writeToPdf(const QString& fileName)
     textEdit->print(pdfWriter2);*/
 }
 
-void PlotWindow::setSecondAxis(QList<int> frequencies)
+void PlotWindow::setSecondAxis(QList<double> frequencies)
 {
     //QList<int> bins;
     //QList<int> binCount;
@@ -140,11 +140,11 @@ void PlotWindow::setSecondAxis(QList<int> frequencies)
     ticPositions.clear();
     //ticPositions << 0.1 << 0.2 << 0.3 << 0.4 << 0.5
     //             << 0.6 << 0.7 << 0.8 << 0.9 << 1.0;
-    ticPositions << 0.5 << 1 << 1.5 << 2 << 2.5
+    ticPositions << 0.0 << 0.5 << 1 << 1.5 << 2 << 2.5
                  << 3 << 3.5 << 4 << 4.5 << 5;
     ticLabels.clear();
     std::sort(frequencies.begin(), frequencies.end());
-    for ( int j = 1 ; j<= 10 ; j++ )
+    for ( int j = 10 ; j>= 1 ; j-- )
     {
         int index = j * frequencies.size()/10;
         if (frequencies.size() == index) index--;

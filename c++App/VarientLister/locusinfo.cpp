@@ -1,8 +1,10 @@
 #include "locusinfo.h"
 #include "pvalues.h"
 
-LocusInfo::LocusInfo(char newbase, FrequencyPartition *freqPartition)
-    : base(newbase), freqPartition(freqPartition)
+LocusInfo::LocusInfo(char newbase,
+                     FrequencyPartition *freqPartition,
+                     set<PValues::Method> methods)
+    : base(newbase), freqPartition(freqPartition), methods(methods)
 {
     base = newbase;
 }
@@ -132,17 +134,24 @@ void LocusInfo::populate()
         ave_phred = total_phred/coverage;
     }
 
-    for (int method = PValues::FisherExact;
-             method != PValues::NumOfMethods;
-             method++)
+    for (int m = PValues::FisherExact ; m != PValues::NumOfMethods ; m++)
+    //for ( unsigned int i = 0 ; i < methods.size() ; i++ )
     {
-        pValues.push_back(PValues::pValue(static_cast<PValues::Method>(method),
-                                         coverage,
-                                         countBestEx(),
-                                         ave_phred,
-                                         phredBestEx(),
-                                         freqPartition));
-
+        //pValues.push_back(PValues::pValue(static_cast<PValues::Method>(method),
+        PValues::Method method = static_cast<PValues::Method>(m);
+        if (methods.find(method) != methods.end())
+        {
+            pValues.push_back(PValues::pValue(method,
+                                             coverage,
+                                             countBestEx(),
+                                             ave_phred,
+                                             phredBestEx(),
+                                             freqPartition));
+        }
+        else
+        {
+            pValues.push_back(-1);
+        }
     }
 }
 

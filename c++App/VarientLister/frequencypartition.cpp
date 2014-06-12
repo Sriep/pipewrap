@@ -1,10 +1,12 @@
 #include <algorithm>
 #include <fstream>
+#include <list>
 #include "frequencypartition.h"
 #include "main.h"
 
-FrequencyPartition::FrequencyPartition(const string& filename)
-    : dataFile(filename)
+FrequencyPartition::FrequencyPartition(const string& filename,
+                                       unsigned int numBins)
+    : dataFile(filename), numBins(numBins)
 {    
 }
 
@@ -19,18 +21,38 @@ void FrequencyPartition::setParmeters(long long tReads,
     if (0 == totalPsnps) totalPsnps = tVarients /2;
     ifstream fin(dataFile.c_str(), ios_base::in);
     //if (fin.is_open())
+    if (false)
     {
+            list<int> binFreq;
+            list<double> binProportion;
+            while (!fin.eof())
+            {
+                int inBin = 0;
+                double inProportion = 0.0;
 
+                fin >> inBin >> inProportion;
+                binFreq.push_back(inBin);
+                binProportion.push_back(inProportion);
+            };
+            int numBins = binFreq.size();
+            pMatch.push_back(1);
+            ratioPartitions.push_back((numBins*totalReads)/totalPsnps);
+
+            for (int i = 1 ; i<numBins ; i++ )
+            {
+                pMatch.push_back((long double)i/(long double)numBins);
+                ratioPartitions.push_back(1);
+            }
     }
-    //else
+    else
     {
-        const int NumPartitions = 100;
+        //const int NumPartitions = 100;
         pMatch.push_back(1);
-        ratioPartitions.push_back((NumPartitions *totalReads)/totalPsnps);
+        ratioPartitions.push_back((numBins *totalReads)/totalPsnps);
 
-        for (int i = 1 ; i<NumPartitions ; i++ )
+        for (int i = 1 ; i<numBins ; i++ )
         {
-            pMatch.push_back((long double)i/(long double)NumPartitions);
+            pMatch.push_back((long double)i/(long double)numBins);
             ratioPartitions.push_back(1);
         }
     }

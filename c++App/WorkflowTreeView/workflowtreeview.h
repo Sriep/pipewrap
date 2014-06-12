@@ -73,6 +73,7 @@ public slots:
 
     void processOutSlot();
     void processFinishedSlot(int exitCode, QProcess::ExitStatus exitStatus);
+    void processErrorSlot(QProcess::ProcessError error);
 private slots:
     void doubleClickedEditSlot(const QModelIndex& index);
     void doubleClickedListViewSlot(const QModelIndex& index);

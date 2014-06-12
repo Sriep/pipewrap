@@ -19,6 +19,7 @@
 VarientCaller::VarientCaller(const string& bamInfile,
                              const string& tepInile,
                              const string &freqPartFile,
+                             const string &numFreqPart,
                              const string &readOutfile,
                              const string &lociOutfile,
                              const string &fisherFilename,
@@ -27,17 +28,37 @@ VarientCaller::VarientCaller(const string& bamInfile,
                              const string &poissonBinomialFilename,
                              const string &knownFrequencyFilename,
                              int errorThreshold)
-    : freqPartition(freqPartFile),
+    : freqPartition(freqPartFile, std::stoi(numFreqPart)),
       readOutfile(readOutfile),
       lociOutfile(lociOutfile),
       errorThreshold(errorThreshold)
 {
     pvMethodsFilename.clear();
-    pvMethodsFilename.push_back(fisherFilename);
-    pvMethodsFilename.push_back(bionomialFilename);
-    pvMethodsFilename.push_back(poissonFilename);
-    pvMethodsFilename.push_back(poissonBinomialFilename);
-    pvMethodsFilename.push_back(knownFrequencyFilename);
+    if (fisherFilename.size() > 0)
+    {
+        pvMethodsFilename[PValues::FisherExact] = fisherFilename;
+        methods.insert(PValues::FisherExact);
+    }
+    if (bionomialFilename.size() > 0)
+    {
+        pvMethodsFilename[PValues::Bionomial] = bionomialFilename;
+        methods.insert(PValues::Bionomial);
+    }
+    if (poissonFilename.size() > 0)
+    {
+        pvMethodsFilename[PValues::Poisson] = poissonFilename;
+        methods.insert(PValues::Poisson);
+    }
+    if (poissonBinomialFilename.size() > 0)
+    {
+        pvMethodsFilename[PValues::PiossonBionomial] = poissonBinomialFilename;
+        methods.insert(PValues::PiossonBionomial);
+    }
+    if (knownFrequencyFilename.size() > 0)
+    {
+        pvMethodsFilename[PValues::KnownFrequency] = knownFrequencyFilename;
+        methods.insert(PValues::KnownFrequency);
+    }
     bam_reader.Open(bamInfile);
     t = getFileContents(tepInile.c_str());
     basesFromFasta();
@@ -53,7 +74,7 @@ void VarientCaller::Init()
     for (unsigned int i = 0 ; i < t.length() ; i++ )
     {
         als_info.push_back(unique_ptr<LocusInfo>(
-                                new LocusInfo(t[i], &freqPartition)));
+                                new LocusInfo(t[i], &freqPartition, methods)));
     }
     filterReads();
     populateLociInfo();
@@ -107,12 +128,13 @@ void VarientCaller::write()
     if (!readOutfile.empty()) writeReadInfo();
     if (!lociOutfile.empty()) writeLociInfo();
 
-    for (int method = PValues::FisherExact;
-             method != PValues::NumOfMethods;
-             method++)
+    for (int m = PValues::FisherExact;
+             m != PValues::NumOfMethods;
+             m++)
     {
-        if (!pvMethodsFilename[method].empty())
-            write(static_cast<PValues::Method>(method));
+        PValues::Method method = static_cast<PValues::Method>(m);
+        if (methods.find(method) != methods.end())
+            write(method);
     }
 }
 
@@ -143,18 +165,19 @@ void VarientCaller::writeReadInfo()
                     if (locus  < t.length() && locus >= 0)
                     {
                         rout << "\"\t\"" << als_info[locus]->getAvePhred()
-                            << "\"\t\"" << als_info[locus]->getCoverage()
-                            << "\"\t\"" << setprecision(64)
-                            << als_info[locus]->getPValue(PValues::Bionomial)
-                            << "\"\t\"" << setprecision(64)
-                            << als_info[locus]->getPValue(PValues::Poisson);
+                            << "\"\t\"" << als_info[locus]->getCoverage();
+                            //<< "\"\t\"" << setprecision(64)
+                            //<< als_info[locus]->getPValue(PValues::Bionomial)
+                            //<< "\"\t\"" << setprecision(64)
+                           //<< als_info[locus]->getPValue(PValues::Poisson);
                             //<< "\"\t\"" << setprecision(64)
                             //<< als_info[locus]->getPValue(PValues::FisherExact);
                     }
                     else
                     {
-                        rout << "\"\t\"0\"\t\"0" << "\"\t\"0\"\t\"0";
-                        rout << "\"\t\"0";
+                        rout << "\"\t\"0\"\t\"0";
+                        //rout << "\"\t\"0\"\t\"0";
+                        //rout << "\"\t\"0";
                     }
                     rout  << "\"\n";
                 }
@@ -188,7 +211,7 @@ void VarientCaller::writeLociInfo()
                 << als_info[locus]->getPValue(PValues::Bionomial)
                 << "\"\t\"" << setprecision(64)
                 << als_info[locus]->getPValue(PValues::Poisson)
-                << "\"\t\"" << setprecision(64) //std::numeric_limits<long double>:
+                << "\"\t\"" << setprecision(64)
                 << als_info[locus]->getPValue(PValues::KnownFrequency)
                 << "\"\n";
     }

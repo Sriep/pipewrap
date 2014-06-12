@@ -9,7 +9,7 @@ const int MatchPartition = 0;
 class FrequencyPartition
 {
 public:
-    FrequencyPartition(const string& filename);
+    FrequencyPartition(const string& filename, unsigned int numBins = 100);
     void setParmeters(long long tReads,
                       long long tVarients,
                       long double avePhred);
@@ -32,6 +32,7 @@ private:
 
     vector<long double> pMatch;
     vector<int> ratioPartitions;
+    unsigned int numBins;
 };
 
 #endif // FREQUENCYPARTITION_H

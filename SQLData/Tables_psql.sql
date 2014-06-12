@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS ToolOptions;
+﻿DROP TABLE IF EXISTS ToolOptions;
 DROP TABLE IF EXISTS BioTools;
 CREATE TABLE BioTools (
 	id_bio_tools serial  primary key,
@@ -16,7 +16,7 @@ CREATE TABLE ToolOptions (
 	op_string varchar(255),
 	op_data_type varchar(31),
 	op_short_description varchar(63),
-	op_long_description varchar(509),
+	op_long_description varchar(1023),
 	op_optional smallint,
 	op_in_out smallint,
 	op_group smallint,

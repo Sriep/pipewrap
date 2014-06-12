@@ -1,9 +1,9 @@
 library("seqinr")  
-fastaInFilename <-"stdin"
-fastaOutFileName <- "stdout"
+fastaInFilename <-"Sc8915bp_cs.fasta"
+fastaOutFileName <- "pSNPgen.csv"
 changesOutFileName <- "changes.csv"
-numTR <- 50
-pSNPpct <- c(100,90,50,20,14,10,8,6,4,2)
+numTR <- 200
+pSNPpct <- c(100,10,6,4,3,2,1,0.8,0.77,0.6,0.5,0)
 genPSNPperPct <- 10
 cmdArgs = commandArgs()
 numArgs = length(cmdArgs)
@@ -35,7 +35,8 @@ if (is.element('-p', cmdArgs))
 if (is.element('-b', cmdArgs))
 {
     if (match('-b', cmdArgs)<numArgs)
-            pSNPpct = strtoi(cmdArgs[(match('-b', cmdArgs) +1):numArgs])
+#            pSNPpct = strtoi(cmdArgs[(match('-b', cmdArgs) +1):numArgs])
+            pSNPpct = as.double(cmdArgs[(match('-b', cmdArgs) +1):numArgs]) 
 }
 cs <- read.fasta(file = fastaInFilename)
 sizeTR <- length(cs[[1]])
@@ -67,7 +68,7 @@ for (i in 1:numPct)
                 {
                         newBase <- 'A'
                 }
-                repeatsPSNP <- pSNPpct[i]*numTR/100
+                repeatsPSNP <- round(pSNPpct[i]*numTR/100)
                 position[pSNPindex] <- pSNPpos
                 csBase[pSNPindex] <- oldBase
                 pSNPBase[pSNPindex] <- newBase
@@ -81,8 +82,7 @@ for (i in 1:numPct)
                 }
         }
 }
-#SequenceHeader = paste("pSNP_added_to_", 50xSc8915bp_cs.fasta, "_TR:", numTR)
 write.fasta(csTR, "pSNPadded", nbchar = 80, fastaOutFileName)
 changes = data.frame(position,csBase,pSNPBase,frequency,StartTR)
-write.table(changes.csv, changesOutFileName, sep = "\t")
+write.table(changes, changesOutFileName, sep = "\t")
 

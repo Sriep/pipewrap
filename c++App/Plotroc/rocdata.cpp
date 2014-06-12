@@ -74,7 +74,7 @@ void RocData::readPsnpDetails(int maxFileLenght)
             int inNum = 0;
             QString csBase = "";
             QString pSnpBase = "";
-            int frequency = 0;
+            double frequency = 0;
 
             inv >> row >> inNum >> csBase >> pSnpBase >> frequency;
             vareintLoci.append(--inNum); // rebase from 1 to 0
@@ -135,7 +135,7 @@ void RocData::genRocValues()
         i++;
     }
 }
-QList<int> RocData::getFrequencies() const
+QList<double> RocData::getFrequencies() const
 {
     return frequencies;
 }

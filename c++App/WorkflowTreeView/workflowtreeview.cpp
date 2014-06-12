@@ -187,9 +187,10 @@ void WorkflowTreeView::runPipe()
             this, SLOT(processOutSlot()));
     connect(process,
             SIGNAL(finished(int exitCode, QProcess::ExitStatus exitStatus)),
-            this,
-            SLOT(processFinishedSlot(int exitCode,
+            this, SLOT(processFinishedSlot(int exitCode,
                                      QProcess::ExitStatus exitStatus)));
+    connect(process, SIGNAL(error(QProcess::ProcessError error)),
+            this, SLOT(processErrorSlot(QProcess::ProcessError error)));
     pipeStatus->show();
     //process->execute("./shell_script.sh");
     process->start("./shell_script.sh");
@@ -207,7 +208,13 @@ void WorkflowTreeView::processOutSlot()
 void WorkflowTreeView::processFinishedSlot(int exitCode,
                                            QProcess::ExitStatus exitStatus)
 {
-    pipeStatus->append(QString("!!!!!Finshed!!!!!"));
+    pipeStatus->append(QString("!!!!!Finshed OK!!!!!"));
+    copyResultFiles();
+}
+
+void WorkflowTreeView::processErrorSlot(QProcess::ProcessError error)
+{
+    pipeStatus->append(QString("!!!!!Finished Error!!!!!"));
     copyResultFiles();
 }
 

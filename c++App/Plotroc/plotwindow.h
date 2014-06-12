@@ -22,7 +22,7 @@ public slots:
 private:
     void init();
     void writeToPdf(const QString &fileName);
-    void setSecondAxis(QList<int> frequencies);
+    void setSecondAxis(QList<double> frequencies);
 
     QTextEdit* textEdit;
     QCustomPlot* customPlot;

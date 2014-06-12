@@ -2,6 +2,7 @@
 #define LOCUSINFO_H
 #include <vector>
 #include <string>
+#include <set>
 #include "pvalues.h"
 
 using namespace std;
@@ -10,7 +11,9 @@ class FrequencyPartition;
 class LocusInfo
 {
 public:
-    LocusInfo(char newbase, FrequencyPartition* freqPartition);
+    LocusInfo(char newbase,
+              FrequencyPartition* freqPartition,
+              set<PValues::Method> methods);
     void inc_calls(char base, int phred);
     void populate();
 
@@ -40,6 +43,7 @@ private:
 
     vector<long double> pValues;
     FrequencyPartition* freqPartition;
+    set<PValues::Method> methods;
     //std::vector<unsigned int> DeletionQV;
     //std::vector<unsigned int> InsertionQV;
     //std::vector<unsigned int> MergeQV;

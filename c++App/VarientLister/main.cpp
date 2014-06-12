@@ -37,8 +37,11 @@ void configCommandLineParser(QCommandLineParser& parser)
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addOption(bamFilename);
-    parser.addOption(templateFilename);
+    parser.addOption(templateFilename);        
     parser.addOption(freqPartitionFilename);
+    parser.addOption(numFreqPartitionBins);
+    parser.addOption(errorThreshold);
+    parser.addOption(precaculateFactorials);
     parser.addOption(readCsvOutfile);
     parser.addOption(lociCsvOutfile);
     parser.addOption(fisherFilename);
@@ -46,15 +49,22 @@ void configCommandLineParser(QCommandLineParser& parser)
     parser.addOption(poissonFilename);
     parser.addOption(poissonBinomialFilename);
     parser.addOption(knownFrequencyFilename);
-    parser.addOption(errorThreshold);
+
     return;
 }
 
 void runProgram(QCommandLineParser& clp)
 {
+    if (clp.value(precaculateFactorials) != "")
+    {
+        int numToPreCalculate = clp.value(precaculateFactorials).toInt();
+        preCalculateLogFactorials(numToPreCalculate);
+    }
+
     VarientCaller vc(clp.value(bamFilename).toStdString(),
                      clp.value(templateFilename).toStdString(),
                      clp.value(freqPartitionFilename).toStdString(),
+                     clp.value(numFreqPartitionBins).toStdString(),
                      clp.value(readCsvOutfile).toStdString(),
                      clp.value(lociCsvOutfile).toStdString(),
                      clp.value(fisherFilename).toStdString(),
@@ -90,8 +100,20 @@ long double log_n_C_r(unsigned int n,unsigned  int r)
     return  log_fac(n)- log_fac(r) - log_fac(n-r);
 }
 
+//vector<long double> logFactorials;
+void preCalculateLogFactorials(int numToPrecaculate)
+{
+    for ( int n = 0 ; n <= numToPrecaculate ; n++ )
+    {
+        logFactorials.push_back(log_fac(n));
+    }
+}
 long double log_fac(unsigned int N)
 {
+    if (N < logFactorials.size())
+    {
+        return logFactorials[N];
+    }
     long double log_fac = 0.0;
     for (unsigned int i = 2 ; i <= N ; i++)
         log_fac += log10((long double)i);
@@ -112,6 +134,8 @@ long double log_sfac(unsigned int N, unsigned  int NpK)
 //    if (r == 0) return 1;
 //   return (n * n_C_r(n - 1, r - 1)) / r;
 //}
+
+
 
 int factorial(unsigned int N)
 {

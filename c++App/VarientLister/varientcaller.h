@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <set>
 #include <memory>
 #include <unordered_set>
 #include <api/BamReader.h>
@@ -22,6 +23,7 @@ public:
     VarientCaller(const string& bamInfile,
                   const string& tepInile,
                   const string& freqPartFile,
+                  const string& numFreqPart,
                   const string& readOutfile,
                   const string& lociOutfile,
                   const string& fisherFilename,
@@ -45,12 +47,14 @@ private:
     void populateLociInfo();
     char baseToCompare(BamAlignment al, int base);
 
+    FrequencyPartition freqPartition;
     BamReader bam_reader;
     string t;
     string readOutfile;
     string lociOutfile;
-    FrequencyPartition freqPartition;
-    vector<string> pvMethodsFilename;
+
+    map<PValues::Method, string> pvMethodsFilename;
+    set<PValues::Method> methods;
 
     unsigned int errorThreshold;
     long long totalBaseReads = 0;
@@ -59,7 +63,6 @@ private:
 
     vector<unique_ptr<LocusInfo>> als_info;
     unordered_set<string> invalid;
-
 };
 
 #endif // VARIENTCALLER_H
