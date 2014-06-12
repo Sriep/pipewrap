@@ -236,7 +236,7 @@ void WorkflowTreeView::startPipeStatusThread()
     pipeStatusThread.start();
     emit startPipeStatus();*/
 }
-   //WorkflowTreeView::processFinishSlot(int, QProcess::ExitStatus)
+
 void WorkflowTreeView::processFinishedSlot(int exitCode, QProcess::ExitStatus exitStatus)
 {
     copyResultFiles();
@@ -247,12 +247,6 @@ void WorkflowTreeView::processStdErrSlot()
     QByteArray ba = process->readAllStandardError();
     QString message(ba);
     emit  processStdErr(message);
-    //pipeStatus->append(QString(ba));
-//}
-
-//void PipeStatus::processOutSlot(const QString &message)
-//{
-    //QByteArray ba = process->readAllStandardError();
     pipeStatus->append(message);
 }
 

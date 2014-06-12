@@ -19,14 +19,16 @@ SOURCES += main.cpp\
     tooloptionsdialog.cpp \
     fromtodialog.cpp \
     mainwindow.cpp \
-    databasedialog.cpp
+    databasedialog.cpp \
+    pipestatus.cpp
 
 HEADERS  += workflowtreeview.h \
     main.h \
     tooloptionsdialog.h \
     fromtodialog.h \
     mainwindow.h \
-    databasedialog.h
+    databasedialog.h \
+    pipestatus.h
 
 LIBS += -L"/opt/mysql/server-5.6/lib"
 LIBS += -L"/usr/local/pgsql/lib"

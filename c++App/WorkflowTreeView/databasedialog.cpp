@@ -149,9 +149,9 @@ bool DatabaseConnectionDialog::slotCheckFormData()
 
 bool DatabaseConnectionDialog::checkFormData(){
     if( editDatabaseName->text().isEmpty()
-       || editDatabaseHostName->text().isEmpty()
-       || editDatabaseUsername->text().isEmpty()
-       || editDatabasePassword->text().isEmpty() )
+       || editDatabaseHostName->text().isEmpty())
+       //|| editDatabaseUsername->text().isEmpty()
+       //|| editDatabasePassword->text().isEmpty() )
         buttons->button( QDialogButtonBox::Ok )->setEnabled( false );
     else{
         // enable the connect button and give focus

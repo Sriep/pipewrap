@@ -1,12 +1,14 @@
-1	pSNPgeneartor		Rscript pSNPgenerator.R		1
-2	pIRS simulate		pirs simulate		1
-3	PBSIM		PBSIM		1
-4	BWA		BWA		1
-5	stampy.py		stampy.py		1
-6	genroc		genroc		0
-7	samtools view		samtools view		1
-8	samtools sort		samtools sort		1
-9	samtools index		samtools index		1
-10	Samtools mpileup		Samtools mpileup		1
-11	pbsim		pbsim		1
-12	alchemy		alchemy		1
+1,pSNPgeneartor,,Rscript pSNPgenerator.R,,1
+2,pIRS simulate,,./pirs simulate,,1
+4,BWA,,BWA,,1
+5,stampy.py,,./stampy.py,,1
+7,samtools view,,samtools view,,1
+8,samtools sort,,samtools sort,,1
+9,samtools index,,samtools index,,1
+10,Samtools mpileup,,Samtools mpileup,,1
+11,pbsim,,pbsim,,1
+12,alchemy,,./alchemy,,1
+13,Plotroc,,./Plotroc,,1
+14,VarientLister,,./VarientLister.sh,,1
+15,Blasr,,./blasr,,1
+16,varscan somatic,,java -jar  VarScan.v2.3.6.jar somatic,,1

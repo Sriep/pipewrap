@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setHostName( "main" );
-    db.setDatabaseName( "/media/sdb2/Projects/Source/Dissertation/SQLData/SqliteData" );
+    db.setDatabaseName( "SqliteData" );
     db.setUserName( "" );
     db.setPassword( "" );
 
@@ -37,12 +37,14 @@ int main(int argc, char *argv[])
     int portnumber = 5432;
     DatabaseConnectionDialog* dialog = new DatabaseConnectionDialog(0);
     // optional: set the data that will be presented to the user as auto-filled form
-    dialog->setDatabaseName("It1");
+    //dialog->setDatabaseName("It1");
+    dialog->setDatabaseName("SqliteData.sqlite3");
     dialog->setDatabasePortNumber(portnumber);
     dialog->setDatabaseHostName("localhost");
-    dialog->setDatabaseUsername("piers");
-    dialog->setDatabaseDriverName("QPSQL");
-    dialog->setDatabasePassword("piers");
+    //dialog->setDatabaseUsername("piers");
+    //dialog->setDatabaseDriverName("QPSQL");
+    dialog->setDatabaseDriverName("QSQLITE");
+    //dialog->setDatabasePassword("piers");
 
     // enable the connect button if all the data is correct
     dialog->checkFormData();

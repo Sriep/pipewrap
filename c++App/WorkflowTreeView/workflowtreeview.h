@@ -7,6 +7,7 @@
 #include <QString>
 #include <QProcess>
 #include <QDateTime>
+#include <QThread>
 
 class QStandardItemModel;
 class QListView;
@@ -16,6 +17,7 @@ class QMainWindow;
 class QTime;
 class QTextEdit;
 class QProcess;
+class PipeStatus;
 
 Q_DECLARE_METATYPE(QStandardItem*)
 const int UsageRole = Qt::UserRole + 1;
@@ -71,9 +73,9 @@ public slots:
     void inPipeSlot();
     void outPipeSlot();
 
-    void processOutSlot();
-    void processFinishedSlot(int exitCode, QProcess::ExitStatus exitStatus);
-    void processErrorSlot(QProcess::ProcessError error);
+    void processStdErrSlot();
+    void processFinishedSlot(int,QProcess::ExitStatus);
+    //void processErrorSlot(QProcess::ProcessError error);
 private slots:
     void doubleClickedEditSlot(const QModelIndex& index);
     void doubleClickedListViewSlot(const QModelIndex& index);
@@ -88,6 +90,8 @@ signals:
     void pipeIntoAvailable(bool);
     void pipeOutofAvailable(bool);
 
+    void processStdErr(const QString& message);
+    void startPipeStatus();
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *event);
     virtual void selectionChanged(const QItemSelection & selected,
@@ -120,15 +124,18 @@ private:
                                            int column);
     void copyResultFiles();
     void runPipe();
+    void startPipeStatusThread();
 
     QSqlQueryModel* m_sql_list_model;
     QListView* m_list_view;
     QStandardItemModel* m_listview_model;
     QStandardItemModel* m_treeview_model;
-    QTextEdit* pipeStatus;
+    //QTextEdit* pipeStatus;
+    PipeStatus* pipeStatus;
     QProcess* process;
     QDateTime timePipeStarted;
     QString shellScript;
+    QThread pipeStatusThread;
 
     QList<QStandardItem*> item_clipboard;
     QStandardItem* dragdrop_clipboard;
