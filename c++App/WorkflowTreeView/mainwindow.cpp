@@ -157,7 +157,7 @@ void MainWindow::createActions()
     connect(downAct, SIGNAL(triggered()), tree_view, SLOT(downSlot()));
 
     addAct->setEnabled(true);
-
+    executeAct->setEnabled(true);
     cutAct->setEnabled(false);
     upAct->setEnabled(false);
     downAct->setEnabled(false);
@@ -170,7 +170,8 @@ void MainWindow::createActions()
             downAct, SLOT(setEnabled(bool)));
     connect(tree_view, SIGNAL(pasteAvailable(bool)),
             pasteAct, SLOT(setEnabled(bool)));
-
+    connect(tree_view, SIGNAL(executeAvailable(bool)),
+            executeAct, SLOT(setEnabled(bool)));
 }
 
 void MainWindow::createToolBars()

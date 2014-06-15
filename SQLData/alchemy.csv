@@ -1,15 +1,16 @@
 op_command,op_string,op_data_type,op_short_description,op_long_description,op_optional,op_in_out,op_group,op_postion,op_default_text,op_default_int
-./alchemy,-genome,filename,reference genome,Simulate reads from the reference genome 'genome.fasta',,,,,,
-./alchemy,-numBasesPerFile,int,Limit the number of bases,Limit the number of bases per output file to this.,,,,,,
-./alchemy,-sourceReads,filename,simulate reads by reading from 'file,"When set, simulate reads by reading from 'filename', rather than simulating from a genome. The format of the fasta titles should be >read_index|chr|start_pos|end_pos
-",,,,,,
-./alchemy,-lengthModel,,Use lengths from the alchemy model,"Use lengths from the alchemy model, rather than the read length.  This is used in conjunction with the sourceReadsFile, to modulate the lenghts  of the reads.",,,,,,
-./alchemy,-fixedLength,int,Set read length to a fixed value,"Set simulated read length to a fixed value of 'length', rather than sampling from a length mode.",,,,,,
-./alchemy,-movieName,string,Use  for movies,Use 'name' for movies rather than m000_000...,,,,,,
-./alchemy,-titleTable,string,Read in the titleTabl,Read in the titleTable to assign chromosome indices from simulated reads,,,,,,
-./alchemy,-baseFileName,string,alternative name for the output file,"Use an alternative name for the output file, rather than 'simulated'",,,,,,
-./alchemy,-nFiles,int,number of files to simulate.,The number of files to simulate.,,,,,,
-./alchemy,-meanLength,int,"set, scales the length ","When set, scales the length of the average read to L",,,,,,
-./alchemy,-posMap,filename,run alignment through compareSequences.py ,"Use this when running alignment through compareSequences.py and writing to cmp.h5. Specify a map between movie names and chromosome/positions. 
-When set, the simulated positions are not sored in the bas.h5 files and instead printed to 'filename'",,,,,,
-./alchemy,-printPercentRepeat,,Add to the title table,Add to the title table a field that has the percent repeat content of the read shown by lower case in the reference.,,,,,,
+./alchemy,-genome ,filename,reference genome,Simulate reads from the reference genome 'genome.fasta',,,,2,,
+./alchemy,-numBasesPerFile ,int,Limit the number of bases,Limit the number of bases per output file to this.,,,,2,,
+./alchemy,-sourceReads ,filename,simulate reads by reading from 'file,"When set, simulate reads by reading from 'filename', rather than simulating from a genome. The format of the fasta titles should be >read_index|chr|start_pos|end_pos
+",,,,2,,
+./alchemy,-lengthModel ,,Use lengths from the alchemy model,"Use lengths from the alchemy model, rather than the read length.  This is used in conjunction with the sourceReadsFile, to modulate the lenghts  of the reads.",,,,2,,
+./alchemy,-fixedLength ,int,Set read length to a fixed value,"Set simulated read length to a fixed value of 'length', rather than sampling from a length mode.",,,,2,,
+./alchemy,-movieName ,string,Use  for movies,Use 'name' for movies rather than m000_000...,,,,2,,
+./alchemy,-titleTable ,string,Read in the titleTabl,Read in the titleTable to assign chromosome indices from simulated reads,,,,2,,
+./alchemy,-baseFileName ,string,alternative name for the output file,"Use an alternative name for the output file, rather than 'simulated'",,,,2,,
+./alchemy,-nFiles ,int,number of files to simulate.,The number of files to simulate.,,,,2,,
+./alchemy,-meanLength ,int,"set, scales the length ","When set, scales the length of the average read to L",,,,2,,
+./alchemy,-posMap ,filename,run alignment through compareSequences.py ,"Use this when running alignment through compareSequences.py and writing to cmp.h5. Specify a map between movie names and chromosome/positions. 
+When set, the simulated positions are not sored in the bas.h5 files and instead printed to 'filename'",,,,2,,
+./alchemy,-printPercentRepeat ,,Add to the title table,Add to the title table a field that has the percent repeat content of the read shown by lower case in the reference.,,,,2,,
+./alchemy, ,filename,Model,Model,,,,1,,

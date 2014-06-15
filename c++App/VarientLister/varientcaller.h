@@ -30,8 +30,7 @@ public:
                   const string& bionomialFilename,
                   const string& poissonFilename,
                   const string& poissonBinomialFilename,
-                  const string &knownFrequencyFilename,
-                  int errorThreshold);
+                  const string &knownFrequencyFilename);
     ~VarientCaller();
     void write();
 
@@ -56,7 +55,7 @@ private:
     map<PValues::Method, string> pvMethodsFilename;
     set<PValues::Method> methods;
 
-    unsigned int errorThreshold;
+    //unsigned int errorThreshold;
     long long totalBaseReads = 0;
     long long totalReadVareints = 0;
     long double averagePhred = 0.0;

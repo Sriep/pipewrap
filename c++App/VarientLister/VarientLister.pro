@@ -34,12 +34,14 @@ SOURCES += main.cpp \
     varientcaller.cpp \
     pvalues.cpp \
     locusinfo.cpp \
-    frequencypartition.cpp
+    frequencypartition.cpp \
+    matchmismatches.cpp
 HEADERS += \
     varientcaller.h \
     main.h \
     pvalues.h \
     locusinfo.h \
-    frequencypartition.h
+    frequencypartition.h \
+    matchmismatches.h
 
 

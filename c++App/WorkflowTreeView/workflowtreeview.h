@@ -89,6 +89,7 @@ signals:
     void contentsChanged();
     void pipeIntoAvailable(bool);
     void pipeOutofAvailable(bool);
+    void executeAvailable(bool);
 
     void processStdErr(const QString& message);
     void startPipeStatus();

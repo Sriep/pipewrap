@@ -37,14 +37,14 @@ int main(int argc, char *argv[])
     int portnumber = 5432;
     DatabaseConnectionDialog* dialog = new DatabaseConnectionDialog(0);
     // optional: set the data that will be presented to the user as auto-filled form
-    //dialog->setDatabaseName("It1");
-    dialog->setDatabaseName("SqliteData.sqlite3");
+    dialog->setDatabaseName("It1");
+    //dialog->setDatabaseName("SqliteData.sqlite3");
     dialog->setDatabasePortNumber(portnumber);
     dialog->setDatabaseHostName("localhost");
-    //dialog->setDatabaseUsername("piers");
-    //dialog->setDatabaseDriverName("QPSQL");
-    dialog->setDatabaseDriverName("QSQLITE");
-    //dialog->setDatabasePassword("piers");
+    dialog->setDatabaseUsername("piers");
+    dialog->setDatabaseDriverName("QPSQL");
+    //dialog->setDatabaseDriverName("QSQLITE");
+    dialog->setDatabasePassword("piers");
 
     // enable the connect button if all the data is correct
     dialog->checkFormData();

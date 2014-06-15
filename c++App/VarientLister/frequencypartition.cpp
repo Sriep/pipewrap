@@ -5,18 +5,19 @@
 #include "main.h"
 
 FrequencyPartition::FrequencyPartition(const string& filename,
-                                       unsigned int numBins)
-    : dataFile(filename), numBins(numBins)
-{    
+                                       const string& numBins)
+    : dataFile(filename), numBins(std::stoi(numBins))
+{
 }
 
 void FrequencyPartition::setParmeters(long long tReads,
-                                      long long tVarients,
-                                      long double avePhred)
+                                      long long tVarients)
 {
+
     totalReads = tReads;
     //totalPsnps = tVarients -(long long) tReads*(1 - exp(Ten, -avePhred/Ten));
     totalPsnps = tVarients;
+
     if (0 == totalReads) return;
     if (0 == totalPsnps) totalPsnps = tVarients /2;
     ifstream fin(dataFile.c_str(), ios_base::in);
@@ -50,7 +51,7 @@ void FrequencyPartition::setParmeters(long long tReads,
         pMatch.push_back(1);
         ratioPartitions.push_back((numBins *totalReads)/totalPsnps);
 
-        for (int i = 1 ; i<numBins ; i++ )
+        for (unsigned int i = 1 ; i<numBins ; i++ )
         {
             pMatch.push_back((long double)i/(long double)numBins);
             ratioPartitions.push_back(1);

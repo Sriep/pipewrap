@@ -128,7 +128,7 @@ COPY ToolOptions (op_command,
 	FROM '/media/sdb2/Projects/Source/Dissertation/SQLData/VarientLister.csv'
 	WITH CSV HEADER;
 
-		COPY ToolOptions (op_command,
+	COPY ToolOptions (op_command,
 	 op_string,
 	   op_data_type,	   	   
 	   op_short_description,
@@ -140,4 +140,18 @@ COPY ToolOptions (op_command,
 	   op_default_text,
 	   op_default_int) 
 	FROM '/media/sdb2/Projects/Source/Dissertation/SQLData/blasr.csv'
+	WITH CSV HEADER;
+
+		COPY ToolOptions (op_command,
+	 op_string,
+	   op_data_type,	   	   
+	   op_short_description,
+	   op_long_description,
+	   op_optional,
+	   op_in_out,
+	   op_group,
+	   op_postion,
+	   op_default_text,
+	   op_default_int) 
+	FROM '/media/sdb2/Projects/Source/Dissertation/SQLData/bwa.csv'
 	WITH CSV HEADER;

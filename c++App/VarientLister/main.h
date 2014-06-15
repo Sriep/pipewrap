@@ -54,13 +54,13 @@ const QCommandLineOption freqPartitionFilename(
            "filename",
             "");
 //Structuralparameters
-const QCommandLineOption errorThreshold(
-            QStringList() << "e" << "error-threshold",
-            "Ingnore a read if more than percentage of reads are errors",
-            "percentage",
-            "30");
+//const QCommandLineOption errorThreshold(
+//            QStringList() << "e" << "error-threshold",
+//            "Ingnore a read if more than percentage of reads are errors",
+//            "percentage",
+//            "30");
 const QCommandLineOption numFreqPartitionBins(
-            QStringList() << "r" << "num-freq-partitions",
+            QStringList() << "m" << "num-freq-partitions",
             "Number of frequency bins used in FK pvalue estimation",
             "int",
             "100");

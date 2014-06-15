@@ -1,9 +1,9 @@
 op_command,op_string,op_data_type,op_short_description,op_long_description,op_optional,op_in_out,op_group,op_postion,op_default_text,op_default_int
-./blasr,,filename,Reads.fasta/bax.h5 genome.fasta,"   reads.fasta is a multi-fasta file of reads.  While any fasta file is valid input, it is preferable to use plx.h5 or bax.h5 files because they contain  more rich quality value information.
+./blasr,,string,Reads.fasta/bax.h5 genome.fasta,"   reads.fasta is a multi-fasta file of reads.  While any fasta file is valid input, it is preferable to use plx.h5 or bax.h5 files because they contain  more rich quality value information.
    reads.bax.h5|reads.plx.h5 Is the native output format in Hierarchical Data Format of  SMRT reads. This is the preferred input to blasr because rich quality value (insertion,deletion, and substitution quality values) information is  maintained.  The extra quality information improves variant detection and mapping  speed.",0,,,1,,
-./blasr,-sa ,filename,Sawriter output,Use the suffix array 'sa' for detecting matches between the reads and the reference.  The suffix array has been prepared by the sawriter program.,1,,,2,,
-./blasr,-ctab ,filename ,printTupleCountTable output,"A table of tuple counts used to estimate match significance.  This is  by the program 'printTupleCountTable'.  While it is quick to generate on  the fly, if there are many invocations of blasr, it is useful to precompute the ctab.",1,,,2,,
-./blasr,-regionTable ,filename,Read region table,"Read in a read-region table in HDF format for masking portions of reads. This may be a single table if there is just one input file, or a fofn.  When a region table is specified, any region table inside  the reads.plx.h5 or reads.bax.h5 files are ignored.",1,,,2,,
+./blasr,-sa ,string,Sawriter output,Use the suffix array 'sa' for detecting matches between the reads and the reference.  The suffix array has been prepared by the sawriter program.,1,,,2,,
+./blasr,-ctab ,string,printTupleCountTable output,"A table of tuple counts used to estimate match significance.  This is  by the program 'printTupleCountTable'.  While it is quick to generate on  the fly, if there are many invocations of blasr, it is useful to precompute the ctab.",1,,,2,,
+./blasr,-regionTable ,string,Read region table,"Read in a read-region table in HDF format for masking portions of reads. This may be a single table if there is just one input file, or a fofn.  When a region table is specified, any region table inside  the reads.plx.h5 or reads.bax.h5 files are ignored.",1,,,2,,
 ./blasr,-useccs ,,Align circular consensus sequence," Align the circular consensus sequence (ccs), then report alignments of the ccs subreads to the window that the ccs was mapped to.  Only alignments of the subreads are reported.",1,,,2,,
 ./blasr,-useccsall,,All subreads are aligned,"Similar to -useccs, except all subreads are aligned, rather than just  the subreads used to call the ccs.  This will include reads that only  cover part of the template.",1,,,2,,
 ./blasr,-useccsdenovo,,Only css alignment,"Align the circular consensus, and report only the alignment of the ccs  sequence.",1,,,2,,
@@ -14,7 +14,7 @@ op_command,op_string,op_data_type,op_short_description,op_long_description,op_op
 ./blasr,-sam ,,SAM futputoormat.,Write output in SAM format.,1,,,2,,
 ./blasr,-clipping ,string,Clippint,[none|hard|soft] (none) Use no/hard/soft clipping for SAM output.,1,,,2,,
 ./blasr,-out ,string,Write output to,(terminal)   Write output to 'out'.,1,,,2,,
-./blasr,-unaligned ,filename ,not aligned reads,Output reads that are not aligned to 'file',1,,,2,,
+./blasr,-unaligned ,string,not aligned reads,Output reads that are not aligned to 'file',1,,,2,,
 ./blasr,-m ,int,Blast like output,"If not printing SAM, modify the output of the alignment.
 t=0 Print blast like output with |'s connecting matched nucleotides.
    1 Print only a summary: score and pos.
@@ -27,7 +27,7 @@ t=0 Print blast like output with |'s connecting matched nucleotides.
 ./blasr,-header ,,Print header,Print a header as the first line of the output file describing the contents of each column.,1,,,2,,
 ./blasr,-titleTable ,string,Table of sequence titles,"tab (NULL) Construct a table of reference sequence titles.  The reference sequences are  enumerated by row, 0,1,...  The reference index is printed in alignment results  rather than the full reference name.  This makes output concise, particularly when  very verbose titles exist in reference names.",1,,,2,,
 ./blasr,-minPctIdentity ,int,Minimum identity,p (0)  Only report alignments if they are greater than p percent identity.,1,,,2,,
-./blasr,-unaligned ,filename,Restrict to file aligned,Output reads that are not aligned to 'file'.,1,,,2,,
+./blasr,-unaligned ,string,Restrict to file aligned,Output reads that are not aligned to 'file'.,1,,,2,,
 ./blasr,-holeNumbers ,string,Only aligne readsin list,"When specified, only align reads whose ZMW hole numbers are in LIST. LIST is a comma-delimited string of ranges, such as '1,2,3,10-13'. This option only works when reads are in base or pulse h5 format.",1,,,2,,
 ./blasr,-placeRepeatsRandomly ,int,Ramdom place equals.,"When there are multiple positions to map a read with equal alignment scores, place the  read randomly at one of them.",1,,,2,,
 ./blasr,-minMatch ,int,Minimum seed length,"Minimum seed length.  Higher minMatch will speed up alignment,  but decrease sensitivity",1,,,2,,

@@ -209,7 +209,7 @@ void VarientCaller::writeLociInfo()
             pct = 100*als_info[locus]->countBestEx()/als_info[locus]->getCoverage();
         else pct = 0;
 
-        lout    << "\"" << locus
+        lout    << "\"" << locus+1;
                 << "\"\t\"" << visBase(t[locus])
                 << "\"\t\"" << als_info[locus]->getCoverage()
                 << "\"\t\"" << als_info[locus]->getAvePhred()

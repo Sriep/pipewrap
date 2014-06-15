@@ -169,6 +169,7 @@ void WorkflowTreeView::executeSlot()
 
 void WorkflowTreeView::runPipe()
 {
+    emit executeAvailable(false);
     timePipeStarted = QDateTime::currentDateTime();
     QFile file("shell_script.sh");
     file.remove();
@@ -206,7 +207,7 @@ void WorkflowTreeView::runPipe()
 
     //pipeStatus->close();
     //process = NULL;
-    copyResultFiles();
+    //copyResultFiles();
 }
 
 void WorkflowTreeView::startPipeStatusThread()
@@ -236,10 +237,11 @@ void WorkflowTreeView::startPipeStatusThread()
     pipeStatusThread.start();
     emit startPipeStatus();*/
 }
-   //WorkflowTreeView::processFinishSlot(int, QProcess::ExitStatus)
+
 void WorkflowTreeView::processFinishedSlot(int exitCode, QProcess::ExitStatus exitStatus)
 {
     copyResultFiles();
+    emit executeAvailable(true);
 }
 
 void WorkflowTreeView::processStdErrSlot()
@@ -247,12 +249,6 @@ void WorkflowTreeView::processStdErrSlot()
     QByteArray ba = process->readAllStandardError();
     QString message(ba);
     emit  processStdErr(message);
-    //pipeStatus->append(QString(ba));
-//}
-
-//void PipeStatus::processOutSlot(const QString &message)
-//{
-    //QByteArray ba = process->readAllStandardError();
     pipeStatus->append(message);
 }
 
@@ -530,7 +526,9 @@ void WorkflowTreeView::cutSlot()
         //m_treeview_model->removeRow()
         m_treeview_model->removeRow(index.row(), index.parent());
         //m_treeview_model->takeRow(index.row());
-        emit pasteAvailable(false);
+
+
+        pasteAvailable(false);
         item_clipboard.clear();
     }
     /*

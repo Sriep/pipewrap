@@ -40,7 +40,7 @@ void configCommandLineParser(QCommandLineParser& parser)
     parser.addOption(templateFilename);        
     parser.addOption(freqPartitionFilename);
     parser.addOption(numFreqPartitionBins);
-    parser.addOption(errorThreshold);
+    //parser.addOption(errorThreshold);
     parser.addOption(precaculateFactorials);
     parser.addOption(readCsvOutfile);
     parser.addOption(lociCsvOutfile);
@@ -71,8 +71,7 @@ void runProgram(QCommandLineParser& clp)
                      clp.value(bionomialFilename).toStdString(),
                      clp.value(poissonFilename).toStdString(),
                      clp.value(poissonBinomialFilename).toStdString(),
-                     clp.value(knownFrequencyFilename).toStdString(),
-                     clp.value(errorThreshold).toInt());
+                     clp.value(knownFrequencyFilename).toStdString());
     vc.write();
 }
 
