@@ -48,6 +48,11 @@ const QCommandLineOption templateFilename(
            "Input template fasta file",
            "filename",
             "Sc8915bp_cs.fasta");
+const QCommandLineOption basH5Filename(
+            QStringList() << "5" << "bash5",
+           "Input bas.h5 input file",
+           "filename",
+            "");
 const QCommandLineOption freqPartitionFilename(
             QStringList() << "q" << "frequency",
            "File with freqyency of pSNP bins",

@@ -8,18 +8,24 @@
 #include <QDebug>
 #include <sstream>
 #include <iomanip>
-#include  <cstdlib>
+#include <cstdlib>
+#include <algorithm>
 
+#include "H5Cpp.h"
 #include "api/BamAlignment.h"
 #include "varientcaller.h"
 #include "main.h"
 #include "locusinfo.h"
 #include "matchmismatches.h"
+#include "hdf5basfile.h"
+
+using namespace H5;
 
 
 VarientCaller::VarientCaller(const string& bamInfile,
                              const string& tepInile,
                              const string &freqPartFile,
+                             const string& basH5file,
                              const string &numFreqPart,
                              const string &readOutfile,
                              const string &lociOutfile,
@@ -29,6 +35,7 @@ VarientCaller::VarientCaller(const string& bamInfile,
                              const string &poissonBinomialFilename,
                              const string &knownFrequencyFilename)
     : freqPartition(freqPartFile, numFreqPart),
+      basH5file(basH5file),
       readOutfile(readOutfile),
       lociOutfile(lociOutfile)
 {
@@ -70,20 +77,36 @@ VarientCaller::~VarientCaller()
 
 void VarientCaller::Init()
 {
+    //hdf5();
     for (unsigned int i = 0 ; i < t.length() ; i++ )
     {
         als_info.push_back(unique_ptr<LocusInfo>(
                                 new LocusInfo(t[i], &freqPartition, methods)));
     }
     filterReads();
-    populateLociInfo();
+    populateLociInfo();    
+}
+
+void VarientCaller::hdf5()
+{
+    /*H5::H5File h5file(basH5file, H5F_ACC_RDONLY);
+    FileAccPropList propList = h5file.getAccessPlist();
+    hsize_t nob = h5file.getNumObjs();
+    vector<H5std_string> names;
+    for ( unsigned int i = 0 ; i < h5file.getNumObjs() ; i++ )
+    {
+        H5std_string name = h5file.getObjnameByIdx(i);
+        names.push_back(name);
+    }
+
+    h5file.close();*/
 }
 
 void VarientCaller::filterReads()
 {
     bam_reader.Rewind();
     BamAlignment al;
-    unsigned long long totalPhred = 0;
+    //unsigned long long totalPhred = 0;
     while(bam_reader.GetNextAlignment(al))
     {
         // Position = 0 means read has not been mapped succesfully
@@ -94,44 +117,24 @@ void VarientCaller::filterReads()
         else
         {
             MatchMismatches tMatch(al.QueryBases, al.CigarData);
-            //unsigned int numMismatching = 0;
-            //unsigned int base = 0;
             unsigned int varients = 0;
-            //unsigned long phredsAl;
-            //bool tooManyMissmatches = false;
-            //if (0 == al.AlignedBases.length())
-            //    tooManyMissmatches = true;
-            //else
-            //{
-                //while ((base < (unsigned int) tMatch.size()))// && !tooManyMissmatches)
                 for ( unsigned int base = 0 ; base < tMatch.size() ; base++)
                 {
-                    //if (al.AlignedBases[base] != t[base + al.Position])
                     assert(al.Position + base < t.size());
                     if (!compareBases(tMatch[base], t[base + al.Position]))
                     {
-                        //numMismatching++;
-                        //if (((100 * numMismatching) / al.Length) > errorThreshold)
-                        //    tooManyMissmatches = true;
                         varients++;
                     }
                     assert(base + tMatch.offset(base) < al.Qualities.size());
-                    //phredsAl += al.Qualities[base + tMatch.offset(base)] -33;
                 }
-            //}
-            //if (tooManyMissmatches) invalid.insert(al.Name);
-            //else
-            //{
                 totalBaseReads += tMatch.size();
                 totalReadVareints += varients;
-                //totalPhred += phredsAl;
-            //}
-            //numMismatching++;
         }
      }
     //averagePhred = (long double) totalPhred / (long double) totalBaseReads;
     freqPartition.setParmeters(totalBaseReads, totalReadVareints);//, averagePhred);
 }
+
 void VarientCaller::write()
 {
     //if (!readOutfile.empty()) writeReadInfo();
@@ -209,7 +212,7 @@ void VarientCaller::writeLociInfo()
             pct = 100*als_info[locus]->countBestEx()/als_info[locus]->getCoverage();
         else pct = 0;
 
-        lout    << "\"" << locus
+        lout    << "\"" << locus+1
                 << "\"\t\"" << visBase(t[locus])
                 << "\"\t\"" << als_info[locus]->getCoverage()
                 << "\"\t\"" << als_info[locus]->getAvePhred()
@@ -264,23 +267,67 @@ void VarientCaller::populateLociInfo()
 {
     bam_reader.Rewind();
     BamAlignment al;
-    while(bam_reader.GetNextAlignment(al))
+
+    try
     {
-        //if (!invalid.count(al.Name))
-        // Position = 0 means read has not been mapped succesfully
-        if (0 < al.Position)
+        Hdf5BasFile* basFile = NULL;
+        if (basH5file != "") basFile = new Hdf5BasFile(basH5file);
+
+        while(bam_reader.GetNextAlignment(al))
         {
-            MatchMismatches tMatch(al.QueryBases, al.CigarData);
-            for (unsigned int mBase = 0 ; mBase < tMatch.size() ; mBase++)
+            // Position = 0 means read has not been mapped succesfully
+            if (0 < al.Position)
             {
-                const int locus = al.Position + mBase;
-                const int alBase = mBase + tMatch.offset(mBase);
-                als_info[locus]->inc_calls(al.QueryBases[alBase],
-                                           al.Qualities[alBase]-33);
+                MatchMismatches tMatch(al.QueryBases, al.CigarData);
+                for (unsigned int mBase = 0 ; mBase < tMatch.size() ; mBase++)
+                {
+                    const int locus = al.Position + mBase;
+                    const int alBase = mBase + tMatch.offset(mBase);
+
+                    if (compareBases(tMatch[mBase], t[locus]))
+                    {
+                        int phard = (NULL == basFile)
+                                    ? al.Qualities[alBase]-33
+                                    : basFile->getPhred(al.Name, alBase);
+                        als_info[locus]->inc_calls(al.QueryBases[alBase],phard);
+                    }
+                    else
+                    {
+                        int phard;
+                        if(NULL == basFile)
+                        {
+                            phard = al.Qualities[alBase]-33;
+                        }
+                        else
+                        {
+                            if (0 == windowSize)
+                            {
+                                phard = basFile->getPhred(al.Name, alBase);
+                            }
+                            else
+                            {
+                                const int start = max(0, locus-windowSize);
+                                const int end = t.size() < locus + windowSize
+                                              ? t.size() : locus + windowSize;
+                                const int l = locus < windowSize
+                                            ? locus : windowSize;
+                                string window = t.substr(start, end - start);
+                                phard = basFile->getPhred(al.Name,
+                                                          alBase,
+                                                          window, "", l);
+                            }
+                        }
+                        als_info[locus]->inc_calls(al.QueryBases[alBase],phard);
+                    }
+                }
             }
         }
+        if (NULL != basFile) delete(basFile);
     }
-
+    catch (H5::Exception ex)
+    {
+        ex.printError();
+    }
     for (unsigned int i = 0 ; i < t.length() ; i++ )
     {
         als_info[i]->populate();

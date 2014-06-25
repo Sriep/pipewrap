@@ -27,6 +27,10 @@ LIBS += -L/media/sdb2/Projects/Source/Dissertation/c++App/bamtools/lib -lbamtool
 DEPENDPATH += /media/sdb2/Projects/Source/Dissertation/c++App/bamtools/include
 INCLUDEPATH += /media/sdb2/Projects/Source/Dissertation/c++App/bamtools/include
 
+LIBS += -L/usr/local/hdf5/lib -lhdf5
+LIBS += -L/usr/local/hdf5/lib -lhdf5_cpp
+INCLUDEPATH += /usr/local/hdf5/include
+
 #LIBS += -L$$PWD/../hdf5/lib/ -lhdf5_cpp
 #INCLUDEPATH += $$PWD/../hdf5/include
 
@@ -35,13 +39,15 @@ SOURCES += main.cpp \
     pvalues.cpp \
     locusinfo.cpp \
     frequencypartition.cpp \
-    matchmismatches.cpp
+    matchmismatches.cpp \
+    hdf5basfile.cpp
 HEADERS += \
     varientcaller.h \
     main.h \
     pvalues.h \
     locusinfo.h \
     frequencypartition.h \
-    matchmismatches.h
+    matchmismatches.h \
+    hdf5basfile.h
 
 

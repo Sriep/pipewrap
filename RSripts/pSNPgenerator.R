@@ -1,9 +1,9 @@
 library("seqinr")  
 fastaInFilename <-"Sc8915bp_cs.fasta"
-fastaOutFileName <- "pSNPgen.csv"
+fastaOutFileName <- "pSNPgen.fasta"
 changesOutFileName <- "changes.csv"
 numTR <- 200
-pSNPpct <- c(100,10,6,4,3,2,1,0.8,0.77,0.6,0.5,0)
+pSNPpct <- c(100,50,20,10,5,3,2,1,0.5)
 genPSNPperPct <- 10
 cmdArgs = commandArgs()
 numArgs = length(cmdArgs)

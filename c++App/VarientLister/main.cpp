@@ -37,7 +37,8 @@ void configCommandLineParser(QCommandLineParser& parser)
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addOption(bamFilename);
-    parser.addOption(templateFilename);        
+    parser.addOption(templateFilename);
+    parser.addOption(basH5Filename);
     parser.addOption(freqPartitionFilename);
     parser.addOption(numFreqPartitionBins);
     //parser.addOption(errorThreshold);
@@ -64,6 +65,7 @@ void runProgram(QCommandLineParser& clp)
     VarientCaller vc(clp.value(bamFilename).toStdString(),
                      clp.value(templateFilename).toStdString(),
                      clp.value(freqPartitionFilename).toStdString(),
+                     clp.value(basH5Filename).toStdString(),
                      clp.value(numFreqPartitionBins).toStdString(),
                      clp.value(readCsvOutfile).toStdString(),
                      clp.value(lociCsvOutfile).toStdString(),

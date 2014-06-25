@@ -12,6 +12,10 @@
 #include "pvalues.h"
 #include "frequencypartition.h"
 
+//#include <H5CommonFG.h>
+//#include <H5Location.h>
+//#include <H5File.h>
+
 using namespace std;
 using namespace BamTools;
 
@@ -23,6 +27,7 @@ public:
     VarientCaller(const string& bamInfile,
                   const string& tepInile,
                   const string& freqPartFile,
+                  const string& basH5file,
                   const string& numFreqPart,
                   const string& readOutfile,
                   const string& lociOutfile,
@@ -38,6 +43,7 @@ private:
     void writeReadInfo();
     void writeLociInfo();
     void write(PValues::Method method);
+    void hdf5();
 
     void Init();
     void filterReads();
@@ -49,8 +55,10 @@ private:
     FrequencyPartition freqPartition;
     BamReader bam_reader;
     string t;
+    string basH5file;
     string readOutfile;
     string lociOutfile;
+
 
     map<PValues::Method, string> pvMethodsFilename;
     set<PValues::Method> methods;
@@ -59,6 +67,7 @@ private:
     long long totalBaseReads = 0;
     long long totalReadVareints = 0;
     long double averagePhred = 0.0;
+    int windowSize = 20;
 
     vector<unique_ptr<LocusInfo>> als_info;
     unordered_set<string> invalid;
