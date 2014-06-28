@@ -1,15 +1,8 @@
-#include <algorithm>
-#include <cctype>
-#include <qdebug.h>
-#include <algorithm>
 #include <string>
 #include <iostream>
 #include <cctype>
-#include <QDebug>
 #include <sstream>
 #include <iomanip>
-#include <cstdlib>
-#include <algorithm>
 
 #include "H5Cpp.h"
 #include "api/BamAlignment.h"

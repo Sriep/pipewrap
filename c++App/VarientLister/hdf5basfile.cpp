@@ -1,7 +1,7 @@
-#include  <exception>
+#include <exception>
 #include <array>
 #include <cstddef>
-#include  <cmath>
+#include <cmath>
 #include "hdf5basfile.h"
 #include "main.h"
 
