@@ -11,15 +11,18 @@ class BaxH5 : public H5File
 {
 public:
     BaxH5(const string& filename);
-    void writeRead(const string& bases,
+    void writeReads(const string& bases,
                    const string& delPhred,
                    const string& delTag,
                    const string& insPhred,
-                   const string& MergePhreds,
+                   const string& mergePhreds,
+                   const vector<unsigned short>  &perBaseFrame,
+                   const vector<unsigned int>  &pulseIndex,
                    const string& subsPhred,
                    const string& subsTag,
                    const string& qualPhred,
-                   vector<int> &reads);
+                   const vector<unsigned short> &widthInFrames,
+                   vector<unsigned int> &reads);
 
 private:
     Group pulseData;
@@ -30,9 +33,12 @@ private:
     DataSet dsDeletionTag;
     DataSet dsInsertionQV;
     DataSet dsMergeQV;
+    DataSet dsPerBaseFrame;
+    DataSet dsPulseIndex;
     DataSet dsQualtiyValue;
     DataSet dsSubstitutionQV;
     DataSet dsSubstitutionTag;
+    DataSet dsWidthInFrame;
     DataSet dsNumEvent;
 };
 

@@ -10,145 +10,80 @@
 #include "simbax.h"
 #include "main.h"
 #include "baxh5.h"
+#include "constantcaller.h"
+#include "bipolercaller.h"
 
-SimBax::SimBax(const string& tFilename,
+SimBax::SimBax(const string& t,
                const string &prefix,
-               const int depth)
-    : tFilename(tFilename)
+               const int depth,
+               unique_ptr<BaseCaller> baseCaller)
+    : t(t)//Filename(tFilename)
     , baxFilename(prefix + ".bax.h5")
     , fastqFilename(prefix + ".fastq")
     , depth(depth)
+    , baseCaller(move(baseCaller))
     , gen(rd())
-    , rndProb(0,1)
-    , rndErrType(0, ratioSize)
-    , rndBase(1, 4*3)
 {
-    t = getFileContents(tFilename.c_str());
-    basesFromFasta(t);
-    qualityProb = phred2prob(deletionPhred)
-                + phred2prob(insertionPhred)
-                + phred2prob(substituionPhred);
-
-    qualityPhred = prob2phred(qualityProb);
-    fastqPhred = char (qualityPhred + 33);
-    deletionRatio = (phred2prob(deletionPhred)/qualityProb)*ratioSize;
-    insertionRatio = (phred2prob(insertionPhred)/qualityProb)*ratioSize;
-    substituionRatio = (phred2prob(substituionPhred)/qualityProb)*ratioSize;
-
-    long double qulPlusMProb = qualityProb + phred2prob(mergePhred);
-    deletionMRatio = (phred2prob(deletionPhred)/qulPlusMProb)*ratioSize;
-    insertionMRatio = (phred2prob(insertionPhred)/qulPlusMProb)*ratioSize;
-    substituionMRatio = (phred2prob(substituionPhred)/qulPlusMProb)*ratioSize;
-    substituionMRatio = (phred2prob(substituionPhred)/qulPlusMProb)*ratioSize;
+    //baseCaller.reset(new BiPolerCaller(t));
+    //baseCaller = move(baseCaller);
+    //t = getFileContents(tFilename.c_str());
+    //basesFromFasta(t);
 }
 
 void SimBax::operator()()
 {
     uniform_int_distribution<int> readStart(0, t.size());
     ofstream fastq(fastqFilename);
-    BaxH5 baxh5(baxFilename);
     resetStrings();
     const int numReads = t.size() * depth / readLen;
-    for (int i = 0 ; i < numReads ; i++ )
-    {        
-        string newRead;
-        makeRead(newRead, readStart(gen));
-        reads.push_back(newRead.size());
-        writeFastq(newRead, fastq, i);
-        baseCall += newRead;
+    long numBaseCalls = 0;
+    for (int readNum = 0 ; readNum < numReads ; readNum++ )
+    {
+        makeRead(readLen, readStart(gen));
+
+        const int lengthRead = baseCall.size() - numBaseCalls;
+        reads.push_back(lengthRead);
+        writeFastq(baseCall.substr(numBaseCalls, lengthRead)
+                   ,qualityValue.substr(numBaseCalls, lengthRead)
+                   ,fastq
+                   ,readNum);
+        numBaseCalls += baseCall.size();
     }
-    deletionQV.insert(0, baseCall.size(), deletionPhred);
-    insertionQV.insert(0, baseCall.size(), insertionPhred);
-    substitutionQV.insert(0, baseCall.size(), substituionPhred);
-    qualityValue.insert(0, baseCall.size(), qualityPhred);
-    baxh5.writeRead(baseCall, deletionQV, deletionTag,
-                    insertionQV, mergeQV, substitutionQV,
-                    subsititutionTag, qualityValue, reads);
+
+    BaxH5 baxh5(baxFilename);
+    baxh5.writeReads(baseCall
+                    ,deletionQV
+                    ,deletionTag
+                    ,insertionQV
+                    ,mergeQV
+                    ,perBaseFrame
+                    ,pulseIndex
+                    ,substitutionQV
+                    ,subsititutionTag
+                    ,qualityValue
+                    ,widthInFrame
+                    ,reads);
 }
 
-void SimBax::makeRead(string& r, unsigned int startPos)
+void SimBax::makeRead(unsigned int readLen, unsigned int startLocus)
 {
-    assert(startPos < t.size());
-    unsigned int locus = startPos;
-    for ( int i = 0 ; i < readLen ; i++ )
+    baseCaller->setLocus(startLocus);
+    for ( unsigned int i = 0 ; i < readLen ; i++ )
     {
-        if (t.size() == locus) locus = 0;
-        if (rndProb(gen) < qualityProb)
-        {
-            switch (getErrorType(locus))
-            {
-            case Deletion:
-                deletionTag.push_back(t[locus]);
-                subsititutionTag.push_back(t[locus]);
-                mergeQV.push_back(MergePosible(locus) ? mergePhred : 100);
-                locus++;
-                break;
-            case Insertion:
-                r.push_back(randomBase());
-                break;
-            case Merge:                
-                deletionTag.push_back(t[locus]);
-                subsititutionTag.push_back(t[locus]);
-                mergeQV.push_back(mergePhred);
-                r.push_back(t[locus++]);
-                locus = (locus == t.size()) ? t[1] : locus+1;
-                break;
-            case Substitution:
-                deletionTag.push_back(t[locus]);
-                subsititutionTag.push_back(t[locus]);
-                mergeQV.push_back(MergePosible(locus) ? mergePhred : 100);
-                r.push_back(randomBase(t[locus++]));
-                break;
-            default:
-                assert(false);
-            }
-        }
-        else
-        {            
-            deletionTag.push_back(t[locus]);
-            subsititutionTag.push_back(t[locus]);
-            mergeQV.push_back(MergePosible(locus) ? mergePhred : 100);
-            r.push_back(t[locus++]);
-        }
+        baseCall.push_back(baseCaller->getBaseCall());
+        deletionQV.push_back(baseCaller->getDeletionQV());
+        deletionTag.push_back(baseCaller->getDeletionTag());
+        insertionQV.push_back(baseCaller->getInsrtionQV());
+        qualityValue.push_back(baseCaller->getQualityValue());
+        mergeQV.push_back(baseCaller->getMergeQV());
+        perBaseFrame.push_back(baseCaller->getPerBaseFrame());
+        pulseIndex.push_back(baseCaller->getPulseIndex());
+        substitutionQV.push_back(baseCaller->getSubstitutionQV());
+        subsititutionTag.push_back(baseCaller->getSubstitutionTag());
+        widthInFrame.push_back(baseCaller->getWidthInFrames());
+        baseCaller->next();
     }
-}
 
-SimBax::BaseErrorType SimBax::getErrorType(unsigned int tPos)
-{
-    long rndL = rndErrType(gen);
-    if (MergePosible(tPos))
-    {
-        if (rndL < deletionMRatio) return Deletion;
-        if (rndL < deletionMRatio + insertionMRatio) return Insertion;
-        if (rndL < deletionMRatio + insertionMRatio + mergeMRatio) return Merge;
-        return Substitution;
-    }
-    else
-    {
-        if (rndL < deletionRatio) return Deletion;
-        if (rndL < deletionRatio + insertionRatio) return Insertion;
-        return Substitution;
-    }
-}
-
-char SimBax::randomBase(char notThis)
-{
-    short r = rndBase(gen);
-    if ('-' == notThis)
-    {
-        if (1 == r || 2 == r || 3 == r) return 'A';
-        if (4 == r || 5 == r || 6 == r) return 'C';
-        if (7 == r || 8 == r || 9 == r) return 'G';
-        return 'T';
-    }
-    else
-    {
-        if (1 == r || 2 == r || 3 == r || 4 == r)
-            return ('A' == notThis || 'a' == notThis) ? 'T' : 'A';
-        if (5 == r || 6 == r || 7 == r || 8 == r)
-            return ('C' == notThis || 'c' == notThis) ? 'T' : 'C';
-        return ('G' == notThis || 'g' == notThis) ? 'T' : 'G';
-    }
 }
 
 inline void SimBax::resetStrings()
@@ -159,25 +94,23 @@ inline void SimBax::resetStrings()
     insertionQV.clear(); insertionQV.resize(0);
     qualityValue.clear(); qualityValue.resize(0);
     mergeQV.clear(); mergeQV.resize(0);
+    perBaseFrame.clear(); perBaseFrame.resize(0);
+    pulseIndex.clear(); pulseIndex.resize(0);
     substitutionQV.clear(); substitutionQV.resize(0);
     subsititutionTag.clear(); subsititutionTag.resize(0);
-    numEvent.clear(); numEvent.resize(0);
+    widthInFrame.clear(); widthInFrame.resize(0);
     reads.clear(); reads.resize(0);
 }
 
-inline bool SimBax::MergePosible(unsigned int tpos) const
-{
-    assert(tpos<t.size());
-    return tpos+1 < t.size() ? t[tpos+1] == t[tpos] : t[tpos] == t[0];
-}
-
-void SimBax::writeFastq(string &r, ofstream& fastq, int readNum)
+void SimBax::writeFastq(const string &r, const string &q
+    , ofstream& fastq, int readNum)
 {
     fastq << "@S1_" << std::to_string(readNum)  << '\n';
     fastq << r << '\n';
     fastq << "+S1_" << std::to_string(readNum) << '\n';
-    for (unsigned int i = 0 ; i < r.size() ; i++ ) fastq << fastqPhred;
-    fastq << '\n';
+    fastq << q << '\n';
+    //for (unsigned int i = 0 ; i < r.size() ; i++ ) fastq << fastqPhred;
+    //fastq << '\n';
 }
 
 

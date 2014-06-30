@@ -3,6 +3,7 @@
 
 #include <QCommandLineParser>
 #include <string>
+#include <memory>
 
 using namespace std;
 
@@ -33,11 +34,12 @@ const QCommandLineOption outFilePrefix(
 
 void configCommandLineParser(QCommandLineParser& parser);
 void runProgram(QCommandLineParser& parser);
+unique_ptr<BaseCaller> getBaseCaller(const string& t, QCommandLineParser& clp);
 
 std::string getFileContents(const char *filename);
 void basesFromFasta(string &t);
-long double phred2prob(int phred);
-int prob2phred(long double prob);
+long double phred2prob(unsigned int phred);
+unsigned int prob2phred(long double prob);
 
 
 

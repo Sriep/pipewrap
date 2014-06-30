@@ -1,0 +1,33 @@
+#ifndef READGENERATOR_H
+#define READGENERATOR_H
+#include <string>
+
+using namespace std;
+
+class ReadGenerator
+{
+public:
+    ReadGenerator(const string& t);
+    void next();
+    void start(unsigned int startPos);
+    
+    
+    
+    
+private:
+    string& t;
+    
+    unsigned short baseCall;
+    unsigned short deletionQV;
+    unsigned short deletionTag;
+    unsigned short insrtionQV;
+    unsigned short mergeQV;
+    unsigned int perBaseFrame;
+    ubs
+    
+    
+    
+    
+};
+
+#endif // READGENERATOR_H

@@ -1,13 +1,14 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2014-06-26T18:06:58
+# Project created by QtCreator 2014-06-28T22:14:45
 #
 #-------------------------------------------------
 
 QT       += core
 QT       -= gui
 
-TARGET = Simbas
+TARGET = AnalyseBax
+
 CONFIG   += console
 CONFIG   -= app_bundle
 CONFIG  += c++11
@@ -19,16 +20,8 @@ LIBS += -L/usr/local/hdf5/lib -lhdf5_cpp
 INCLUDEPATH += /usr/local/hdf5/include
 
 SOURCES += main.cpp \
-    simbax.cpp \
-    baxh5.cpp \
-    basecaller.cpp \
-    constantcaller.cpp \
-    bipolercaller.cpp
+    hdf5basfile.cpp
 
 HEADERS += \
     main.h \
-    simbax.h \
-    baxh5.h \
-    basecaller.h \
-    constantcaller.h \
-    bipolercaller.h
+    hdf5basfile.h

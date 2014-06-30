@@ -1,0 +1,6 @@
+#include "readgenerator.h"
+
+ReadGenerator::ReadGenerator(const string &t)
+    : t(t)
+{
+}

@@ -1,5 +1,6 @@
 #include <QCoreApplication>
 #include <QCommandLineParser>
+#include "bipolercaller.h"
 #include <cmath>
 #include <fstream>
 #include <cerrno>
@@ -28,10 +29,10 @@ int main(int argc, char *argv[])
 
 void configCommandLineParser(QCommandLineParser& parser)
 {
-    QCoreApplication::setApplicationName("VarientLister");
-    QCoreApplication::setApplicationVersion("1.1.0.3");
+    QCoreApplication::setApplicationName("Simbas");
+    QCoreApplication::setApplicationVersion("1.0.0.0");
 
-    parser.setApplicationDescription("Generate pSNPs from BAM format file");
+    parser.setApplicationDescription("Simulate bax files");
     parser.addHelpOption();
     parser.addVersionOption();
     parser.addOption(inFastaTemplate);
@@ -43,20 +44,44 @@ void configCommandLineParser(QCommandLineParser& parser)
 
 void runProgram(QCommandLineParser& clp)
 {
-    SimBax simBax(clp.value(inFastaTemplate).toStdString(),
-                  clp.value(outFilePrefix).toStdString(),
-                  clp.value(depth).toInt());
+    string t = getFileContents(clp.value(inFastaTemplate).toStdString().c_str());
+    basesFromFasta(t);
+
+    SimBax simBax(t
+                  ,clp.value(outFilePrefix).toStdString()
+                  ,clp.value(depth).toInt()
+                  ,getBaseCaller(t, clp));
     simBax();
 }
 
-long double phred2prob(int phred)
+unique_ptr<BaseCaller> getBaseCaller(const string& t, QCommandLineParser& clp)
+{
+    unique_ptr<BaseCaller> baseCaller;
+    baseCaller.reset(new BiPolerCaller(t
+                                       ,5   //lowDelPhred
+                                       ,16  //highDelPhred
+                                       ,3   //lowInsPhred
+                                       ,17  //highInsPhred
+                                       ,6   //lowSubPhred
+                                       ,27  //highSubPhred
+                                       ,30  //lowDelPct
+                                       ,60  //lowInsPct
+                                       ,60));   //lowSubPct
+    return baseCaller;
+}
+
+
+
+
+long double phred2prob(unsigned int phred)
 {
     return pow(Ten, -((long double) phred)/Ten);
 }
 
-int prob2phred(long double prob)
+unsigned int prob2phred(long double prob)
 {
-    return -Ten*log10(prob);
+    const int rtv = -Ten*log10(prob);
+    return rtv > 0 ? rtv : 0;
 }
 
 // http://insanecoding.blogspot.co.uk/2011/11/how-to-read-in-file-in-c.html

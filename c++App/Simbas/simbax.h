@@ -2,6 +2,8 @@
 #define SIMBAX_H
 #include <string>
 #include <random>
+#include <memory>
+#include "basecaller.h"
 
 #include "H5Cpp.h"
 
@@ -11,59 +13,48 @@ using namespace std;
 class SimBax
 {
 public:
-    SimBax(const string& tFilename,
+    SimBax(const string& t,
            const string& prefix,
-           const int depth);
+           const int depth,
+           unique_ptr<BaseCaller> baseCaller);
     void operator() ();
 private:
-    enum BaseErrorType {
-        Deletion,
-        Insertion,
-        Merge,
-        Substitution
-    };
 
-    void makeRead(string& r, unsigned int startPos);
-    void writeFastq(string &r, ofstream &fastq, int readNum);
-    BaseErrorType getErrorType(unsigned int tPos);
+    void makeRead(unsigned int readLen, unsigned int startLocus);
+    void makeReadOld(string& r, unsigned int startPos);
+    void writeFastq(const string &r, const string &q, ofstream &fastq, int readNum);
     inline bool MergePosible(unsigned int tpos) const;
     char randomBase(char notThis = '-');
     inline void resetStrings();
 
-    string tFilename;
+    //string tFilename;
+    const string& t;
     string baxFilename;
     string fastqFilename;
-    string t;
 
     short depth;
+    unique_ptr<BaseCaller> baseCaller;
     short readLen = 4000;
-    short deletionPhred = 7;
-    short insertionPhred = 11;
-    short mergePhred = 20;
-    short substituionPhred = 25;
-    short qualityPhred;
-    char fastqPhred;
-    long double qualityProb;
 
-    string baseCall, deletionQV, deletionTag, insertionQV, qualityValue, mergeQV;
-    string substitutionQV, subsititutionTag, numEvent;
-    vector<int> reads;
+    string baseCall;
+    string deletionQV;
+    string deletionTag;
+    string insertionQV;
+    string qualityValue;
+    string mergeQV;
+    vector<unsigned short> perBaseFrame;
+    vector<unsigned int> pulseIndex;
+    string substitutionQV;
+    string subsititutionTag;
+    vector<unsigned short> widthInFrame;
+    vector<unsigned int> reads;
 
     std::random_device rd;
     std::mt19937 gen;
-    uniform_real_distribution<long double> rndProb;
+    //uniform_real_distribution<long double> rndProb;
 
-    long deletionRatio;
-    long insertionRatio;
-    long substituionRatio;
 
-    long deletionMRatio;
-    long insertionMRatio;
-    long mergeMRatio;
-    long substituionMRatio;
-    const long ratioSize = 1000000000;
-    uniform_int_distribution<long> rndErrType;
-    uniform_int_distribution<short> rndBase;
+
 };
 
 #endif // SIMBAX_H

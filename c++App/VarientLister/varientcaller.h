@@ -12,10 +12,6 @@
 #include "pvalues.h"
 #include "frequencypartition.h"
 
-//#include <H5CommonFG.h>
-//#include <H5Location.h>
-//#include <H5File.h>
-
 using namespace std;
 using namespace BamTools;
 

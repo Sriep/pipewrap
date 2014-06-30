@@ -226,7 +226,8 @@ void VarientCaller::writeLociInfo()
 void VarientCaller::write(PValues::Method method)
 {
     ofstream pvout;
-    pvout.open(pvMethodsFilename[method] + ".pvalues.csv", ios_base::out | ios_base::trunc);
+    pvout.open(pvMethodsFilename[method] + ".pvalues.csv",
+               ios_base::out | ios_base::trunc);
     for (unsigned int locus = 0 ; locus < t.length() ; locus++)
     {
         pvout << setprecision(64) << als_info[locus]->getPValue(method) << "\n";

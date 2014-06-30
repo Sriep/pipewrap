@@ -14,9 +14,7 @@ CONFIG   -= app_bundle
 #CONFIG += static
 CONFIG  += c++11
 
-
 TEMPLATE = app
-
 
 LIBS += -L/media/sdb2/Projects/Source/Dissertation/c++App/bamtools/lib -lbamtools
 DEPENDPATH += /media/sdb2/Projects/Source/Dissertation/c++App/bamtools/include

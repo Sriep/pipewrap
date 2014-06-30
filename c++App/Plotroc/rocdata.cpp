@@ -104,10 +104,15 @@ void RocData::genRocValues()
     {
         QVector< double> tprs;
         QVector<double> fprs;
-        long double p = 1;
+        long double p = 1.0;
         bool hitYAxis = false;
         do
         {
+            if (!(p>DBL_MIN))
+            {
+                p = 0.0;
+                hitYAxis = true;
+            }
             long double tp = 0.0;
             long double fp = 0.0;
             long double tn = 0.0;
@@ -123,12 +128,13 @@ void RocData::genRocValues()
                 tn += !isVar && !guess ? 1 : 0;
                 fn += isVar && !guess ? 1 : 0;
             }
-            hitYAxis = 0 == fp;            
+            if (!hitYAxis) hitYAxis = 0 == fp;
             tprs.append(tp/(tp+fn));
             fprs.append(fp/(fp+tn));
             p = p < 0.1 ? p/10.0 : p-0.1;
         }
-        while (p > DBL_MIN && ! hitYAxis);
+        while ( ! hitYAxis);
+        //while (p > DBL_MIN && ! hitYAxis);
         rocTprs.append(tprs);
         rocFprs.append(fprs);
         int i;

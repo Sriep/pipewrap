@@ -1,9 +1,11 @@
 #include <QFont>
 #include <QPainter>
+#include <QPdfWriter>
 #include <QPageLayout>
 #include <QMarginsF>
 #include <QMargins>
 #include <QPageSize>
+#include "qpagesize.h"
 #include <QVariant>
 #include <QMap>
 #include <algorithm>
@@ -89,7 +91,8 @@ void PlotWindow::writeToPdf(const QString& fileName)
     //pdfWriter->setCreator();
     //pdfWriter->setPageLayout();
     QMargins margin = textEdit->contentsMargins();
-    QMarginsF marginsF(margin);
+    QMargins marginsF(margin);
+
     pdfWriter->setPageMargins(marginsF);
     pdfWriter->setPageSize(QPageSize(QPageSize::A3));
     //pdfWriter->setResolution();
