@@ -1,9 +1,26 @@
-#include "basecaller.h"
 #include <cassert>
+#include "main.h"
+#include "basecaller.h"
+#include "options.h"
 
-BaseCaller::BaseCaller(const string& t, unsigned int locus)
-    : t(t), locus(locus), rndBase(1, 4*3), rndProb(0,1)
+
+BaseCaller::BaseCaller()
+    : t(getFileContents(Options::get(Options::InTemplate).c_str()))
+    , locus(0)
+    , rndBase(1, 4*3)
+    , rndProb(0,1)
 {
+    locus = 0;
+    basesFromFasta(t);
+    for ( unsigned int i = 0 ; i < t.size() ; i++)
+        if ('a' <= t[i] && t[i] <= 'z') t[i] -= 'a' - 'A';
+}
+
+BaseCaller::BaseCaller(const string& tp, unsigned int locus)
+    : t(tp), locus(locus), rndBase(1, 4*3), rndProb(0,1)
+{
+    for ( unsigned int i = 0 ; i < t.size() ; i++)
+        if ('a' <= tp[i] && tp[i] <= 'z') t[i] -= 'a' - 'A';
 }
 
 void BaseCaller::next()

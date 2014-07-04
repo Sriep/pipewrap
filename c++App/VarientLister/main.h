@@ -11,6 +11,9 @@ static const long double Ten = 10.0;
 static const long double One = 1.0;
 static const long double Zero = 0.0;
 
+static const string programName = "VarientLister";
+static const string version = "1.0.0.0";
+
 //-i big_simbas_blasr.bam -t Sc8915bp_cs.fasta -l locinfo.csv -k h5_x1000_ -5  big_simbas.bax.h5
 
 void configCommandLineParser(QCommandLineParser& parser);

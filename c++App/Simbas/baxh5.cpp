@@ -211,8 +211,16 @@ void BaxH5::writeBaseCalls(const string& bases
                                              PredType::NATIVE_UINT16, ds);
     dsPulseIndex = baseCalls.createDataSet("PulseIndex",
                                              PredType::NATIVE_INT32, ds);
-    dsQualtiyValue = baseCalls.createDataSet("QualtiyValue",
+    dsQualtiyValue = baseCalls.createDataSet("QualityValue",
                                              PredType::NATIVE_UINT8, ds);
+
+    DataSet dsSimCoordinates = baseCalls.createDataSet("SimulatedCoordinate",
+                                             PredType::NATIVE_INT32, ds);
+    DataSet dsSimSeqIndex= baseCalls.createDataSet("SimulatedSequenceIndex",
+                                            PredType::NATIVE_INT32, ds);
+
+
+
     dsSubstitutionQV = baseCalls.createDataSet("SubstitutionQV",
                                                PredType::NATIVE_UINT8, ds);
     dsSubstitutionTag = baseCalls.createDataSet("SubstitutionTag",
@@ -232,6 +240,15 @@ void BaxH5::writeBaseCalls(const string& bases
     dsQualtiyValue.write(qualPhred.c_str(), PredType::NATIVE_UINT8);
     dsWidthInFrame.write(&widthInFrames[0], PredType::NATIVE_UINT16);
 
+    vector<unsigned int> simCoordiantes(bases.size());
+    for( unsigned int i = 0 ; i < bases.size() ; i++ )
+        simCoordiantes[i] = i;
+    dsSimCoordinates.write(&simCoordiantes[0], PredType::NATIVE_INT32);
+
+    vector<unsigned int> simSeqIndex(bases.size(),0);
+    dsSimSeqIndex.write(&simSeqIndex[0], PredType::NATIVE_INT32);
+
+
     zmw = baseCalls.createGroup("ZMW");
     writeZmw(reads);
 }
@@ -242,14 +259,14 @@ void BaxH5::writeZmw(const vector<unsigned int> &reads)
     numEvent[0] = reads.size();
     DataSpace dsNE(1, numEvent);
 
-    dsHoleChipLook = zmw.createDataSet("HoleChipLook",PredType::NATIVE_UINT16,dsNE);
-    dsHoleNumber = zmw.createDataSet("HoldNumber",PredType::NATIVE_INT32,dsNE);
+    dsHoleChipLook = zmw.createDataSet("HoleChipLook",PredType::NATIVE_INT16,dsNE);
+    dsHoleNumber = zmw.createDataSet("HoleNumber",PredType::NATIVE_UINT32,dsNE);
     dsHoleStatus = zmw.createDataSet("HoleStatus",PredType::NATIVE_UINT8,dsNE);
     dsNumEvent = zmw.createDataSet("NumEvent", PredType::NATIVE_INT32, dsNE);
 
     const vector<unsigned short> holeChipLook = genHoleChipLookDs(reads);
-    dsHoleChipLook.write(&(genHoleChipLookDs(reads)[0]), PredType::NATIVE_UINT16);
-    dsHoleNumber.write(&(genHoleNumberData(reads)[0]), PredType::NATIVE_INT32);
+    dsHoleChipLook.write(&(genHoleChipLookDs(reads)[0]), PredType::NATIVE_INT16);
+    dsHoleNumber.write(&(genHoleNumberData(reads)[0]), PredType::NATIVE_UINT32);
     dsHoleStatus.write(&(genHoleStatusData(reads)[0]), PredType::NATIVE_UINT8);
     dsNumEvent.write(&reads[0], PredType::NATIVE_INT32);
 

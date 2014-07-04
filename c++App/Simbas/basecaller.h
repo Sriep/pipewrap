@@ -9,6 +9,7 @@ class BaseCaller
 {
 public:
 
+    BaseCaller();
     BaseCaller(const string& t, unsigned int locus = 0);
 
     virtual void next();
@@ -42,7 +43,7 @@ protected:
     void nextLocus();
 
 
-    const string& t;
+    string t;
     unsigned int locus = 0;
     bool moveLocus = true;
 

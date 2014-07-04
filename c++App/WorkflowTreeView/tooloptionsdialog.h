@@ -7,6 +7,7 @@
 
 class QSqlQuery;
 class QFormLayout;
+class QGridLayout;
 class QDialogButtonBox;
 class QLineEdit;
 class QCheckBox;
@@ -22,6 +23,8 @@ public:
     explicit ToolOptionsDialog(QStandardItem* item, QWidget *parent = 0);
     ~ToolOptionsDialog();
 private:
+    const int col_size = 30;
+
     QVector<QWidget*>  getNextWidget();
     QVector<QWidget*>  getFilenameWidget();
     QString getOptionLabel(const QString& value);
@@ -34,6 +37,7 @@ private:
 
     QSqlQuery* m_tool_option_table;
     QFormLayout* m_forms_layout;
+    QGridLayout* m_grid_layout;
     QDialogButtonBox *m_buttonBox;
     //QVector<QString> m_variable_options;
     QQueue<QLineEdit*> m_line_edits;

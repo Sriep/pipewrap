@@ -82,7 +82,6 @@ unique_ptr<BaseCaller> getBaseCaller(const string& t)
     unique_ptr<BaseCaller> baseCaller;
     if (false)
     {
-        unique_ptr<BaseCaller> baseCaller;
         baseCaller.reset(new BiPolerCaller(t
                                            ,5   //lowDelPhred
                                            ,16  //highDelPhred
@@ -93,6 +92,10 @@ unique_ptr<BaseCaller> getBaseCaller(const string& t)
                                            ,30  //lowDelPct
                                            ,40  //lowInsPct
                                            ,40));   //lowSubPct
+    }
+    else if (Options::get(Options::PhredDistributions) != "")
+    {
+        baseCaller.reset(new DiscreteCaller());
     }
     else
     {
@@ -137,15 +140,15 @@ unique_ptr<BaseCaller> getBaseCaller(const string& t)
         };
         */
 
-        array<unsigned char, nPhreds> delitionsDist =
-        {
+        array<unsigned short, nPhreds> delitionsDist =
+        {0,
             0,0,0,1,2,
             4,3,2,2,1,
             1,1,0,0,0,
             0,70    //15-16
         };
-        array<unsigned char, nPhreds> insertionDist =
-        {
+        array<unsigned short, nPhreds> insertionDist =
+        {0,
             //0,0,10,10,7,
             //5,4,3,3,3,
             0,0,0,0,3,
@@ -154,7 +157,7 @@ unique_ptr<BaseCaller> getBaseCaller(const string& t)
             4,4,4,5,6,
             7,7,6,6     //20-23
         };
-        array<unsigned char, nPhreds> mergeDist =
+        array<unsigned short, nPhreds> mergeDist =
         {
             0,0,0,1,1,  1,1,1,1,1,
             2,2,2,3,3,  3,3,4,3,3,
@@ -168,8 +171,8 @@ unique_ptr<BaseCaller> getBaseCaller(const string& t)
             0,0,0,0,0,  0,0,0,0,0,
             30
         };
-        array<unsigned char, nPhreds> substitutionDist =
-        {
+        array<unsigned short, nPhreds> substitutionDist =
+        {0,
             0,0,0,1,1,
             4,9,10,8,5,
             3,3,2,2,2,

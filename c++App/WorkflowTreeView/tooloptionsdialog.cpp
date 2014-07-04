@@ -122,7 +122,7 @@ void ToolOptionsDialog::readControlsDB()
     QString tool_name = m_tree_item->text();
 
     m_forms_layout = new QFormLayout;
-    //m_grid_layout = new QGridLayout;
+    m_grid_layout = new QGridLayout;
     m_line_edits.clear();
 
     QString command = m_tree_item->data(CommandStrRole).toString();
@@ -138,6 +138,7 @@ void ToolOptionsDialog::readControlsDB()
     select_query += command + "%' ORDER BY op_postion";
     m_tool_option_table = new QSqlQuery(select_query);
 
+    int row = 0;
     while (m_tool_option_table->next())
     {
         //Q_ASSERT(command == (m_tool_option_table->value(0)).toString());
@@ -152,14 +153,23 @@ void ToolOptionsDialog::readControlsDB()
         for (int i = 0; i < next_widgets.size(); ++i)
         {
             next_widgets.at(i)->setToolTip(tool_tip);
-            m_forms_layout->addRow(new QLabel(label_text), next_widgets.at(i));
+            //m_forms_layout->addRow(new QLabel(label_text), next_widgets.at(i));
+            m_grid_layout->addWidget(new QLabel(label_text)
+                                     , row % col_size
+                                     , 2*(row / col_size));
+            m_grid_layout->addWidget(next_widgets.at(i)
+                                     , row % col_size
+                                     , 2*(row / col_size) +1);
+            row++;
         }
     }
-
-    m_forms_layout->addRow(m_buttonBox);
     //m_forms_layout->setRowWrapPolicy(QFormLayout::WrapAllRows);
+    //m_forms_layout->addRow(m_buttonBox);
+    //setLayout(m_forms_layout);
 
-    setLayout(m_forms_layout);
+    m_grid_layout->addWidget(m_buttonBox, col_size+1,0);
+    setLayout(m_grid_layout);
+
 }
 
 void ToolOptionsDialog::setFilenameSlot(QWidget* widget)

@@ -313,8 +313,8 @@ void VarientCaller::populateLociInfo()
             MatchMismatches tMatch(al.QueryBases, al.CigarData);
             for (unsigned int mBase = 0 ; mBase < tMatch.size() ; mBase++)
             {
-                const int locus = al.Position + mBase;
-                const int alBase = mBase + tMatch.offset(mBase);
+                const unsigned int locus = al.Position + mBase;
+                const unsigned int alBase = mBase + tMatch.offset(mBase);
 
                 //if (goodEnoughRead(al.Qualities[alBase]))
                 if (goodEnoughRead(alBase, al, basFile))
@@ -341,10 +341,12 @@ void VarientCaller::populateLociInfo()
                             }
                             else
                             {
-                                const int start = max(0, locus-windowSize);
-                                const int end = t.size() < locus + windowSize
+                                const unsigned int start =
+                                        (unsigned int)max(0, (int)(locus-windowSize));
+                                const unsigned int end =
+                                                t.size() < locus + windowSize
                                               ? t.size() : locus + windowSize;
-                                const int l = locus < windowSize
+                                const unsigned int l = locus < windowSize
                                             ? locus : windowSize;
                                 string window = t.substr(start, end - start);
                                 phard = basFile->getPhred(al.Name,

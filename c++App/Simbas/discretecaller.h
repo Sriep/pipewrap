@@ -7,12 +7,13 @@
 class DiscreteCaller : public BaseCaller
 {
 public:
+    DiscreteCaller();
     DiscreteCaller(const string &t, unsigned int locus = 0);
     DiscreteCaller(const string &t
-                   , const array<unsigned char, nPhreds> &delitionsDist
-                   , const array<unsigned char, nPhreds> &insertionDist
-                   , const array<unsigned char, nPhreds> &mergeDist
-                   , const array<unsigned char, nPhreds> &substitutionDist
+                   , const array<unsigned short, nPhreds> &delitionsDist
+                   , const array<unsigned short, nPhreds> &insertionDist
+                   , const array<unsigned short, nPhreds> &mergeDist
+                   , const array<unsigned short, nPhreds> &substitutionDist
                    , unsigned int locus = 0);
     virtual ~DiscreteCaller();
 
@@ -23,7 +24,7 @@ private:
     void deletionError();
     void insertionError(bool setDeleteTag);
     void substitutinoError(bool setDeleteTag);
-    void reconfigDist(const array<unsigned char, nPhreds> inDist
+    void reconfigDist(const array<unsigned short, nPhreds> inDist
                       , array<unsigned char, nPhreds>& outDist
                       , unsigned short& background);
 

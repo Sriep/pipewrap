@@ -16,6 +16,7 @@ public:
     enum OptionTypes
     {
         InTemplate
+        ,PhredDistributions
         ,Depth
         ,OutPrefix
         ,Help

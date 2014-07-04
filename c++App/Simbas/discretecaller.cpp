@@ -1,7 +1,34 @@
-#include "discretecaller.h"
-#include "main.h"
 #include <cmath>
 #include <cassert>
+#include "discretecaller.h"
+#include "options.h"
+#include "fstream"
+#include "main.h"
+
+
+DiscreteCaller::DiscreteCaller()
+: BaseCaller(), rndPct(0,100)
+{
+    array<unsigned short, nPhreds> delitions = {{}};
+    array<unsigned short, nPhreds> insertions = {{}};
+    array<unsigned short, nPhreds> merges {{}};
+    array<unsigned short, nPhreds> substitutions {{}};
+    string distFile = Options::get(Options::PhredDistributions);
+    ifstream ins(distFile);
+    ins.ignore(100,'\n');
+    int index = 0;
+    while (!ins.eof() && index <= 100)
+    {
+        ins >> index;
+        ins >> delitions[index] >> insertions[index]
+            >> merges[index] >> substitutions[index];
+    }
+    reconfigDist(delitions, delitionsDist, backgroundDel);
+    reconfigDist(insertions, insertionDist, backgroundIns);
+    reconfigDist(merges, mergeDist, backgroudMerge);
+    reconfigDist(substitutions, substitutionDist, backgourndSub);
+    simulateData();
+}
 
 DiscreteCaller::DiscreteCaller(const string& t, unsigned int locus)
     : BaseCaller(t, locus), rndPct(0,100)
@@ -9,10 +36,10 @@ DiscreteCaller::DiscreteCaller(const string& t, unsigned int locus)
 }
 
 DiscreteCaller::DiscreteCaller(const string &t
-                           , const array<unsigned char, nPhreds>& delitions
-                           , const array<unsigned char, nPhreds>& insertions
-                           , const array<unsigned char, nPhreds>& merges
-                           , const array<unsigned char, nPhreds>& substitutions
+                           , const array<unsigned short, nPhreds>& delitions
+                           , const array<unsigned short, nPhreds>& insertions
+                           , const array<unsigned short, nPhreds>& merges
+                           , const array<unsigned short, nPhreds>& substitutions
                            , unsigned int locus)
     : BaseCaller(t, locus), rndPct(0,100)
 {
@@ -23,7 +50,7 @@ DiscreteCaller::DiscreteCaller(const string &t
     simulateData();
 }
 
-void DiscreteCaller::reconfigDist(const array<unsigned char, nPhreds> inDist
+void DiscreteCaller::reconfigDist(const array<unsigned short, nPhreds> inDist
                                  , array<unsigned char, nPhreds>& outDist
                                  , unsigned short &background)
 {

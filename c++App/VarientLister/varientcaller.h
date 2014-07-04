@@ -69,8 +69,8 @@ private:
     long long totalBaseReads = 0;
     long long totalReadVareints = 0;
     long double averagePhred = 0.0;
-    int windowSize = 20;
-    unsigned char insThreshold = 0;
+    unsigned int windowSize = 20;
+    unsigned char insThreshold = 5;
     unsigned char delThreshold = 0;
     unsigned char subsThreshold = 0;
     unsigned char preQualThreshold = 10;
