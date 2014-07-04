@@ -190,10 +190,6 @@ bool compareBases(char c1, char c2)
     return false;
 }
 
-long double phred2prob(int phred)
-{
-    return pow(Ten, -((long double) phred)/Ten);
-}
 
 //http://en.wikipedia.org/wiki/Kahan_summation_algorithm
 long double kahanSum(const vector<long double>& sumees)
@@ -211,7 +207,20 @@ long double kahanSum(const vector<long double>& sumees)
     return sum;
 }
 
-
+long double phred2prob(unsigned char phred)
+{
+    return pow(Ten, -((long double) phred)/Ten);
+}
+/*
+long double phred2prob(int phred)
+{
+    return pow(Ten, -((long double) phred)/Ten);
+}*/
+unsigned int prob2phred(long double prob)
+{
+    const int rtv = -Ten*log10(prob);
+    return rtv > 0 ? rtv : 0;
+}
 
 
 

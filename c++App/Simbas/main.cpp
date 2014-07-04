@@ -1,32 +1,43 @@
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include "bipolercaller.h"
+#include "discretecaller.h"
 #include <cmath>
 #include <fstream>
 #include <cerrno>
-
+#include <array>
 #include "main.h"
 #include "simbax.h"
+#include "chrono"
+#include "ctime"
+#include "iostream"
+#include <qdebug.h>
+#include "options.h"
 
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
-    QCommandLineParser clp;
-    configCommandLineParser(clp);
-    clp.process(a);
+    Options::readOptions(argc, argv);
+    //QCoreApplication a(argc, argv);
+    //QCommandLineParser clp;
 
-    try
+    //configCommandLineParser(clp);
+    //clp.process(a);
+
+    if (Options::get(Options::InTemplate).size() > 0)
     {
-        runProgram(clp);
-    }
-    catch (...)
-    {
-        return 1;
+        try
+        {
+            runProgram();
+        }
+        catch (...)
+        {
+            return 1;
+        }
     }
     return 0;
 }
-
+/*
 void configCommandLineParser(QCommandLineParser& parser)
 {
     QCoreApplication::setApplicationName("Simbas");
@@ -40,33 +51,138 @@ void configCommandLineParser(QCommandLineParser& parser)
     parser.addOption(outFilePrefix);
 
     return;
-}
+}*/
 
-void runProgram(QCommandLineParser& clp)
+void runProgram()
 {
-    string t = getFileContents(clp.value(inFastaTemplate).toStdString().c_str());
+    //string t = getFileContents(clp.value(inFastaTemplate).toStdString().c_str());
+    string t = getFileContents(Options::get(Options::InTemplate).c_str());
     basesFromFasta(t);
 
-    SimBax simBax(t
-                  ,clp.value(outFilePrefix).toStdString()
-                  ,clp.value(depth).toInt()
-                  ,getBaseCaller(t, clp));
+    chrono::time_point<chrono::system_clock> start, end;
+    start = chrono::system_clock::now();
+
+    //SimBax simBax(t
+    //              ,clp.value(outFilePrefix).toStdString()
+    //              ,clp.value(depth).toInt()
+    //              ,getBaseCaller(t, clp));
+
+
+    SimBax simBax(t, getBaseCaller(t));
     simBax();
+    end = chrono::system_clock::now();
+
+    chrono::duration<double> elapsed = end-start;
+    qDebug() << "time taken seconds : "  << elapsed.count();
+    std::cout << "time taken seconds : " << elapsed.count();
 }
 
-unique_ptr<BaseCaller> getBaseCaller(const string& t, QCommandLineParser& clp)
+unique_ptr<BaseCaller> getBaseCaller(const string& t)
 {
     unique_ptr<BaseCaller> baseCaller;
-    baseCaller.reset(new BiPolerCaller(t
-                                       ,5   //lowDelPhred
-                                       ,16  //highDelPhred
-                                       ,3   //lowInsPhred
-                                       ,17  //highInsPhred
-                                       ,6   //lowSubPhred
-                                       ,27  //highSubPhred
-                                       ,30  //lowDelPct
-                                       ,60  //lowInsPct
-                                       ,60));   //lowSubPct
+    if (false)
+    {
+        unique_ptr<BaseCaller> baseCaller;
+        baseCaller.reset(new BiPolerCaller(t
+                                           ,5   //lowDelPhred
+                                           ,16  //highDelPhred
+                                           ,3   //lowInsPhred
+                                           ,17  //highInsPhred
+                                           ,6   //lowSubPhred
+                                           ,27  //highSubPhred
+                                           ,30  //lowDelPct
+                                           ,40  //lowInsPct
+                                           ,40));   //lowSubPct
+    }
+    else
+    {
+        /*
+        array<unsigned char, nPhreds> delitionsDist =
+        {
+            0,0,0,1,2,
+            4,3,2,2,1,
+            1,1,0,0,0,
+            0,70
+        };
+        array<unsigned char, nPhreds> insertionDist =
+        {
+            0,0,10,10,7,
+            5,4,3,3,3,
+            3,3,3,3,4,
+            4,5,6,6,7,
+            6
+        };
+        array<unsigned char, nPhreds> mergeDist =
+        {
+            0,0,0,1,1,  1,1,1,1,1,
+            2,2,2,3,3,  3,3,4,3,3,
+            3,3,3,3,3,  2,2,2,2,1,
+            1,1,1,0,1,  0,0,1,0,0,
+            0,0,0,0,1,  0,0,0,0,0,
+            0,0,0,0,0,  0,0,0,0,0,
+            0,0,0,0,0,  0,0,0,0,0,
+            0,0,0,0,0,  0,0,0,0,0,
+            0,0,0,0,0,  0,0,0,0,0,
+            0,0,0,0,0,  0,0,0,0,0,
+            30
+        };
+        array<unsigned char, nPhreds> substitutionDist =
+        {
+            0,1,1,1,2,
+            4,9,10,8,5,
+            3,3,2,2,2,
+            2,2,2,2,2,
+            2,1,1,1,1,
+            1,1,1,1,1,30
+        };
+        */
+
+        array<unsigned char, nPhreds> delitionsDist =
+        {
+            0,0,0,1,2,
+            4,3,2,2,1,
+            1,1,0,0,0,
+            0,70    //15-16
+        };
+        array<unsigned char, nPhreds> insertionDist =
+        {
+            //0,0,10,10,7,
+            //5,4,3,3,3,
+            0,0,0,0,3,
+            10,7,3,3,3,
+            3,3,3,3,3,
+            4,4,4,5,6,
+            7,7,6,6     //20-23
+        };
+        array<unsigned char, nPhreds> mergeDist =
+        {
+            0,0,0,1,1,  1,1,1,1,1,
+            2,2,2,3,3,  3,3,4,3,3,
+            3,3,3,3,3,  2,2,2,2,1,
+            1,1,1,0,1,  0,0,1,0,0,
+            0,0,0,0,1,  0,0,0,0,0,
+            0,0,0,0,0,  0,0,0,0,0,
+            0,0,0,0,0,  0,0,0,0,0,
+            0,0,0,0,0,  0,0,0,0,0,
+            0,0,0,0,0,  0,0,0,0,0,
+            0,0,0,0,0,  0,0,0,0,0,
+            30
+        };
+        array<unsigned char, nPhreds> substitutionDist =
+        {
+            0,0,0,1,1,
+            4,9,10,8,5,
+            3,3,2,2,2,
+            2,2,2,2,2,
+            2,1,1,1,1,
+            1,1,1,1,1,30 //25-30
+        };
+        baseCaller.reset(new DiscreteCaller(t
+                                           ,delitionsDist
+                                           ,insertionDist
+                                           ,mergeDist
+                                           ,substitutionDist));
+    }
     return baseCaller;
 }
 
@@ -101,7 +217,6 @@ std::string getFileContents(const char *filename)
   throw(errno);
 }
 
-
 void basesFromFasta(string& t)
 {
     if ('>' == t[0])
@@ -113,6 +228,39 @@ void basesFromFasta(string& t)
                               [](char x){return std::isspace(x);}),
                t.end());
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -11,6 +11,8 @@ Hdf5BasFile::Hdf5BasFile(const string& basFilename)
     ,deletionDS(openDataSet("/PulseData/BaseCalls/DeletionQV"))
     ,insertionDS(openDataSet("/PulseData/BaseCalls/InsertionQV"))
     ,substitutionDS(openDataSet("/PulseData/BaseCalls/SubstitutionQV"))
+    ,deletionTagDS(openDataSet("/PulseData/BaseCalls/DeletionTag"))
+    ,substitutionTagDS(openDataSet("/PulseData/BaseCalls/SubstitutionTag"))
 {
     init();
 }
@@ -21,7 +23,11 @@ Hdf5BasFile::~Hdf5BasFile()
     deletionDS.close();
     insertionDS.close();
     substitutionDS.close();
+    deletionTagDS.close();
+    substitutionTagDS.close();
 }
+
+
 
 void Hdf5BasFile::init()
 {
@@ -41,6 +47,9 @@ void Hdf5BasFile::init()
     populateArray(deletionsQV, deletionDS);
     populateArray(insertionsQV, insertionDS);
     populateArray(subsititutionsQV, substitutionDS);
+    populateArray(deletionTag, deletionTagDS);
+    populateArray(substitutionTag, substitutionTagDS);
+
 }
 
 void Hdf5BasFile::populateArray(vector<unsigned char>& dataArray,
@@ -71,7 +80,7 @@ unsigned int Hdf5BasFile::getPhred(const string &readId,
 
 
 unsigned long Hdf5BasFile::getIndexFromId(const string &readId,
-                                          ReadFormat format)
+                                          ReadFormat format) const
 {
     switch (format)
     {
@@ -89,6 +98,31 @@ unsigned long Hdf5BasFile::getIndexFromId(const string &readId,
     }
 }
 
+void Hdf5BasFile::setReadFromId(const string &readId, ReadFormat format)
+{
+    readIndex = readStarts[getIndexFromId(readId, format)];
+}
+
+unsigned char Hdf5BasFile::getDeletionQV(short position) const
+{
+    return deletionsQV[readIndex + position];
+}
+
+unsigned char Hdf5BasFile::getInsertionQV(short position) const
+{
+    return insertionsQV[readIndex + position];
+}
+
+unsigned char Hdf5BasFile::getSubstitutionQV(short position) const
+{
+    return subsititutionsQV[readIndex + position];
+}
+
+unsigned char Hdf5BasFile::getMergeQV(short position) const
+{
+    return mergeQV[readIndex + position];
+}
+
 unsigned int Hdf5BasFile::getPhred(const string& readId,
                                    int posRead,
                                    const string& t,
@@ -104,15 +138,43 @@ unsigned int Hdf5BasFile::getPhred(const string& readId,
     if (string::npos == start) start = relPos;
     const size_t runSize = end-start + 1;
 
-    unsigned long readIndex = getIndexFromId(readId, format);
-    unsigned long baseIndex = readStarts[readIndex] + posRead;
-    long double insertQV = (long double) insertionsQV[baseIndex];
-    long double deleteQV = (long double) deletionsQV[baseIndex];
-    long double substQV = (long double) subsititutionsQV[baseIndex];
-    long double prob = pow(Ten, ((long double) -substQV)/Ten)
-              + runSize * pow(Ten, ((long double) (-insertQV - deleteQV))/Ten);
-    long double phred = -10*log10(prob);
-    return (unsigned int) phred;
+    //unsigned long readIndex = getIndexFromId(readId, format);
+    //unsigned long baseIndex = readStarts[readIndex] + posRead;
+    unsigned long baseIndex = readIndex + posRead;
+    unsigned char insertQV = insertionsQV[baseIndex];
+    unsigned char deleteQV = deletionsQV[baseIndex];
+    unsigned char substQV = subsititutionsQV[baseIndex];
+    char delTag = deletionTag[baseIndex];
+    char subTag = substitutionTag[baseIndex];
+    long double subTagF = tagFactor(substQV, subBackground, base, subTag);
+    long double delTagF = tagFactor(deleteQV, delBackground, base, delTag);
+
+    long double prob = subTagF + delTagF * runSize * phred2prob(insertQV);
+    unsigned int phred = prob2phred(prob);
+
+
+    //long double prob = subTagF * phred2prob(substQV)
+    //                 + delTagF * runSize * phred2prob(insertQV + deleteQV);
+    //unsigned int phred = prob2phred(prob);
+    //long double prob = pow(Ten, ((long double) -substQV)/Ten)
+    //          + runSize * pow(Ten, ((long double) (-insertQV - deleteQV))/Ten);
+    //long double phred = -10*log10(prob);
+    return phred;
+}
+
+long double Hdf5BasFile::tagFactor(long double pPhred
+                                      , long double pBackground
+                                      , char tBase
+                                      , char tagBase)
+{
+    if (tBase == tagBase)
+    {
+        return pPhred / ( pPhred + 2*pBackground);
+    }
+    else
+    {
+        return pBackground / ( pPhred + 2*pBackground);
+    }
 }
 
 

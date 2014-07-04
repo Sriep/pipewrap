@@ -23,7 +23,9 @@ SOURCES += main.cpp \
     baxh5.cpp \
     basecaller.cpp \
     constantcaller.cpp \
-    bipolercaller.cpp
+    bipolercaller.cpp \
+    discretecaller.cpp \
+    options.cpp
 
 HEADERS += \
     main.h \
@@ -31,4 +33,6 @@ HEADERS += \
     baxh5.h \
     basecaller.h \
     constantcaller.h \
-    bipolercaller.h
+    bipolercaller.h \
+    discretecaller.h \
+    options.h

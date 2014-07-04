@@ -30,7 +30,8 @@ SOURCES += main.cpp \
     locusinfo.cpp \
     frequencypartition.cpp \
     matchmismatches.cpp \
-    hdf5basfile.cpp
+    hdf5basfile.cpp \
+    options.cpp
 HEADERS += \
     varientcaller.h \
     main.h \
@@ -38,6 +39,7 @@ HEADERS += \
     locusinfo.h \
     frequencypartition.h \
     matchmismatches.h \
-    hdf5basfile.h
+    hdf5basfile.h \
+    options.h
 
 

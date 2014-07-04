@@ -15,6 +15,7 @@
 using namespace std;
 using namespace BamTools;
 
+class Hdf5BasFile;
 class LocusInfo;
 
 class VarientCaller
@@ -40,6 +41,11 @@ private:
     void writeLociInfo();
     void write(PValues::Method method);
     void hdf5();
+    bool goodEnoughRead(char phred);
+    bool goodEnoughRead(unsigned short position
+                        , const BamAlignment& al
+                        , const Hdf5BasFile* baxFile);
+    void calculatePvalues();
 
     void Init();
     void filterReads();
@@ -64,6 +70,11 @@ private:
     long long totalReadVareints = 0;
     long double averagePhred = 0.0;
     int windowSize = 20;
+    unsigned char insThreshold = 0;
+    unsigned char delThreshold = 0;
+    unsigned char subsThreshold = 0;
+    unsigned char preQualThreshold = 10;
+    unsigned char postQualThrehold = 10;
 
     vector<unique_ptr<LocusInfo>> als_info;
     unordered_set<string> invalid;

@@ -17,10 +17,14 @@ public:
            const string& prefix,
            const int depth,
            unique_ptr<BaseCaller> baseCaller);
+    SimBax(const string& t,
+           unique_ptr<BaseCaller> baseCaller);
     void operator() ();
 private:
 
-    void makeRead(unsigned int readLen, unsigned int startLocus);
+    void makeRead(unsigned int readLen
+                  , unsigned int startLocus
+                  , string &fastqPhreds);
     void makeReadOld(string& r, unsigned int startPos);
     void writeFastq(const string &r, const string &q, ofstream &fastq, int readNum);
     inline bool MergePosible(unsigned int tpos) const;
@@ -42,7 +46,7 @@ private:
     string insertionQV;
     string qualityValue;
     string mergeQV;
-    vector<unsigned short> perBaseFrame;
+    vector<unsigned short> preBaseFrame;
     vector<unsigned int> pulseIndex;
     string substitutionQV;
     string subsititutionTag;

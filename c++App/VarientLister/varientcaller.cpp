@@ -3,6 +3,8 @@
 #include <cctype>
 #include <sstream>
 #include <iomanip>
+#include "chrono"
+#include "ctime"
 
 #include "H5Cpp.h"
 #include "api/BamAlignment.h"
@@ -77,7 +79,9 @@ void VarientCaller::Init()
                                 new LocusInfo(t[i], &freqPartition, methods)));
     }
     filterReads();
-    populateLociInfo();    
+    populateLociInfo();
+    calculatePvalues();
+
 }
 
 void VarientCaller::hdf5()
@@ -257,27 +261,64 @@ char VarientCaller::visBase(char bamChar)
     return '-';
 }
 
+bool VarientCaller::goodEnoughRead(char phred)
+{
+    return phred-33 >= preQualThreshold;
+}
+
+bool VarientCaller::goodEnoughRead(unsigned short position
+                                    , const BamAlignment& al
+                                    , const Hdf5BasFile *baxFile)
+{
+    if (NULL == baxFile)
+    {
+        return al.Qualities[position] - 33 >= preQualThreshold;
+    }
+    else
+    {
+        //char q = al.Qualities[position] - 33;
+        //char i = baxFile->getInsertionQV(position);
+        //char d = baxFile->getDeletionQV(position);
+        //char s = baxFile->getSubstitutionQV(position);
+        //return i>insThreshold && d >delThreshold && s>subsThreshold;
+        return  baxFile->getInsertionQV(position) >= insThreshold
+                && baxFile->getDeletionQV(position) >= delThreshold
+                && baxFile->getSubstitutionQV(position) >= subsThreshold
+                && al.Qualities[position] - 33 >= preQualThreshold;
+    }
+}
+
 void VarientCaller::populateLociInfo()
 {
     bam_reader.Rewind();
     BamAlignment al;
 
-    try
+    //unsigned int nextOut = /t.length() /10;
+    //unsigned int pct = 0;
+    //chrono::time_point<chrono::system_clock> start;
+    //start = chrono::system_clock::now();
+    cout << "Untangling reads.\n";
+    int readCount = 0;
+
+
+    Hdf5BasFile* basFile = NULL;
+    if (basH5file != "") basFile = new Hdf5BasFile(basH5file);
+
+    while(bam_reader.GetNextAlignment(al))
     {
-        Hdf5BasFile* basFile = NULL;
-        if (basH5file != "") basFile = new Hdf5BasFile(basH5file);
-
-        while(bam_reader.GetNextAlignment(al))
+        // Position = 0 means read has not been mapped succesfully
+        if (0 < al.Position)
         {
-            // Position = 0 means read has not been mapped succesfully
-            if (0 < al.Position)
+            if (NULL != basFile) basFile->setReadFromId(al.Name);
+            MatchMismatches tMatch(al.QueryBases, al.CigarData);
+            for (unsigned int mBase = 0 ; mBase < tMatch.size() ; mBase++)
             {
-                MatchMismatches tMatch(al.QueryBases, al.CigarData);
-                for (unsigned int mBase = 0 ; mBase < tMatch.size() ; mBase++)
-                {
-                    const int locus = al.Position + mBase;
-                    const int alBase = mBase + tMatch.offset(mBase);
+                const int locus = al.Position + mBase;
+                const int alBase = mBase + tMatch.offset(mBase);
 
+                //if (goodEnoughRead(al.Qualities[alBase]))
+                if (goodEnoughRead(alBase, al, basFile))
+                {
                     if (compareBases(tMatch[mBase], t[locus]))
                     {
                         int phard = (NULL == basFile)
@@ -285,7 +326,7 @@ void VarientCaller::populateLociInfo()
                                     : basFile->getPhred(al.Name, alBase);
                         als_info[locus]->inc_calls(al.QueryBases[alBase],phard);
                     }
-                    else
+                    else if (tMatch[mBase] != '-')
                     {
                         int phard;
                         if(NULL == basFile)
@@ -311,23 +352,44 @@ void VarientCaller::populateLociInfo()
                                                           window, "", l);
                             }
                         }
-                        als_info[locus]->inc_calls(al.QueryBases[alBase],phard);
+                        if (phard > postQualThrehold)
+                            als_info[locus]->inc_calls(
+                                        al.QueryBases[alBase],phard);
                     }
                 }
             }
         }
-        if (NULL != basFile) delete(basFile);
+        if (0 == (++readCount % 10000))
+            cout << readCount << " reads processed\n";
     }
-    catch (H5::Exception ex)
-    {
-        ex.printError();
-    }
+    if (NULL != basFile) delete(basFile);
+}
+
+void VarientCaller::calculatePvalues()
+{
+    unsigned int nextOut = t.length() /10;
+    unsigned int pct = 0;
+    chrono::time_point<chrono::system_clock> start;
+    start = chrono::system_clock::now();
+    cout << "Calculating pvalues.\n";
+
     for (unsigned int i = 0 ; i < t.length() ; i++ )
     {
         als_info[i]->populate();
-    }
-}
 
+        if (i == nextOut)
+        {
+            chrono::time_point<chrono::system_clock> current;
+            current = chrono::system_clock::now();
+            chrono::duration<double> elapsed = current - start;
+            nextOut += t.length()/10;
+            pct += 10;
+            cout << pct << "% done. Time ellapsed "
+                 << elapsed.count() << " seconds\n";
+        }
+    }
+    cout << "Wrinting data to file.\n";
+}
 
 
 

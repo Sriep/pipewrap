@@ -21,7 +21,7 @@ public:
     unsigned char getDeletionTag() const;
     unsigned char getInsrtionQV() const;
     unsigned char getMergeQV() const;
-    unsigned short getPerBaseFrame() const;
+    unsigned short getPreBaseFrame() const;
     unsigned int getPulseIndex() const;
     unsigned char getQualityValue() const;
     unsigned char getSubstitutionQV() const;
@@ -51,12 +51,12 @@ protected:
     unsigned char deletionTag = 0;
     unsigned char insrtionQV = 5;
     unsigned char mergeQV = 100;
-    unsigned short perBaseFrame = 0;
-    unsigned int  pulseIndex = 0;
+    unsigned short preBaseFrame = 1000;
+    unsigned int  pulseIndex = 1;
     unsigned char qualityValue = 3;
     unsigned char substitutionQV = 20;
     unsigned char substitutionTag = 0;
-    unsigned short widthInFrames = 0;
+    unsigned short widthInFrames = 10;
 
     std::random_device rd;
     std::mt19937 gen;

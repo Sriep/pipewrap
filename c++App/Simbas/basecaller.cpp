@@ -63,9 +63,9 @@ unsigned char BaseCaller::getInsrtionQV() const
 {
     return insrtionQV;
 }
-unsigned short BaseCaller::getPerBaseFrame() const
+unsigned short BaseCaller::getPreBaseFrame() const
 {
-    return perBaseFrame;
+    return preBaseFrame;
 }
 unsigned int BaseCaller::getPulseIndex() const
 {

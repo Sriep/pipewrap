@@ -11,12 +11,12 @@ static const long double Ten = 10.0;
 static const long double One = 1.0;
 static const long double Zero = 0.0;
 
-
+//-i big_simbas_blasr.bam -t Sc8915bp_cs.fasta -l locinfo.csv -k h5_x1000_ -5  big_simbas.bax.h5
 
 void configCommandLineParser(QCommandLineParser& parser);
 void runProgram(QCommandLineParser& parser);
 bool compareBases(char c1, char c2);
-long double phred2prob(int phred);
+//long double phred2prob(int phred);
 
 long double kahanSum(const vector<long double>& sumees);
 
@@ -33,6 +33,8 @@ int factorial(int N);
 long double log_n_C_r(unsigned int n, unsigned int r);
 long double log_fac(unsigned int N);
 long double log_sfac(unsigned int N, unsigned int NpK);
+long double phred2prob(unsigned char phred);
+unsigned int prob2phred(long double prob);
 
 //command line options
 //input Bam file

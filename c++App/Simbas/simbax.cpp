@@ -12,6 +12,11 @@
 #include "baxh5.h"
 #include "constantcaller.h"
 #include "bipolercaller.h"
+#include "options.h"
+#include "chrono"
+#include "ctime"
+#include "iostream"
+#include <qdebug.h>
 
 SimBax::SimBax(const string& t,
                const string &prefix,
@@ -30,33 +35,64 @@ SimBax::SimBax(const string& t,
     //basesFromFasta(t);
 }
 
+SimBax::SimBax(const string &t, unique_ptr<BaseCaller> baseCaller)
+    : t(t)
+    , baxFilename(Options::get(Options::OutPrefix) + ".bax.h5")
+    , fastqFilename(Options::get(Options::OutPrefix) + ".fastq")
+    , depth(stoul(Options::get(Options::Depth)))
+    , baseCaller(move(baseCaller))
+    , gen(rd())
+{
+
+}
+
 void SimBax::operator()()
 {
     uniform_int_distribution<int> readStart(0, t.size());
     ofstream fastq(fastqFilename);
+
     resetStrings();
     const int numReads = t.size() * depth / readLen;
-    long numBaseCalls = 0;
+
+    int nextOut = numReads/10;
+    int pct = 0;
+    chrono::time_point<chrono::system_clock> start;
+    start = chrono::system_clock::now();
+    cout << "Inilisation finished, simulating reads.\n";
+    
     for (int readNum = 0 ; readNum < numReads ; readNum++ )
     {
-        makeRead(readLen, readStart(gen));
-
-        const int lengthRead = baseCall.size() - numBaseCalls;
+        long addedSoFar = baseCall.size();
+        string fastqPhreds;
+        makeRead(readLen, readStart(gen), fastqPhreds);
+        const int lengthRead = baseCall.size() - addedSoFar;
         reads.push_back(lengthRead);
-        writeFastq(baseCall.substr(numBaseCalls, lengthRead)
-                   ,qualityValue.substr(numBaseCalls, lengthRead)
+        writeFastq(baseCall.substr(addedSoFar, lengthRead)
+                   ,fastqPhreds
                    ,fastq
                    ,readNum);
-        numBaseCalls += baseCall.size();
-    }
 
+        if (readNum == nextOut)
+        {
+            chrono::time_point<chrono::system_clock> current;
+            current = chrono::system_clock::now();
+            chrono::duration<double> elapsed = start - current;
+            nextOut += numReads/10;
+            pct += 10;
+            cout << pct << "% done. Time ellapsed :"
+                 << elapsed.count() << " seconds\n";
+        }
+
+    }
+    
+    cout << "Wrinting data to file.\n";
     BaxH5 baxh5(baxFilename);
     baxh5.writeReads(baseCall
                     ,deletionQV
                     ,deletionTag
                     ,insertionQV
                     ,mergeQV
-                    ,perBaseFrame
+                    ,preBaseFrame
                     ,pulseIndex
                     ,substitutionQV
                     ,subsititutionTag
@@ -65,7 +101,9 @@ void SimBax::operator()()
                     ,reads);
 }
 
-void SimBax::makeRead(unsigned int readLen, unsigned int startLocus)
+void SimBax::makeRead(unsigned int readLen
+                      , unsigned int startLocus
+                      , string& fastqPhreds)
 {
     baseCaller->setLocus(startLocus);
     for ( unsigned int i = 0 ; i < readLen ; i++ )
@@ -75,8 +113,9 @@ void SimBax::makeRead(unsigned int readLen, unsigned int startLocus)
         deletionTag.push_back(baseCaller->getDeletionTag());
         insertionQV.push_back(baseCaller->getInsrtionQV());
         qualityValue.push_back(baseCaller->getQualityValue());
+        fastqPhreds.push_back(baseCaller->getQualityValue() + 33);
         mergeQV.push_back(baseCaller->getMergeQV());
-        perBaseFrame.push_back(baseCaller->getPerBaseFrame());
+        preBaseFrame.push_back(baseCaller->getPreBaseFrame());
         pulseIndex.push_back(baseCaller->getPulseIndex());
         substitutionQV.push_back(baseCaller->getSubstitutionQV());
         subsititutionTag.push_back(baseCaller->getSubstitutionTag());
@@ -94,7 +133,7 @@ inline void SimBax::resetStrings()
     insertionQV.clear(); insertionQV.resize(0);
     qualityValue.clear(); qualityValue.resize(0);
     mergeQV.clear(); mergeQV.resize(0);
-    perBaseFrame.clear(); perBaseFrame.resize(0);
+    preBaseFrame.clear(); preBaseFrame.resize(0);
     pulseIndex.clear(); pulseIndex.resize(0);
     substitutionQV.clear(); substitutionQV.resize(0);
     subsititutionTag.clear(); subsititutionTag.resize(0);
@@ -102,15 +141,15 @@ inline void SimBax::resetStrings()
     reads.clear(); reads.resize(0);
 }
 
-void SimBax::writeFastq(const string &r, const string &q
-    , ofstream& fastq, int readNum)
+void SimBax::writeFastq(const string &r
+                        , const string &q
+                        , ofstream& fastq
+                        , int readNum)
 {
     fastq << "@S1_" << std::to_string(readNum)  << '\n';
     fastq << r << '\n';
     fastq << "+S1_" << std::to_string(readNum) << '\n';
     fastq << q << '\n';
-    //for (unsigned int i = 0 ; i < r.size() ; i++ ) fastq << fastqPhred;
-    //fastq << '\n';
 }
 
 
