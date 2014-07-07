@@ -1,0 +1,7 @@
+op_command,op_string,op_data_type,op_short_description,op_long_description,op_optional,op_in_out,op_group,op_postion,op_default_text,op_default_int
+./AnalyseBax.sh,-i ,string,Input bax file.,Input bax file.,,,,,,
+./AnalyseBax.sh,-o ,string,Prefix for output files.,Prefix for output files.,,,,,,
+./AnalyseBax.sh,-d,,Distribution,Output data distributon for bax file. Can be used as input to simbas,,,,,,
+./AnalyseBax.sh,-c,,Contingency table.,"Display contingency table for bax file, showing dependancy between data.",,,,,,
+./AnalyseBax.sh,-h,,Help information,Help information,,,,,,
+./AnalyseBax.sh,-v,,Version,Version,,,,,,

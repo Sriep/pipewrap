@@ -67,3 +67,5 @@ Blasr,"Basic usage: 'blasr reads.{fasta,bax.h5} genome.fasta [-options]  option 
 Bwa bwasw,bwa bwasw [options] <target.prefix> <query.fa> [query2.fa],./bwa bwasw,,1
 Bwa index,bwa index [-a bwtsw|is] [-c] <in.fasta>,./bwa index,,1
 Bwa mem,bwa mem [options] <idxbase> <in1.fq> [in2.fq],./bwa mem,,1
+simbas,Simulate bax.h5 file,./Simbas.sh,,1
+AnalyseBax,Analyse bax files,./AnalyseBax.sh,,1
