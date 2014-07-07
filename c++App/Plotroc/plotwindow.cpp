@@ -104,8 +104,8 @@ void PlotWindow::writeToPdf(const QString& fileName)
     textEdit->print(pdfWriter);
 
     //QString fileName2 = QFileDialog::getSaveFileName(this, "Save document...", qApp->applicationDirPath(), "*.pdf");
-    QString fileName2 = "RocCurve2.pdf";
- /*
+  /*  QString fileName2 = "RocCurve2.pdf";
+ 
     QPrinter printer;
     printer.setFullPage(true);
     printer.setPaperSize(QPrinter::A4);

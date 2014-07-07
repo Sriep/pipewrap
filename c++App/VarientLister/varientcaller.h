@@ -33,10 +33,11 @@ public:
                   const string& poissonFilename,
                   const string& poissonBinomialFilename,
                   const string &knownFrequencyFilename);
+    VarientCaller();
     ~VarientCaller();
-    void write();
-
+    void operator() ();
 private:
+    void write();
     void writeReadInfo();
     void writeLociInfo();
     void write(PValues::Method method);
@@ -47,7 +48,7 @@ private:
                         , const Hdf5BasFile* baxFile);
     void calculatePvalues();
 
-    void Init();
+    void init();
     void filterReads();
     void basesFromFasta();
     char visBase(char bamChar);

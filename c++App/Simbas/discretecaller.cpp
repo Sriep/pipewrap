@@ -1,5 +1,6 @@
 #include <cmath>
 #include <cassert>
+#include <exception>
 #include "discretecaller.h"
 #include "options.h"
 #include "fstream"
@@ -13,15 +14,19 @@ DiscreteCaller::DiscreteCaller()
     array<unsigned short, nPhreds> insertions = {{}};
     array<unsigned short, nPhreds> merges {{}};
     array<unsigned short, nPhreds> substitutions {{}};
+    array<unsigned short, nPhreds> qualValues {{}};
     string distFile = Options::get(Options::PhredDistributions);
     ifstream ins(distFile);
-    ins.ignore(100,'\n');
+    ins.ignore(10000,'\n');
     int index = 0;
+    int errorCheck = 0;
     while (!ins.eof() && index <= 100)
     {
         ins >> index;
         ins >> delitions[index] >> insertions[index]
-            >> merges[index] >> substitutions[index];
+            >> merges[index] >> substitutions[index] >> qualValues[index];
+        if (errorCheck++ > 200) throw(runtime_error("Error with distribution "
+                                     "file. Check it is tab sepeartated."));
     }
     reconfigDist(delitions, delitionsDist, backgroundDel);
     reconfigDist(insertions, insertionDist, backgroundIns);

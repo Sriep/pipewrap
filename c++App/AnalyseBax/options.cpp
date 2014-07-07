@@ -5,39 +5,40 @@
 
 static const int showHelp = 1;
 static const int showVersion = 1;
-const string Options::shortOptions = "t:p:d:o:hv";
-const string Options::optionIndexes = "tpdohv";
+
+const string Options::shortOptions = "i:o:dchv";
+const string Options::optionIndexes = "iodchv";
 const struct option Options::longOptions[NumOptionTypes+1] =
 {
-    {"in-template", required_argument, NULL, shortOptions[0]}
-    ,{"phred-dist", required_argument, NULL, shortOptions[1]}
-    ,{"depth", required_argument, NULL, shortOptions[2]}
-    ,{"out-prefix", required_argument, NULL, shortOptions[3]}
+    {"in-bax", required_argument, NULL, shortOptions[0]}
+    ,{"out-prefix", required_argument, NULL, shortOptions[1]}
+    ,{"distribution", required_argument, &flags[2], true}
+    ,{"confusion-table", required_argument, &flags[3], true}
     ,{"help", no_argument, &flags[4], showHelp}
     ,{"version", no_argument, &flags[5], showVersion}
     ,{NULL, 0, NULL, 0}
 };
 const string Options::descriptions[NumOptionTypes] =
 {
-    "Template sequence to base reads upon."
-    ,"File containing phred distribution for error parameters."
-    ,"Depth of simulated sequence."
-    ,"Output prefix for bax.h5 and fastq filenames."
-    ,"Help information."
-    ,"Show program version information."
+    "Input bax file."
+    ,"Prefix for output files."
+    ,"Output data distributon for bax file. Can be used as input to simbas"
+    ,"Display confusion table for bax file, showing dependancy between data."
+    ,"Show Help information"
+    ,"Show version number"
 };
 const string Options::defaults[NumOptionTypes] =
 {
     ""
     ,""
-    ,"100"
-    ,"simbas"
+    ,""
+    ,""
     ,""
     ,""
 };
 
 string Options::values[NumOptionTypes] = defaults;
-int Options::flags[NumOptionTypes] = {};
+int Options::flags[NumOptionTypes] = {0,0,1,0,0,0};
 
 Options::Options()
 {

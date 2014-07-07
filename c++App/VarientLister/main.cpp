@@ -6,19 +6,22 @@
 #include <fstream>
 #include <string>
 #include <cerrno>
+#include "options.h"
 #include "varientcaller.h"
 #include "main.h"
+#include "options.h"
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication a(argc, argv);
-    QCommandLineParser clp;
-    configCommandLineParser(clp);
-    clp.process(a);
+    Options::readOptions(argc, argv);
+    //QCoreApplication a(argc, argv);
+    //QCommandLineParser clp;
+    //configCommandLineParser(clp);
+    //clp.process(a);
 
     try
     {
-        runProgram(clp);
+        runProgram();//clp);
     }
     catch (...)
     {
@@ -54,9 +57,9 @@ void configCommandLineParser(QCommandLineParser& parser)
     return;
 }
 
-void runProgram(QCommandLineParser& clp)
+void runProgram()//QCommandLineParser& clp)
 {
-    if (clp.value(precaculateFactorials) != "")
+    /*if (clp.value(precaculateFactorials) != "")
     {
         int numToPreCalculate = clp.value(precaculateFactorials).toInt();
         preCalculateLogFactorials(numToPreCalculate);
@@ -73,8 +76,9 @@ void runProgram(QCommandLineParser& clp)
                      clp.value(bionomialFilename).toStdString(),
                      clp.value(poissonFilename).toStdString(),
                      clp.value(poissonBinomialFilename).toStdString(),
-                     clp.value(knownFrequencyFilename).toStdString());
-    vc.write();
+                     clp.value(knownFrequencyFilename).toStdString());*/
+    VarientCaller vc;
+    vc();
 }
 
 

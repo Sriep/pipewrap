@@ -13,6 +13,7 @@
 #include "locusinfo.h"
 #include "matchmismatches.h"
 #include "hdf5basfile.h"
+#include "options.h"
 
 using namespace H5;
 
@@ -60,17 +61,63 @@ VarientCaller::VarientCaller(const string& bamInfile,
         pvMethodsFilename[PValues::KnownFrequency] = knownFrequencyFilename;
         methods.insert(PValues::KnownFrequency);
     }
-    bam_reader.Open(bamInfile);
+   bam_reader.Open(bamInfile);
     t = getFileContents(tepInile.c_str());
     basesFromFasta();
-    Init();
+    init();
+}
+
+VarientCaller::VarientCaller()
+    : freqPartition("", Options::get(Options::NumFrequencyPartitions))
+      ,basH5file(Options::get(Options::BaxH5File))
+      ,readOutfile(Options::get(Options::ReadOutFile))
+      ,lociOutfile(Options::get(Options::LociOutFile))
+{
+    pvMethodsFilename.clear();
+    //if (fisherFilename.size() > 0)
+    //{
+    //    pvMethodsFilename[PValues::FisherExact] = fisherFilename;
+    //    methods.insert(PValues::FisherExact);
+    //}
+    if (Options::get(Options::BionomialFile).size() > 0)
+    {
+        pvMethodsFilename[PValues::Bionomial]
+                = Options::get(Options::BionomialFile);
+        methods.insert(PValues::Bionomial);
+    }
+    if (Options::get(Options::PoissonFile).size() > 0)
+    {
+        pvMethodsFilename[PValues::Poisson]
+                = Options::get(Options::PoissonFile);
+        methods.insert(PValues::Poisson);
+    }
+    //if (poissonBinomialFilename.size() > 0)
+    //{
+    //    pvMethodsFilename[PValues::PiossonBionomial] = poissonBinomialFilename;
+    //    methods.insert(PValues::PiossonBionomial);
+    //}
+    if (Options::get(Options::KfFile).size() > 0)
+    {
+        pvMethodsFilename[PValues::KnownFrequency]
+                = Options::get(Options::KfFile);
+        methods.insert(PValues::KnownFrequency);
+    }
+    bam_reader.Open(Options::get(Options::InBamFile));
+    t = getFileContents(Options::get(Options::TemplateFile).c_str());
+    basesFromFasta();
+    init();
 }
 
 VarientCaller::~VarientCaller()
 {
 }
 
-void VarientCaller::Init()
+void VarientCaller::operator()()
+{
+    write();
+}
+
+void VarientCaller::init()
 {
     //hdf5();
     for (unsigned int i = 0 ; i < t.length() ; i++ )

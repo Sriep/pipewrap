@@ -381,7 +381,7 @@ const vector<int> BaxH5::genHoleNumberData(
         const vector<unsigned int> &reads)
 {
     vector<int> holeNumberData(reads.size());
-    for ( unsigned int i ; i < reads.size() ; i++ )
+    for ( unsigned int i = 0 ; i < reads.size() ; i++ )
         holeNumberData[i] = i;
     return holeNumberData;
 }

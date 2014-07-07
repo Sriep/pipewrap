@@ -5,8 +5,8 @@
 
 static const int showHelp = 1;
 static const int showVersion = 1;
-const string Options::shortOptions = "t:d:o:hv";
-const string Options::optionIndexes = "tdohv";
+const string Options::shortOptions = "i:t:x:r:l:b:p:k:f:d:e:u:q:a:hv";
+const string Options::optionIndexes = "itxrlbpkfdeuqahv";
 const struct option Options::longOptions[NumOptionTypes+1] =
 {
     {"in-bam", required_argument, NULL, shortOptions[0]}
@@ -33,19 +33,32 @@ const struct option Options::longOptions[NumOptionTypes+1] =
 };
 const string Options::descriptions[NumOptionTypes] =
 {
-    "Template sequence to base reads upon"
-    ,"Depth of simulated sequence"
-    ,"Output prefix for bax.h5 and fastq filenames"
+    "Input BAM file to be searched for pSNPs"
+    ,"Input template fasta file"
+    ,"Input bas.h5 input file"
+
+    ,"Output filename for Read centric output data"
+    ,"Output filename for loci centric output data"
+    ,"Output filename prefix for bionomial p_values"
+    "<.pvalues.csv> stem will be added to filename"
+    ,"Output filename prefix for poission p_values"
+    "<.pvalues.csv> stem will be added to filename"
+    ,"Output filename prefix for known freqyency p_values"
+    "<.pvalues.csv> stem will be added to filename"
+
+    ,"Number of frequency bins used in FK pvalue estimation"
+    ,"Threhold for pre filtering by deletetionQV"
+    ,"Threhold for pre filtering by insertionQV"
+    ,"Threhold for pre filtering by substitutionQV"
+    ,"Threhold for pre filtering by aggregate quality value"
+    ,"Threhold for post filtering by aggreagate quality value"
+
     ,"Help information"
     ,"Show program version information"
 };
 const string Options::defaults[NumOptionTypes] =
 {
-    ""
-    ,"100"
-    ,"simbas"
-    ,""
-    ,""
+    "","","","",""  ,"","","","",""  ,"","","",""
 };
 
 string Options::values[NumOptionTypes] = defaults;

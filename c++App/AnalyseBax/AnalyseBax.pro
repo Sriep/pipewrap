@@ -20,8 +20,10 @@ LIBS += -L/usr/local/hdf5/lib -lhdf5_cpp
 INCLUDEPATH += /usr/local/hdf5/include
 
 SOURCES += main.cpp \
-    hdf5basfile.cpp
+    hdf5basfile.cpp \
+    options.cpp
 
 HEADERS += \
     main.h \
-    hdf5basfile.h
+    hdf5basfile.h \
+    options.h

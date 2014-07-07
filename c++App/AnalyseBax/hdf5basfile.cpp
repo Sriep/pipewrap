@@ -1,10 +1,13 @@
 #include <exception>
 #include <array>
 #include <cstddef>
+#include <iomanip>
 #include <cmath>
+#include "iostream"
 #include "hdf5basfile.h"
 #include "main.h"
-#include <iomanip>
+#include "options.h"
+
 
 Hdf5BasFile::Hdf5BasFile(const string& basFilename)
 :   H5File(basFilename, H5F_ACC_RDONLY)
@@ -16,6 +19,20 @@ Hdf5BasFile::Hdf5BasFile(const string& basFilename)
     , qualityValueDS(openDataSet("/PulseData/BaseCalls/QualityValue"))
     , mergeDS(openDataSet("/PulseData/BaseCalls/MergeQV"))
 {
+    init();
+}
+
+Hdf5BasFile::Hdf5BasFile()
+    : H5File(Options::get(Options::InBax), H5F_ACC_RDONLY)
+    , outPrefix(Options::get(Options::OutPrefix))
+    , readsDS(openDataSet("/PulseData/BaseCalls/ZMW/NumEvent"))
+    , deletionDS(openDataSet("/PulseData/BaseCalls/DeletionQV"))
+    , insertionDS(openDataSet("/PulseData/BaseCalls/InsertionQV"))
+    , substitutionDS(openDataSet("/PulseData/BaseCalls/SubstitutionQV"))
+    , qualityValueDS(openDataSet("/PulseData/BaseCalls/QualityValue"))
+    , mergeDS(openDataSet("/PulseData/BaseCalls/MergeQV"))
+{
+    if (outPrefix=="") outPrefix = "data_" + Options::get(Options::InBax);
     init();
 }
 
@@ -40,7 +57,7 @@ void Hdf5BasFile::init()
         readStarts[i] += readStarts[i-1];
     }
     readStarts.pop_back();
-
+    cout << "Reading quality arrays\n";
     populateArray(deletionsQV, deletionDS);
     populateArray(insertionsQV, insertionDS);
     populateArray(subsititutionsQV, substitutionDS);    
@@ -50,8 +67,10 @@ void Hdf5BasFile::init()
 
 void Hdf5BasFile::operator()()
 {
-    writeStuff();
-    qualityDependance();
+    if (Options::flag(Options::Distribution))
+        writeDistribution();
+    if (Options::flag(Options::ConfusionTable))
+        writeQualityDependance();
 }
 
 void Hdf5BasFile::populateArray(vector<unsigned char>& dataArray,
@@ -64,20 +83,40 @@ void Hdf5BasFile::populateArray(vector<unsigned char>& dataArray,
     dataSet.read(&dataArray[0], PredType::NATIVE_UCHAR);
 }
 
-void Hdf5BasFile::writeStuff()
+void Hdf5BasFile::writeDistribution()
 {
-    qualityDist(deletionsQV,  "Deletes.csv");
-    qualityDist(insertionsQV,  "Inserts.csv");
-    qualityDist(subsititutionsQV,  "Subs.csv");
-    qualityDist(qualtyValue,  "Quality.csv");
-    qualityDist(mergeQV,  "Merges.csv");
-    //populateDist(readStarts,  "readsizes.csv");
+    cout << "About to caclulate deletion distribution\n";
+    const array<unsigned int,101>
+            delDist(qualityDist(deletionsQV));
+    cout << "About to caclulate insertion distribution\n";
+    const array<unsigned int,101>
+            insDist(qualityDist(insertionsQV));
+    cout << "About to caclulate substitution distribution\n";
+    const array<unsigned int,101>
+            subDist(qualityDist(subsititutionsQV));
+    cout << "About to caclulate merge distribution\n";
+    const array<unsigned int,101>
+            mergeDist(qualityDist(mergeQV));
+    const array<unsigned int,101>
+            aggreDist(qualityDist(qualtyValue));
+
+    cout << "Done calculating, writing distributinos to file\n";
+    ofstream dout(outPrefix + "_dists.csv", ios_base::out | ios_base::trunc);
+    dout << "phred\t" << "DeletionQV\t" <<  "InsertionQV\t" << "MergeQV\t"
+         << "SubstitutionQV\t" << "QualityValue\n";
+    for (unsigned int i = 0 ; i < 101 ; i++)
+    {
+        dout << i << '\t' << delDist[i] << '\t' << insDist[i]
+             << '\t' <<  mergeDist[i] << '\t' << subDist[i]
+             << '\t' << aggreDist[i] << '\n';
+    }
+
 }
 
-void Hdf5BasFile::qualityDist(vector<unsigned char>& dataArray,
-                                const string& outFile)
+const array<unsigned int,101> Hdf5BasFile::qualityDist(
+                                            vector<unsigned char>& dataArray)
 {
-    array<unsigned int,101> dist = {};
+    array<unsigned int,101> dist = {{}};
     const int numCalls = dataArray.size();
     for ( int i = 0 ; i < numCalls ; i++ )
     {
@@ -87,23 +126,26 @@ void Hdf5BasFile::qualityDist(vector<unsigned char>& dataArray,
             dist[100]++;
     }
 
-    ofstream dout(outPrefix + outFile, ios_base::out | ios_base::trunc);
+    //ofstream dout(outPrefix + outFile, ios_base::out | ios_base::trunc);
     for (unsigned int i = 0 ; i < 101 ; i++)
     {
         double amount = double (100*(double)dist[i])/(double)numCalls;
-        dout << i << '\t' << amount << "\n";
+        //dout << i << '\t' << amount << "\n";
+        dist[i] = (int) amount;
     }
+    return dist;
 }
 
-void Hdf5BasFile::qualityDependance()
+void Hdf5BasFile::writeQualityDependance()
 {
-    int numCalls = deletionsQV.size();
+    cout << "Calculating dependancies\n";
+    unsigned int numCalls = deletionsQV.size();
     if (subsititutionsQV.size() < numCalls) numCalls = subsititutionsQV.size();
     if (insertionsQV.size() < numCalls) numCalls = insertionsQV.size();
     //assert(numCalls == deletionsQV.size());
 
     unsigned int depend [intervals][intervals][intervals] = {};
-    for ( int j=0 ; j<numCalls ; j++ )
+    for ( unsigned int j=0 ; j<numCalls ; j++ )
     {
         for ( unsigned int del = 0 ; del < intervals ; del++ )
         {
@@ -126,6 +168,7 @@ void Hdf5BasFile::qualityDependance()
     }
 
     ofstream dout(outPrefix + "Dependacies.csv", ios_base::out | ios_base::trunc);
+    cout << "Writing contignecy table to file\n";
     writeBoxSet(dout, depend, numCalls, 0,1,2);
     writeBoxSet(dout, depend, numCalls, 1,2,0);
     writeBoxSet(dout, depend, numCalls, 2,0,1);

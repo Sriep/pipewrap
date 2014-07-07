@@ -29,9 +29,10 @@ QList<QString> RocData::getPVFilenames() const
 
 void RocData::readData()
 {
-    QString pvPath = clp.value(inPvPath);
+    //QString pvPath = clp.value(inPvPath);
     //QDir* pvDir = new QDir(pvPath);
-    QDir* pvDir = new QDir("/media/sdb2/Projects/Source/Dissertation/c++App/build-Plotroc-Desktop_Qt_5_3_0_GCC_64Bit_GDB7_7_1-Debug/");
+    //QDir* pvDir = new QDir("/media/sdb2/Projects/Source/Dissertation/c++App/build-Plotroc-Desktop_Qt_5_3_0_GCC_64Bit_GDB7_7_1-Debug/");
+    QDir* pvDir = new QDir(QDir::current());
     pvFilenames = pvDir->entryList(QStringList() << "*.pvalues.csv",
                                    QDir::Files);
 

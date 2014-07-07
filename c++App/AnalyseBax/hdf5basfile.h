@@ -12,19 +12,19 @@ class Hdf5BasFile : H5File
 public:
 
     Hdf5BasFile(const string& basFilename);
+    Hdf5BasFile();
     virtual ~Hdf5BasFile();
     void operator() ();
 
 private:
     static const int intervals = 3;
     static const int fields = 3;
-    void writeStuff();
+    void writeDistribution();
     void init();
     void populateArray(vector<unsigned char>& dataArray, DataSet& dataSet);
     //unsigned long getIndexFromId(const string& readId, ReadFormat format);
-    void qualityDist(vector<unsigned char> &dataArray,
-                       const string &outFile);
-    void qualityDependance();
+    const array<unsigned int,101>  qualityDist(vector<unsigned char> &dataArray);
+    void writeQualityDependance();
     void writeBoxSet(ofstream& dout
                     , unsigned int depend[intervals][intervals][intervals]
                     , int numCalls, int boxI, int colI, int rowI);

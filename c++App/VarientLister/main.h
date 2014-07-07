@@ -17,7 +17,7 @@ static const string version = "1.0.0.0";
 //-i big_simbas_blasr.bam -t Sc8915bp_cs.fasta -l locinfo.csv -k h5_x1000_ -5  big_simbas.bax.h5
 
 void configCommandLineParser(QCommandLineParser& parser);
-void runProgram(QCommandLineParser& parser);
+void runProgram();//QCommandLineParser& parser);
 bool compareBases(char c1, char c2);
 //long double phred2prob(int phred);
 
