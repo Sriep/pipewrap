@@ -5,11 +5,12 @@
 
 static const int showHelp = 1;
 static const int showVersion = 1;
-const string Options::shortOptions = "s:hv";
-const string Options::optionIndexes = "shv";
+const string Options::shortOptions = "s:phv";
+const string Options::optionIndexes = "sphv";
 const struct option Options::longOptions[NumOptionTypes+1] =
 {
     {"pSNPs", required_argument, NULL, shortOptions[0]}
+    ,{"popup", required_argument, &flags[4], 1}
     ,{"help", no_argument, &flags[4], showHelp}
     ,{"version", no_argument, &flags[5], showVersion}
     ,{NULL, 0, NULL, 0}
@@ -17,12 +18,14 @@ const struct option Options::longOptions[NumOptionTypes+1] =
 const string Options::descriptions[NumOptionTypes] =
 {
     "List of real pSNP postionts, output file from pSNPgenerator.R."
+    "On  finish show ROC plot in window."
     ,"Help information."
     ,"Show program version information."
 };
 const string Options::defaults[NumOptionTypes] =
 {
     "changes.csv"
+    ,""
     ,""
     ,""
 };

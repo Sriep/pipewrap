@@ -111,7 +111,8 @@ void DiscreteCaller::simulateData(bool setDeleteTag)
     const long double pDeletion = phred2prob(deletionQV);
     const long double pInsertion = phred2prob(insrtionQV);
     const long double pSubstitution = phred2prob(substitutionQV);
-    const long double pError = pDeletion + pInsertion + pSubstitution;
+    const long double pMerge  = phred2prob(mergeQV);
+    const long double pError = pDeletion + pInsertion + pSubstitution + pMerge;
     qualityValue = prob2phred(pError);
 
     if (rndProb(gen) < pError)

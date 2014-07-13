@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 class WorkflowTreeView;
+class Assistant;
 
 class MainWindow : public QMainWindow
 {
@@ -11,6 +12,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     //virtual ~MainWindow();
     QString getName() const;
+    void clearName();
 
 signals:
 
@@ -21,6 +23,8 @@ private slots:
     void aboutSlot();
     void openRecentFileSlot();
     void documentModifiedSlot();
+    void ShowHelpSlot();
+    void newSlot();
 
 private:
     void createActions();
@@ -37,11 +41,12 @@ private:
     void updateRecentFileActions();
     QString strippedName(const QString &fullFileName) const;
     void updateWindowsTitle();
-    void Init();
+    void init();
 
     QString curFile;
     //QString pipeName;
     WorkflowTreeView* tree_view;
+    Assistant *assistant;
 
     QMenu *fileMenu;
     QMenu *recentFilesMenu;
@@ -50,6 +55,7 @@ private:
     QToolBar* fileToolBar;
     QToolBar* editToolBar;
     QToolBar* actionsToolBar;
+    QToolBar* helpToolBar;
     QAction *newAct;
     QAction *openAct;
     QAction *saveAct;
@@ -68,6 +74,8 @@ private:
     QAction *deleteAct;
 
     QAction *aboutAct;
+    QAction *assistantAct;
+
     enum { MaxRecentFiles = 5 };
     QAction *recentFileActs[MaxRecentFiles];
 

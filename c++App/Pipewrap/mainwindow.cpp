@@ -9,24 +9,26 @@
 #include <QMenu>
 #include <QToolBar>
 #include <QStatusBar>
+#include "assistant.h"
 #include "mainwindow.h"
 #include "workflowtreeview.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-    Init();
+    init();
 }
 
 //MainWindow::~MainWindow()
 //{
 //}
 
-void MainWindow::Init()
+void MainWindow::init()
 {
     //setWindowTitle(tr("Shell command tool"));
     updateWindowsTitle();
-    setAttribute(Qt::WA_DeleteOnClose);
+    assistant = new Assistant;
+    //setAttribute(Qt::WA_DeleteOnClose);
 
     tree_view = new WorkflowTreeView(this);
     setCentralWidget(tree_view);
@@ -135,6 +137,13 @@ void MainWindow::createActions()
     aboutAct->setStatusTip(tr("Show the application's About box"));
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(aboutSlot()));
 
+    assistantAct = new QAction(QIcon(":/images/help-browser.png"),
+                               tr("&Help contents"), this);
+    assistantAct->setShortcuts(QKeySequence::HelpContents);
+    assistantAct->setStatusTip(tr("Show applicaton help"));
+    connect(assistantAct, SIGNAL(triggered()), this, SLOT(ShowHelpSlot()));
+
+
     executeAct = new QAction(QIcon(":/images/star.png"),tr("Exe&cute"), this);
     //executeAct->setShortcuts("x");
     executeAct->setStatusTip(tr("Excecute"));
@@ -214,6 +223,9 @@ void MainWindow::createToolBars()
     editToolBar->addAction(addAct);
     editToolBar->addAction(upAct);
     editToolBar->addAction(downAct);
+    helpToolBar = addToolBar(tr("Help"));
+    helpToolBar->addAction(assistantAct);
+    //helpToolBar->addAction(aboutAct);
 }
 
 void MainWindow::createStatusBar()
@@ -280,6 +292,7 @@ void MainWindow::createMenus()
     actionsMenu->addAction(downAct);
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(assistantAct);
     helpMenu->addAction(aboutAct);
 }
 
@@ -372,9 +385,25 @@ QString MainWindow::getName() const
     return QFileInfo(curFile).baseName();
 }
 
+void MainWindow::clearName()
+{
+    curFile.clear();
+    updateWindowsTitle();
+}
+
 void MainWindow::updateWindowsTitle()
 {
     if (curFile.isEmpty())
         curFile = "New pipe";
     setWindowTitle(getName() + tr(" - Shell command tool"));
+}
+
+void MainWindow::ShowHelpSlot()
+{
+    assistant->showDocumentation("index.html");
+}
+
+void MainWindow::newSlot()
+{
+
 }

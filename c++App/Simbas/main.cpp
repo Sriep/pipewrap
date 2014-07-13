@@ -6,35 +6,41 @@
 #include <fstream>
 #include <cerrno>
 #include <array>
+#include <exception>
 #include "main.h"
 #include "simbax.h"
 #include "chrono"
 #include "ctime"
 #include "iostream"
 #include <qdebug.h>
+#include <cstdlib>
 #include "options.h"
 
 
 int main(int argc, char *argv[])
 {
-    Options::readOptions(argc, argv);
-    //QCoreApplication a(argc, argv);
-    //QCommandLineParser clp;
-
-    //configCommandLineParser(clp);
-    //clp.process(a);
-
-    if (Options::get(Options::InTemplate).size() > 0)
+    try
     {
         try
         {
-            runProgram();
+            Options::readOptions(argc, argv);
+            if (Options::get(Options::InTemplate).size() > 0)
+            {
+                    runProgram();
+            }
         }
-        catch (...)
+        catch (const exception& ex)
         {
-            return 1;
+            perror(ex.what());
+            return errno;
         }
     }
+    catch (...)
+    {
+        perror("");
+        return errno;
+    }
+
     return 0;
 }
 /*
@@ -55,7 +61,9 @@ void configCommandLineParser(QCommandLineParser& parser)
 
 void runProgram()
 {
+    system("pwd");
     //string t = getFileContents(clp.value(inFastaTemplate).toStdString().c_str());
+    //string t = getFileContents("/media/sdb2/Projects/Source/Dissertation/c++App/build-Simbas-Desktop_Qt_5_3_0_GCC_64Bit_GDB7_7_1-Debug");
     string t = getFileContents(Options::get(Options::InTemplate).c_str());
     basesFromFasta(t);
 
@@ -217,7 +225,12 @@ std::string getFileContents(const char *filename)
     in.close();
     return(contents);
   }
-  throw(errno);
+
+  string errstring = string("Error determing file content ")
+                    + string(filename) + string(" ");
+  //        + perror(errstringHead.c_str());
+  runtime_error myex = runtime_error(errstring);
+  throw runtime_error(errstring);
 }
 
 void basesFromFasta(string& t)

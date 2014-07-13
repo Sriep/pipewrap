@@ -43,6 +43,7 @@ const int OutPipeUsageRole = 7;
 const int ShellStrUsageRole = 8;
 
 const QString COMMAND_PATH = "";
+const QString CmdEchoTag = "Echoed_command ";
 
 class WorkflowTreeView : public QTreeView
 {
@@ -141,6 +142,7 @@ private:
     void copyResultFiles();
     void runPipe();
     void pipeFinshed();
+    bool moveItems(QModelIndexList indexs, int amount);
 
     QSqlQueryModel* m_sql_list_model;
     QListView* m_list_view;
@@ -170,9 +172,9 @@ private:
     QAction *downAct;
 
     QList<QStandardItem*> snipRows(QModelIndexList indexList);
-    QList<QStandardItem*> getCopyOfRows(QModelIndexList indexList);
+    //QList<QStandardItem*> getCopyOfRows(QModelIndexList indexList);
     void insertRows(QModelIndex index, QList<QStandardItem*> insertItems);
-    QList<QStandardItem*> cloneItems(QModelIndexList indexs);
+    QList<QStandardItem*> cloneItems(const QModelIndexList &indexs);
 
    QPoint dragStartPosition;
    virtual void dragEnterEvent(QDragEnterEvent *event);

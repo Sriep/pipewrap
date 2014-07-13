@@ -19,6 +19,7 @@ static const string version = "1.0.0.0";
 void configCommandLineParser(QCommandLineParser& parser);
 void runProgram();//QCommandLineParser& parser);
 bool compareBases(char c1, char c2);
+bool basesDiffer(char c1, char c2);
 //long double phred2prob(int phred);
 
 long double kahanSum(const vector<long double>& sumees);

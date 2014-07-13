@@ -58,7 +58,7 @@ const string Options::descriptions[NumOptionTypes] =
 };
 const string Options::defaults[NumOptionTypes] =
 {
-    "","","","",""  ,"","","","",""  ,"","","",""
+    "","","","",""  ,"","","","0","0"  ,"0","0","0","0"
 };
 
 string Options::values[NumOptionTypes] = defaults;

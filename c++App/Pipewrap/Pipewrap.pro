@@ -21,6 +21,7 @@ SOURCES += main.cpp\
     mainwindow.cpp \
     databasedialog.cpp \
     pipestatus.cpp \
+    assistant.cpp
 
 HEADERS  += workflowtreeview.h \
     main.h \
@@ -29,13 +30,29 @@ HEADERS  += workflowtreeview.h \
     mainwindow.h \
     databasedialog.h \
     pipestatus.h \
+    assistant.h
 
 LIBS += -L"/opt/mysql/server-5.6/lib"
 LIBS += -L"/usr/local/pgsql/lib"
 INCLUDEPATH += "/opt/mysql/server-5.6/include"
 INCLUDEPATH += "/usr/local/pgsql/include"
+#unix:LIBS += -L/usr/lib/x86_64-linux-gnu/mesa/
 
 RESOURCES += \
 #   WorkflowTreeView.qrc \
     Pipewrap.qrc
+
+OTHER_FILES += \
+    Documents/pipewrap.qch \
+    Documents/pipewrap.qhc \
+    Documents/about.txt \
+    Documents/pipewrap.qhcp \
+    Documents/pipewrap.qhp \
+    Documents/html/analysebax.html \
+    Documents/html/index.html \
+    Documents/html/openpipe.html \
+    Documents/html/plotroc.html \
+    Documents/html/simbas.html \
+    Documents/html/Tools.html \
+    Documents/html/varientlister.html
 

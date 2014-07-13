@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QtHelpProject version="1.0">
+    <namespace>pipewrap</namespace>
+    <virtualFolder>doc</virtualFolder>
+    <filterSection>
+        <toc>
+            <section title="Pipewrap" ref="./html/index.html">
+                <section title="Tools" ref="./html/tools.html">
+                    <section title="simbas" ref="./html/simbas.html">
+                    </section>
+                    <section title="varientlister" ref="./html/varientlister.html">
+                    </section>
+                    <section title="plotroc" ref="./html/plotroc.html">
+                    </section>
+                    <section title="analyseBax" ref="./html/analysebax.html">
+                    </section>
+                </section>
+                <section title="Open Pipe" ref="./html/openpipe.html">
+                </section>
+           </section>
+        </toc>
+        <keywords>
+            <keyword name="Display" ref="./html/index.html"/>
+            <keyword name="Rich text" ref="./html/index.html"/>
+            <keyword name="Plain text" ref="./html/index.html"/>
+            <keyword name="Find" ref="./html/findfile.html"/>
+            <keyword name="File menu" ref="./html/findfile.html"/>
+            <keyword name="File name" ref="./html/filedialog.html"/>
+            <keyword name="File dialog" ref="./html/filedialog.html"/>
+            <keyword name="File globbing" ref="./html/wildcardmatching.html"/>
+            <keyword name="Wildcard matching" ref="./html/wildcardmatching.html"/>
+            <keyword name="Wildcard syntax" ref="./html/wildcardmatching.html"/>
+            <keyword name="Browse" ref="./html/browse.html"/>
+            <keyword name="Directory" ref="./html/browse.html"/>
+            <keyword name="Open" ref="./html/openfile.html"/>
+            <keyword name="Select" ref="./html/openfile.html"/>
+            </keywords>
+        <files>
+            <file>./html/tools.html</file>
+            <file>./html/simbas.html</file>
+            <file>./html/varientlister.html</file>
+            <file>./html/index.html</file>
+            <file>./html/plotroc.html</file>
+            <file>./html/openfile.html</file>
+            <file>./html/analysebax.html</file>
+            <file>./html/openpipe.html</file>
+            </files>
+        </filterSection>
+    </QtHelpProject>

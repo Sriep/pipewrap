@@ -13,70 +13,34 @@
 
 int main(int argc, char *argv[])
 {
-    Options::readOptions(argc, argv);
-    //QCoreApplication a(argc, argv);
-    //QCommandLineParser clp;
-    //configCommandLineParser(clp);
-    //clp.process(a);
-
     try
     {
-        runProgram();//clp);
+        try
+        {
+            Options::readOptions(argc, argv);
+            if (Options::get(Options::InBamFile).size() > 0
+                && Options::get(Options::TemplateFile).size() > 0)
+            {
+                    runProgram();
+            }
+        }
+        catch (const exception& ex)
+        {
+            perror(ex.what());
+            return errno;
+        }
     }
     catch (...)
     {
-        return 1;
+        perror("");
+        return errno;
     }
+
     return 0;
 }
 
-void configCommandLineParser(QCommandLineParser& parser)
+void runProgram()
 {
-    QCoreApplication::setApplicationName("VarientLister");
-    QCoreApplication::setApplicationVersion("1.1.0.3");
-
-    //QCommandLineParser parser;
-    parser.setApplicationDescription("Generate pSNPs from BAM format file");
-    parser.addHelpOption();
-    parser.addVersionOption();
-    parser.addOption(bamFilename);
-    parser.addOption(templateFilename);
-    parser.addOption(basH5Filename);
-    parser.addOption(freqPartitionFilename);
-    parser.addOption(numFreqPartitionBins);
-    //parser.addOption(errorThreshold);
-    parser.addOption(precaculateFactorials);
-    parser.addOption(readCsvOutfile);
-    parser.addOption(lociCsvOutfile);
-    parser.addOption(fisherFilename);
-    parser.addOption(bionomialFilename);
-    parser.addOption(poissonFilename);
-    parser.addOption(poissonBinomialFilename);
-    parser.addOption(knownFrequencyFilename);
-
-    return;
-}
-
-void runProgram()//QCommandLineParser& clp)
-{
-    /*if (clp.value(precaculateFactorials) != "")
-    {
-        int numToPreCalculate = clp.value(precaculateFactorials).toInt();
-        preCalculateLogFactorials(numToPreCalculate);
-    }
-
-    VarientCaller vc(clp.value(bamFilename).toStdString(),
-                     clp.value(templateFilename).toStdString(),
-                     clp.value(freqPartitionFilename).toStdString(),
-                     clp.value(basH5Filename).toStdString(),
-                     clp.value(numFreqPartitionBins).toStdString(),
-                     clp.value(readCsvOutfile).toStdString(),
-                     clp.value(lociCsvOutfile).toStdString(),
-                     clp.value(fisherFilename).toStdString(),
-                     clp.value(bionomialFilename).toStdString(),
-                     clp.value(poissonFilename).toStdString(),
-                     clp.value(poissonBinomialFilename).toStdString(),
-                     clp.value(knownFrequencyFilename).toStdString());*/
     VarientCaller vc;
     vc();
 }
@@ -192,6 +156,35 @@ bool compareBases(char c1, char c2)
     if (('c' == c1 && 'C' == c2) || ('c' == c2 && 'C' == c1)) return true;
     if (('t' == c1 && 'T' == c2) || ('t' == c2 && 'T' == c1)) return true;
     return false;
+}
+
+bool basesDiffer(char c1, char c2)
+{
+    const set<unsigned char> validBases{'a','A','c','C','g','G','t','T'};
+    if ((!validBases.count(c1)) || !validBases.count(c2)) return false;
+    if (c1 < 'a')
+    {
+        if (c2 < 'a')
+        {
+            if (c1 == c2) return false;
+        }
+        else
+        {
+            if (c1 == c2 - ('a' - 'A')) return false;
+        }
+    }
+    else
+    {
+        if (c2 < 'a')
+        {
+            if (c2 == c1 - ('a' - 'A')) return false;
+        }
+        else
+        {
+            if (c1 == c2) return false;
+        }
+    }
+    return true;
 }
 
 

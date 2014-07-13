@@ -152,21 +152,28 @@ void WorkflowTreeView::executeSlot()
     int row_num = 0;
     QStandardItem* item = m_treeview_model->item(row_num);
     commandList.clear();
-    uint numForLoops = 0;
+    bool inForLoop = false;
+    uint forLoopDepth = 0;
 
     bool pipe_in = false;
-    QString shellCommand = COMMAND_PATH; //"./Bin/"
+
+    QString compoundComand = "";
+    QString pipeCommand = "";
     while(item)
     {              
+        QString shellCommand = COMMAND_PATH; //"./Bin/"
         if (item->data(UsageRole) == StructureUsageRole)
         {
             QStandardItem* sib = m_treeview_model->item(row_num,1);
             QString command = sib->text();
             shellCommand += command;
             if (command.startsWith("for "))
-                ++numForLoops;
+            {
+                ++forLoopDepth;
+                inForLoop = true;
+            }
             else if (command.startsWith("done"))
-                --numForLoops;
+                --forLoopDepth;
         }
         else
         {
@@ -197,19 +204,44 @@ void WorkflowTreeView::executeSlot()
         }
         while(child);
         shellCommand += pipe_out ? " | " : "\n";
-        if (!pipe_in && (0 == numForLoops))
+        if (pipe_out)
         {
-            if (numForLoops > 0)
-            {
-                QString echoedCmd = "echo " + shellCommand;
-                //echoedCmd.replace("S", "\\$");
-                commandList << echoedCmd;
-            }
-            commandList << shellCommand;
-            shellScript += shellCommand;
-            shellCommand.clear();
+            pipeCommand += shellCommand;
+            pipe_in = pipe_out;
+            pipe_out = false;
         }
-        pipe_in = pipe_out;
+        else
+        {
+            if (pipe_in)
+            {
+                pipeCommand += shellCommand;
+                shellCommand = pipeCommand;
+                pipeCommand.clear();
+            }
+
+            if (inForLoop)
+            {
+                QString echoedCmd = "echo " + CmdEchoTag + " " + shellCommand;
+                //QString echoedCmd = "echo \"" + shellCommand + "\"";
+                echoedCmd.replace(";", "\\;");
+                //echoedCmd.replace("S", "\\$");
+                compoundComand += echoedCmd;
+                compoundComand += shellCommand;
+                if (0 == forLoopDepth)
+                {
+                    commandList << compoundComand;
+                    shellScript += compoundComand;
+                    inForLoop = false;
+                    compoundComand.clear();
+                }
+            }
+            else
+            {
+                commandList << shellCommand;
+                shellScript += shellCommand;
+                shellCommand.clear();
+            }
+        }
         item = m_treeview_model->item(++row_num);        
     }
 
@@ -271,6 +303,7 @@ void WorkflowTreeView::runPipe()
     currentCommand = 0;
 
     //process->start("./shell_script.sh");
+    getMainWindow()->statusBar()->showMessage(tr("Executing pipe"));
     nextCommand();
 
 /*    qDebug() << shellScript;
@@ -346,7 +379,7 @@ void WorkflowTreeView::nextCommand()
     else
     {
         //QFile file(getMainWindow()->getName() + "_shell_script.sh");
-        QFile file("command_script.sh");
+        QFile file("temp_command_script.sh");
         file.remove();
         file.open(QIODevice::WriteOnly);
         QTextStream out(&file);
@@ -369,6 +402,7 @@ void WorkflowTreeView::pipeFinshed()
 {
     pipeStatus->pipeFinished();
     copyResultFiles();
+    getMainWindow()->statusBar()->showMessage(tr("Pipe finshed"));
     emit executeAvailable(true);
 }
 
@@ -669,11 +703,11 @@ QList<QStandardItem*> WorkflowTreeView::snipRows(QModelIndexList indexList)
     emit pasteAvailable(foundCommand);
     return item_clipboard;//QList<QStandardItem*>();*/
 }
-
+/*
 QList<QStandardItem*> WorkflowTreeView::getCopyOfRows(QModelIndexList indexList)
 {
     return QList<QStandardItem*>();
-}
+}*/
 
 void WorkflowTreeView::cutSlot()
 {
@@ -707,7 +741,7 @@ void WorkflowTreeView::insertRows(QModelIndex index
     }
     else
     {
-        m_treeview_model->insertRow(item->row(), insertItems);
+         m_treeview_model->insertRow(item->row(), insertItems);
     }
 }
 
@@ -720,7 +754,7 @@ void WorkflowTreeView::pasteSlot()
         return;
     }
     QModelIndex index = index_list.first();
-    snipRows(index_list);
+    //snipRows(index_list);
     insertRows(index, item_clipboard);
     emit pasteAvailable(false);
     item_clipboard.clear();
@@ -728,7 +762,8 @@ void WorkflowTreeView::pasteSlot()
 
 void WorkflowTreeView::upSlot()
 {
-    QModelIndexList index_list = selectedIndexes();
+    emit upAvailable(moveItems(selectedIndexes(), -1));
+    /*QModelIndexList index_list = selectedIndexes();
     QModelIndex index = index_list.first();
     QModelIndex whereToInsert = index.sibling(index.row()+1, 0);
     if (index_list.isEmpty() || !whereToInsert.isValid())
@@ -737,31 +772,51 @@ void WorkflowTreeView::upSlot()
         return;
     }
     QList<QStandardItem*> itemsToMove = snipRows(index_list);
-    insertRows(whereToInsert, itemsToMove);
+    insertRows(whereToInsert, itemsToMove);*/
 }
 
 void WorkflowTreeView::downSlot()
-{
-    QModelIndexList index_list = selectedIndexes();
-    QModelIndex index = index_list.first();
-    QModelIndex whereToInsert = index.sibling(index.row()-1, 0);
-    if (index_list.isEmpty() || !whereToInsert.isValid())
-    {
-        emit upAvailable(false);
-        return;
-    }
-    QList<QStandardItem*> itemsToMove = snipRows(index_list);
-    insertRows(whereToInsert, itemsToMove);
+{ 
+    emit downAvailable(moveItems(selectedIndexes(), 1));
 }
 
-QList<QStandardItem*> WorkflowTreeView::cloneItems(QModelIndexList indexs)
+bool WorkflowTreeView::moveItems(QModelIndexList indices, int amount)
+{
+    if (indices.isEmpty()) return false;
+    QModelIndex first = indices.first();
+    QModelIndex whereToInsert = first.sibling(first.row() + amount, 0);
+    if (!whereToInsert.isValid()) return false;
+    QList<QStandardItem*> itemsToMove = snipRows(indices);
+    if (!whereToInsert.isValid()) return false;
+    insertRows(whereToInsert, itemsToMove);
+    return true;
+}
+
+QList<QStandardItem*> WorkflowTreeView::cloneItems(const QModelIndexList& indexs)
 {
     QList<QStandardItem*> clones;
     for ( int i = 0 ; i < indexs.size() ; i++ )
     {
-
         QStandardItem* item = m_treeview_model->itemFromIndex(indexs[i]);
-        clones << item->clone();
+        QStandardItem* parentClone = item->clone();
+        if (item->hasChildren())
+        {
+            for ( int row = 0 ; row < item->rowCount() ; row++ )
+            {
+                QStandardItem* child1;
+                child1 = item->child(row, 0);
+                if (child1)
+                {
+                    QList<QStandardItem*> childClones;
+                    childClones << child1->clone();
+                    QStandardItem* child2 = item->child(row,1);
+                    if (child2)
+                        childClones << child2->clone();
+                    parentClone->appendRow(childClones);
+                }
+            }
+        }
+        clones << parentClone;
     }
     return clones;
 }
@@ -877,6 +932,7 @@ void WorkflowTreeView::newSlot()
     m_treeview_model->setHorizontalHeaderLabels(
                 QStringList() << "Comands and options" << "Option values");
     setModel(m_treeview_model);
+    getMainWindow()->clearName();
 }
 
 void WorkflowTreeView::read(QDataStream& in, QStandardItem* root)
@@ -1080,7 +1136,7 @@ void WorkflowTreeView::dropEvent(QDropEvent *event)
 
 void WorkflowTreeView::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton)
+/*  if (event->button() == Qt::LeftButton)
     {
         dragStartPosition = event->pos();
 
@@ -1093,16 +1149,26 @@ void WorkflowTreeView::mousePressEvent(QMouseEvent *event)
 
         QDrag *drag = new QDrag(this);
         QMimeData *mimeData = new QMimeData;
+        mimeData->setData(ba);
+        switch (mimeData->setData(ba))
+        {
+        case Qt::MoveAction:
 
-        //mimeData->setText(commentEdit->toPlainText());
-        //drag->setMimeData(mimeData);
-        //drag->setPixmap(iconPixmap);
+            break;
+        case Qt::IgnoreAction:
 
-
+            break;
+        case Qt::CopyAction:
+        case Qt::LinkAction:
+        case Qt::ActionMask:
+        case Qt::TargetMoveAction:
+        default:
+            break;
+        }
         Qt::DropAction dropAction = drag->exec();
     }
-
-    /*
+*/
+/*
     QModelIndex index = indexAt(event->pos());
     QStandardItem* selcted_item = m_treeview_model->itemFromIndex(index);
     dragdrop_clipboard = selcted_item;

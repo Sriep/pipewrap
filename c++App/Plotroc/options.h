@@ -12,6 +12,7 @@ public:
     enum OptionTypes
     {
         pSnpFile
+        ,PopUpPlot
         ,Help
         ,Version
         ,NumOptionTypes

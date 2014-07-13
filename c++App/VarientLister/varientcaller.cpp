@@ -7,7 +7,6 @@
 #include "ctime"
 
 #include "H5Cpp.h"
-#include "api/BamAlignment.h"
 #include "varientcaller.h"
 #include "main.h"
 #include "locusinfo.h"
@@ -72,6 +71,11 @@ VarientCaller::VarientCaller()
       ,basH5file(Options::get(Options::BaxH5File))
       ,readOutfile(Options::get(Options::ReadOutFile))
       ,lociOutfile(Options::get(Options::LociOutFile))
+      ,insThreshold(stoul(Options::get(Options::FilterInsThreshold)))
+      ,delThreshold(stoul(Options::get(Options::FilterDelsThreshold)))
+      ,subsThreshold(stoul(Options::get(Options::FilterSubsThreshold)))
+      ,preQualThreshold(stoul(Options::get(Options::PreFilterQuality)))
+      ,postQualThrehold(stoul(Options::get(Options::PostFilterQuality)))
 {
     pvMethodsFilename.clear();
     //if (fisherFilename.size() > 0)
@@ -119,7 +123,7 @@ void VarientCaller::operator()()
 
 void VarientCaller::init()
 {
-    //hdf5();
+    //Hdf5BasFile* basFile = new Hdf5BasFile(basH5file);
     for (unsigned int i = 0 ; i < t.length() ; i++ )
     {
         als_info.push_back(unique_ptr<LocusInfo>(
@@ -154,22 +158,20 @@ void VarientCaller::filterReads()
     while(bam_reader.GetNextAlignment(al))
     {
         // Position = 0 means read has not been mapped succesfully
-        if (0 == al.Position)
-        {
-            //invalid.insert(al.Name);
-        }
-        else
+        if (0 < al.Position)
         {
             MatchMismatches tMatch(al.QueryBases, al.CigarData);
             unsigned int varients = 0;
                 for ( unsigned int base = 0 ; base < tMatch.size() ; base++)
                 {
-                    assert(al.Position + base < t.size());
-                    if (!compareBases(tMatch[base], t[base + al.Position]))
+                    if (basesDiffer(tMatch[base]
+                                    , t[(base + al.Position) % t.size()]))
+                    //if (!compareBases(tMatch[base]
+                    //                  , t[(base + al.Position) % t.size()]))
                     {
                         varients++;
                     }
-                    assert(base + tMatch.offset(base) < al.Qualities.size());
+                   // assert(base + tMatch.offset(base) < al.Qualities.size());
                 }
                 totalBaseReads += tMatch.size();
                 totalReadVareints += varients;
@@ -208,14 +210,15 @@ void VarientCaller::writeReadInfo()
         {
             for (int base = 0 ; base < al.Length ; base++)
             {
-                int locus = base + al.Position;
+                int locus =(base + al.Position) % t.size();
                 //if (al.AlignedBases[base] != t[locus])
-                if (!compareBases(al.AlignedBases[base], t[locus]))
+                if (basesDiffer(al.AlignedBases[base], t[locus]))
+                //if (!compareBases(al.AlignedBases[base], t[locus]))
                 {
                     rout << "\"" << al.Name
                         << "\"\t\"" << base +1
                         << "\"\t\"" << visBase(al.AlignedBases[base])
-                        << "\"\t\"" << base + al.Position +1
+                        << "\"\t\"" << (base + al.Position +1)% t.size()
                         << "\"\t\"" << visBase(t[locus])
                         << "\"\t\"" << al.Qualities[base]-33;
                     if (locus  < t.length() && locus >= 0)
@@ -360,17 +363,18 @@ void VarientCaller::populateLociInfo()
             MatchMismatches tMatch(al.QueryBases, al.CigarData);
             for (unsigned int mBase = 0 ; mBase < tMatch.size() ; mBase++)
             {
-                const unsigned int locus = al.Position + mBase;
+                const unsigned int locus = (al.Position+ mBase) % t.size();
                 const unsigned int alBase = mBase + tMatch.offset(mBase);
 
                 //if (goodEnoughRead(al.Qualities[alBase]))
                 if (goodEnoughRead(alBase, al, basFile))
                 {
-                    if (compareBases(tMatch[mBase], t[locus]))
+                    if (!basesDiffer(tMatch[mBase], t[locus]))
+                    //if (compareBases(tMatch[mBase], t[locus]))
                     {
                         int phard = (NULL == basFile)
                                     ? al.Qualities[alBase]-33
-                                    : basFile->getPhred(al.Name, alBase);
+                                    : basFile->getPhred(alBase);
                         als_info[locus]->inc_calls(al.QueryBases[alBase],phard);
                     }
                     else if (tMatch[mBase] != '-')
@@ -384,7 +388,7 @@ void VarientCaller::populateLociInfo()
                         {
                             if (0 == windowSize)
                             {
-                                phard = basFile->getPhred(al.Name, alBase);
+                                phard = basFile->getPhred(alBase);
                             }
                             else
                             {
@@ -393,12 +397,10 @@ void VarientCaller::populateLociInfo()
                                 const unsigned int end =
                                                 t.size() < locus + windowSize
                                               ? t.size() : locus + windowSize;
-                                const unsigned int l = locus < windowSize
-                                            ? locus : windowSize;
+                                const unsigned int l = (locus < windowSize)
+                                                        ? locus : windowSize;
                                 string window = t.substr(start, end - start);
-                                phard = basFile->getPhred(al.Name,
-                                                          alBase,
-                                                          window, "", l);
+                                phard = basFile->getPhred(alBase, window, l);
                             }
                         }
                         if (phard > postQualThrehold)

@@ -77,7 +77,8 @@ long double PValues::pBionomial(unsigned int N,
 }
 
 long double PValues::pPoisson(unsigned int N,
-                              unsigned int K, unsigned int ave_phred)
+                              unsigned int K,
+                              unsigned int ave_phred)
 {
     long double avQ = (long double) ave_phred;
     long double p = pow(Ten,-avQ/Ten);

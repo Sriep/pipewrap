@@ -10,7 +10,30 @@ using namespace H5;
 
 int main(int argc, char *argv[])
 {
-     Options::readOptions(argc, argv);
+    try
+    {
+        try
+        {
+            Options::readOptions(argc, argv);
+            if (Options::get(Options::InBax).size() > 0)
+            {
+                    runProgram();
+            }
+        }
+        catch (const exception& ex)
+        {
+            perror(ex.what());
+            return errno;
+        }
+    }
+    catch (...)
+    {
+        perror("");
+        return errno;
+    }
+/*
+    return 0;
+    Options::readOptions(argc, argv);
     //QCoreApplication a(argc, argv);
     //QCommandLineParser clp;
     //configCommandLineParser(clp);
@@ -24,7 +47,7 @@ int main(int argc, char *argv[])
     {
         return 1;
     }
-    return 0;
+    return 0;*/
 }
 /*
 void configCommandLineParser(QCommandLineParser& parser)
@@ -47,7 +70,7 @@ void runProgram()
     //string filename = "new2.bax.h5";
     //string filename = "ss.bas.h5";
     //Hdf5BasFile baxh5(filename);
-
+    //system("pwd");
     Hdf5BasFile baxh5;
     baxh5();
 }

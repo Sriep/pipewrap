@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QHelpCollectionProject version="1.0">
+    <assistant>
+        <title>Pipewrap</title>
+        <applicationIcon>../images/pipe.gif</applicationIcon>
+        <cacheDirectory>./pipepwrap/cacheDirectory</cacheDirectory>
+        <startPage>file:///media/sdb2/Projects/Source/Dissertation/c++App/Pipewrap/Documents/html/index.html
+        </startPage>
+        <aboutMenuText>
+            <text>About Pipewrap</text>
+        </aboutMenuText>
+        <aboutDialog>
+            <file>about.txt</file>
+            <icon>../images/pipe.gif</icon>
+        </aboutDialog>
+        <enableDocumentationManager>false</enableDocumentationManager>
+        <enableAddressBar>false</enableAddressBar>
+        <enableFilterFunctionality>false</enableFilterFunctionality>
+    </assistant>
+    <docFiles>
+        <generate>
+            <file>
+                <input>pipewrap.qhp</input>
+                <output>pipewrap.qch</output>
+                </file>
+            </generate>
+        <register>
+            <file>pipewrap.qch</file>
+            </register>
+        </docFiles>
+    </QHelpCollectionProject>

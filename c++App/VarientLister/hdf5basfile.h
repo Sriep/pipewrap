@@ -1,9 +1,9 @@
 #ifndef HDF5BASFILE_H
 #define HDF5BASFILE_H
-#include <string>
-#include <vector>
 #include "H5Cpp.h"
 #include "main.h"
+#include <api/BamReader.h>
+#include <api/BamAlignment.h>
 
 using namespace std;
 using namespace H5;
@@ -24,15 +24,8 @@ public:
     unsigned char getInsertionQV(short position) const;
     unsigned char getSubstitutionQV(short position) const;
     unsigned char getMergeQV(short position) const;
-    unsigned int getPhred(const string& readId,
-                          int posRead,
-                          ReadFormat format = BlasrRead);
-    unsigned int getPhred(const string& readId,
-                          int posRead,
-                          const string& t,
-                          const string& read,
-                          size_t relPos,
-                          ReadFormat format = BlasrRead);
+    unsigned int getPhred(int posRead);
+    unsigned int getPhred(int posRead, const string& window, size_t relPos);
 
 private:
     void init();
