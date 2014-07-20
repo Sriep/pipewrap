@@ -8,10 +8,19 @@
 #include <cfloat>
 #include <qdebug.h>
 
+/*
+RocData::RocData()
+{
+}*/
+
 RocData::RocData(QCommandLineParser& clp)
-    : clp(clp)
+    : RocDataBase(), pSnpFile(clp.value(inpSNPs))
 {
     init();
+}
+
+RocData::~RocData()
+{
 }
 
 
@@ -22,16 +31,13 @@ void RocData::init()
     genRocValues();
 
 }
-QList<QString> RocData::getPVFilenames() const
+
+void RocData::operator()()
 {
-    return pvFilenames;
 }
 
 void RocData::readData()
 {
-    //QString pvPath = clp.value(inPvPath);
-    //QDir* pvDir = new QDir(pvPath);
-    //QDir* pvDir = new QDir("/media/sdb2/Projects/Source/Dissertation/c++App/build-Plotroc-Desktop_Qt_5_3_0_GCC_64Bit_GDB7_7_1-Debug/");
     QDir* pvDir = new QDir(QDir::current());
     pvFilenames = pvDir->entryList(QStringList() << "*.pvalues.csv",
                                    QDir::Files);
@@ -64,7 +70,7 @@ void RocData::readPsnpDetails(int maxFileLenght)
 {
     QList<int> vareintLoci;
     frequencies.clear();
-    QFile inFile(clp.value(inpSNPs));
+    QFile inFile(pSnpFile);
     if (inFile.open((QFile::ReadOnly)))
     {
         QTextStream inv(&inFile);
@@ -103,7 +109,7 @@ void RocData::genRocValues()
 {
     for (int result = 0 ; result < pvVectors.size() ; result++)
     {
-        QVector< double> tprs;
+        QVector<double> tprs;
         QVector<double> fprs;
         long double p = 1.0;
         bool hitYAxis = false;
@@ -138,10 +144,14 @@ void RocData::genRocValues()
         //while (p > DBL_MIN && ! hitYAxis);
         rocTprs.append(tprs);
         rocFprs.append(fprs);
-        int i;
-        i++;
     }
 }
+
+QList<QString> RocData::getCurveNames() const
+{
+    return pvFilenames;
+}
+
 QList<double> RocData::getFrequencies() const
 {
     return frequencies;
@@ -158,19 +168,19 @@ QVector< double> RocData::getFprs(int pos) const
     return rocFprs[pos];
 }
 
-QList<QVector< double> > RocData::getPVVectors() const
+QString RocData::getTitle() const
 {
-    return pvVectors;
-}
-QVector< double> RocData::getPvVector(int pos) const
-{
-    return pvVectors[pos];
+    return QString("A ROC curve comparing pSNP calling from simulated\n"
+                   "reads with the known position of generated pSNPs\n"
+                   "as recorded by the simulation process.");
 }
 
-QVector<bool> RocData::getIsTruePositives() const
+QString RocData::getPdfFilename() const
 {
-    return isPositives;
+    return QString("ROC_SimulationResults.pdf");
 }
+
+
 
 
 

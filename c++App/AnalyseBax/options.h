@@ -23,7 +23,7 @@ public:
     Options();
     static string get(OptionTypes option);
     static int flag(OptionTypes flag);
-    static void readOptions(int argc, char *argv[]);
+    static int readOptions(int argc, char *argv[]);
 
 
 private:

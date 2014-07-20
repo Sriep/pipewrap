@@ -22,7 +22,8 @@ SOURCES += main.cpp \
     qcpdocumentobject.cpp \
     qcustomplot.cpp \
     rocdata.cpp \
-    options.cpp
+    compairevarients.cpp \
+    rocdatabase.cpp
 
 OTHER_FILES += \
     Plotroc.pro.user
@@ -33,4 +34,5 @@ HEADERS += \
     qcpdocumentobject.h \
     qcustomplot.h \
     rocdata.h \
-    options.h
+    compairevarients.h \
+    rocdatabase.h

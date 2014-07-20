@@ -54,4 +54,6 @@ void MatchMismatches::untangle()
             break;
         }
     }
+    if (cigar.size() == 0)
+            offsets.resize(size(),0);
 }

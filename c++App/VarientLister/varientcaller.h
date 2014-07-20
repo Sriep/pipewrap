@@ -77,6 +77,10 @@ private:
     unsigned char preQualThreshold = 10;
     unsigned char postQualThrehold = 10;
 
+    bool trimEndsFactor(int alPos, int mBase, int tSize);
+    int trimEnds = 300;
+    const int numTRepeats = 2;
+
     vector<unique_ptr<LocusInfo>> als_info;
     unordered_set<string> invalid;
 };

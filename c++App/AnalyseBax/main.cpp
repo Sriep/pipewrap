@@ -31,34 +31,7 @@ int main(int argc, char *argv[])
         perror("");
         return errno;
     }
-/*
-    return 0;
-    Options::readOptions(argc, argv);
-    //QCoreApplication a(argc, argv);
-    //QCommandLineParser clp;
-    //configCommandLineParser(clp);
-    //clp.process(a);
-
-    try
-    {
-        runProgram();
-    }
-    catch (...)
-    {
-        return 1;
-    }
-    return 0;*/
 }
-/*
-void configCommandLineParser(QCommandLineParser& parser)
-{
-    QCoreApplication::setApplicationName("AnalyseBax");
-    QCoreApplication::setApplicationVersion("1.0.0.0");
-    parser.setApplicationDescription("Genearate some basic stats on h5 files");
-    parser.addHelpOption();
-    parser.addVersionOption();
-    parser.addOption(inBaxh5);
-}*/
 
 void runProgram()
 {
@@ -71,8 +44,11 @@ void runProgram()
     //string filename = "ss.bas.h5";
     //Hdf5BasFile baxh5(filename);
     //system("pwd");
-    Hdf5BasFile baxh5;
-    baxh5();
+    if (Options::get(Options::InBax) != "")
+    {
+        Hdf5BasFile baxh5;
+        baxh5();
+    }
 }
 
 

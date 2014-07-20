@@ -54,7 +54,7 @@ int Options::flag(Options::OptionTypes flag)
     return flags[flag];
 }
 
-void Options::readOptions(int argc, char *argv[])
+int Options::readOptions(int argc, char *argv[])
 {
     int optionIndex = 0;
     int option = -1;
@@ -83,6 +83,7 @@ void Options::readOptions(int argc, char *argv[])
 
     if (flag(Options::Help)) writeHelpInfo(cout);
     if (flag(Options::Version)) writeVersion(cout);
+    return optind;
 }
 
 void Options::writeHelpInfo(ostream& outs)

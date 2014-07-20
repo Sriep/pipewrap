@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <fstream>
 #include <list>
+#include <cmath>
 #include "frequencypartition.h"
 #include "main.h"
 
@@ -64,9 +65,16 @@ long double FrequencyPartition::getPartionFreq(int par,
                            std::vector<unsigned int>& phreds)
 {
     long double lpf = logPartionRatio(par, coverage, phreds);
-    lpf -= logNormlisingFactor(coverage, phreds);
-    long double a = pow(Ten, lpf);
-    return a;
+    long double normFactor = logNormlisingFactor(coverage, phreds);
+    if (isinf(normFactor))
+    {
+        return 0.0;
+    }
+    else
+    {
+        lpf -= logNormlisingFactor(coverage, phreds);
+        return pow(Ten, lpf);
+    }
 }
 
 long double FrequencyPartition::logPartionRatio(int partition,

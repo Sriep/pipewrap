@@ -183,7 +183,7 @@ void VarientCaller::filterReads()
 
 void VarientCaller::write()
 {
-    //if (!readOutfile.empty()) writeReadInfo();
+    if (!readOutfile.empty()) writeReadInfo();
     if (!lociOutfile.empty()) writeLociInfo();
 
     for (int m = PValues::FisherExact;
@@ -197,7 +197,7 @@ void VarientCaller::write()
 }
 
 void VarientCaller::writeReadInfo()
-{/*
+{
     bam_reader.Rewind();
     BamAlignment al;
     ofstream rout;
@@ -242,15 +242,21 @@ void VarientCaller::writeReadInfo()
                 }
             }
         }
-     }*/
+     }
 }
 
 void VarientCaller::writeLociInfo()
 {
     ofstream lout;
     lout.open(lociOutfile, ios_base::out | ios_base::trunc);
-    lout << "Locus\tBase\tCoverage\tAveQuality\tpSNP\tpSNPCount\tpSNP%"
-        << "\tpvBionomial\tpvPoissionan\tKF\n";
+    lout << "Locus\tBase\tCoverage\tAveQuality\tpSNP\tpSNPCount\tpSNP%";
+    if (methods.find(PValues::Bionomial) != methods.end())
+        lout <<  "\tpvBionomial";
+    if (methods.find(PValues::Poisson) != methods.end())
+        lout << "\tpvPoissionan";
+    if (methods.find(PValues::KnownFrequency) != methods.end())
+        lout << "\tKF\n";
+    lout << "\n";
 
     for (unsigned int locus = 0 ; locus < t.length() ; locus++)
     {
@@ -265,14 +271,17 @@ void VarientCaller::writeLociInfo()
                 << "\"\t\"" << als_info[locus]->getAvePhred()
                 << "\"\t\"" << als_info[locus]->bestbaseEx()
                 << "\"\t\"" << als_info[locus]->countBestEx()
-                << "\"\t\"" << pct
-                << "\"\t\"" << setprecision(64)
-                << als_info[locus]->getPValue(PValues::Bionomial)
-                << "\"\t\"" << setprecision(64)
-                << als_info[locus]->getPValue(PValues::Poisson)
-                << "\"\t\"" << setprecision(64)
-                << als_info[locus]->getPValue(PValues::KnownFrequency)
-                << "\"\n";
+                << "\"\t\"" << pct;
+        if (methods.find(PValues::Bionomial) != methods.end())
+            lout << "\"\t\"" << setprecision(64)
+                 << als_info[locus]->getPValue(PValues::Bionomial);
+        if (methods.find(PValues::Poisson) != methods.end())
+            lout << "\"\t\"" << setprecision(64)
+                 << als_info[locus]->getPValue(PValues::Poisson);
+        if (methods.find(PValues::KnownFrequency) != methods.end())
+            lout << "\"\t\"" << setprecision(64)
+                 << als_info[locus]->getPValue(PValues::KnownFrequency);
+        lout << "\"\n";
     }
 
 }
@@ -338,6 +347,12 @@ bool VarientCaller::goodEnoughRead(unsigned short position
     }
 }
 
+bool VarientCaller::trimEndsFactor(int alPos, int mBase, int tSize)
+{
+    return alPos + mBase < trimEnds
+            || alPos + mBase > tSize * numTRepeats - trimEnds;
+}
+
 void VarientCaller::populateLociInfo()
 {
     bam_reader.Rewind();
@@ -368,6 +383,7 @@ void VarientCaller::populateLociInfo()
 
                 //if (goodEnoughRead(al.Qualities[alBase]))
                 if (goodEnoughRead(alBase, al, basFile))
+                        //|| !trimEndsFactor(al.Position, mBase, t.size()))
                 {
                     if (!basesDiffer(tMatch[mBase], t[locus]))
                     //if (compareBases(tMatch[mBase], t[locus]))
