@@ -41,6 +41,7 @@ void PlotWindow::writeRoc(RocDataBase* rocData)
     legendFont.setPointSize(9); // and make a bit smaller for legend
     customPlot->legend->setFont(legendFont);
     customPlot->legend->setBrush(QBrush(QColor(255,255,255,230)));
+    customPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignBottom|Qt::AlignRight);
 
     for (int p = 0 ; p < rocData->getCurveNames().size() ; p++)
     {
@@ -48,7 +49,9 @@ void PlotWindow::writeRoc(RocDataBase* rocData)
         customPlot->addGraph();
         customPlot->graph(p)->setPen(QPen((Qt::GlobalColor)(Qt::lightGray+p+1)));
         customPlot->graph(p)->setScatterStyle(QCPScatterStyle::ssCross);
-        customPlot->graph(p)->setName(rocData->getCurveNames().at(p));
+        QString curveName = rocData->getCurveNames().at(p);
+        curveName = curveName.left(curveName.lastIndexOf(".pvalues.csv"));
+        customPlot->graph(p)->setName(curveName);
         customPlot->graph(p)->setData(rocData->getFprs(p), rocData->getTprs(p));
     }
     // set title of plot:

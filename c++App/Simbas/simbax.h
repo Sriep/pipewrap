@@ -37,8 +37,8 @@ private:
     string fastqFilename;
 
     short depth;
-    unique_ptr<BaseCaller> baseCaller;
-    short readLen = 4000;
+    short readLen;
+    unique_ptr<BaseCaller> baseCaller;    
 
     string baseCall;
     string deletionQV;

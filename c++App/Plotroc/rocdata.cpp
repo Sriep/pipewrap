@@ -14,7 +14,9 @@ RocData::RocData()
 }*/
 
 RocData::RocData(QCommandLineParser& clp)
-    : RocDataBase(), pSnpFile(clp.value(inpSNPs))
+    : RocDataBase()
+    , pSnpFile(clp.value(inpSNPs))
+    , title(clp.value(titleRoc))
 {
     init();
 }
@@ -170,9 +172,10 @@ QVector< double> RocData::getFprs(int pos) const
 
 QString RocData::getTitle() const
 {
-    return QString("A ROC curve comparing pSNP calling from simulated\n"
-                   "reads with the known position of generated pSNPs\n"
-                   "as recorded by the simulation process.");
+    return title;
+    //return QString("A ROC curve comparing pSNP calling from simulated\n"
+   //                "reads with the known position of generated pSNPs\n"
+   //                "as recorded by the simulation process.");
 }
 
 QString RocData::getPdfFilename() const

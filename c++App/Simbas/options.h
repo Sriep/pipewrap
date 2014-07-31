@@ -18,6 +18,7 @@ public:
         InTemplate
         ,PhredDistributions
         ,Depth
+        ,Length
         ,OutPrefix
         ,Help
         ,Version

@@ -38,12 +38,12 @@ SimBax::SimBax(const string& t,
 SimBax::SimBax(const string &t, unique_ptr<BaseCaller> baseCaller)
     : t(t)
     , baxFilename(Options::get(Options::OutPrefix) + ".bax.h5")
-    , fastqFilename(Options::get(Options::OutPrefix) + ".fastq")
+    , fastqFilename(Options::get(Options::OutPrefix) + ".fastq")    
     , depth(stoul(Options::get(Options::Depth)))
+    , readLen(stoul(Options::get(Options::Length)))
     , baseCaller(move(baseCaller))
     , gen(rd())
 {
-
 }
 
 void SimBax::operator()()

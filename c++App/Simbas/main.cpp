@@ -61,7 +61,7 @@ void configCommandLineParser(QCommandLineParser& parser)
 
 void runProgram()
 {
-    system("pwd");
+    //system("pwd");
     //string t = getFileContents(clp.value(inFastaTemplate).toStdString().c_str());
     //string t = getFileContents("/media/sdb2/Projects/Source/Dissertation/c++App/build-Simbas-Desktop_Qt_5_3_0_GCC_64Bit_GDB7_7_1-Debug");
     string t = getFileContents(Options::get(Options::InTemplate).c_str());
@@ -88,7 +88,8 @@ void runProgram()
 unique_ptr<BaseCaller> getBaseCaller(const string& t)
 {
     unique_ptr<BaseCaller> baseCaller;
-    if (false)
+
+    /*if (false) //Not doing this at the moment
     {
         baseCaller.reset(new BiPolerCaller(t
                                            ,5   //lowDelPhred
@@ -101,7 +102,8 @@ unique_ptr<BaseCaller> getBaseCaller(const string& t)
                                            ,40  //lowInsPct
                                            ,40));   //lowSubPct
     }
-    else if (Options::get(Options::PhredDistributions) != "")
+    else*/
+    if (Options::get(Options::PhredDistributions) != "")
     {
         baseCaller.reset(new DiscreteCaller());
     }

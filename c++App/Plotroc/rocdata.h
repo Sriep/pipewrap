@@ -38,6 +38,7 @@ private:
     QList<double> frequencies;
 
     QString pSnpFile;
+    QString title;
     //QCommandLineParser& clp;
     //FrequencyPartition freqPartition;
 };

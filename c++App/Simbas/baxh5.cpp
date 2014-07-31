@@ -214,10 +214,10 @@ void BaxH5::writeBaseCalls(const string& bases
     dsQualtiyValue = baseCalls.createDataSet("QualityValue",
                                              PredType::NATIVE_UINT8, ds);
 
-    DataSet dsSimCoordinates = baseCalls.createDataSet("SimulatedCoordinate",
-                                             PredType::NATIVE_INT32, ds);
-    DataSet dsSimSeqIndex= baseCalls.createDataSet("SimulatedSequenceIndex",
-                                            PredType::NATIVE_INT32, ds);
+    //DataSet dsSimCoordinates = baseCalls.createDataSet("SimulatedCoordinate",
+    //                                         PredType::NATIVE_INT32, ds);
+   // DataSet dsSimSeqIndex= baseCalls.createDataSet("SimulatedSequenceIndex",
+    //                                        PredType::NATIVE_INT32, ds);
 
 
 
@@ -240,13 +240,13 @@ void BaxH5::writeBaseCalls(const string& bases
     dsQualtiyValue.write(qualPhred.c_str(), PredType::NATIVE_UINT8);
     dsWidthInFrame.write(&widthInFrames[0], PredType::NATIVE_UINT16);
 
-    vector<unsigned int> simCoordiantes(bases.size());
-    for( unsigned int i = 0 ; i < bases.size() ; i++ )
-        simCoordiantes[i] = i;
-    dsSimCoordinates.write(&simCoordiantes[0], PredType::NATIVE_INT32);
+    //vector<unsigned int> simCoordiantes(bases.size());
+    //for( unsigned int i = 0 ; i < bases.size() ; i++ )
+    //    simCoordiantes[i] = i;
+    //dsSimCoordinates.write(&simCoordiantes[0], PredType::NATIVE_INT32);
 
-    vector<unsigned int> simSeqIndex(bases.size(),0);
-    dsSimSeqIndex.write(&simSeqIndex[0], PredType::NATIVE_INT32);
+    //vector<unsigned int> simSeqIndex(bases.size(),0);
+    //dsSimSeqIndex.write(&simSeqIndex[0], PredType::NATIVE_INT32);
 
 
     zmw = baseCalls.createGroup("ZMW");

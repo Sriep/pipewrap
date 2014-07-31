@@ -14,7 +14,7 @@ static const long double Zero = 0.0;
 static const char nPhreds = 101;
 
 static const string programName = "Simabs";
-static const string version = "1.0.0.0";
+static const string version = "1.0.0.1";
 /*
 //Input
 const QCommandLineOption inFastaTemplate(

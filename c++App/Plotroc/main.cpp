@@ -14,14 +14,17 @@ int main(int argc, char *argv[])
     QCommandLineParser clp;
     configCommandLineParser(clp);
     clp.process(a);
-    compareIlluminaPacBioReads(clp);
+    if (clp.value(dataIllumina1).size()>0)
+    {
+        compareIlluminaPacBioReads(clp);
+    }
     if (clp.value(inpSNPs).size()> 0)
     {
         plotSimRoc(clp);
     }
 
 
-    return 1;//a.exec();
+    return 0;//a.exec();
 }
 
 void plotSimRoc(QCommandLineParser& clp)
@@ -85,5 +88,5 @@ void configCommandLineParser(QCommandLineParser& clp)
     clp.addOption(dataPacBio6);
     clp.addOption(lowersLocus);
     clp.addOption(upperLocus);
-
+    clp.addOption(titleRoc);
 }

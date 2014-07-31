@@ -73,12 +73,18 @@ const QCommandLineOption dataPacBio6(
 const QCommandLineOption lowersLocus(
             QStringList() << "l" << "lowerst-locus",
            "Start looking for pSNPS from this locus",
-           "filename",
+           "int",
             "0");
 const QCommandLineOption upperLocus(
             QStringList() << "u" << "upper-locus",
            "Stop looking for pSNPs after this locus",
-           "filename",
+           "int",
             "8916");
+
+const QCommandLineOption titleRoc(
+            QStringList() << "t" << "title",
+           "Title of ROC curve",
+           "stgring",
+            "");
 
 #endif // MAIN_H
