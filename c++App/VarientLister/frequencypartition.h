@@ -10,8 +10,8 @@ class FrequencyPartition
 {
 public:
     FrequencyPartition(const string& filename, const string &numBins = "100");
-    void setParmeters(long long tReads,
-                      long long tVarients);
+    void setParmeters(long long tReads = 20000,
+                      long long tVarients = 300);
     long double getMatchPartition(int par);
     long double getPsnpPartition(int par);
     long double getPartionFreq(int par,

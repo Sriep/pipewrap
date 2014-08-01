@@ -153,51 +153,6 @@ unsigned int Hdf5BasFile::getPhred(int posRead
     unsigned int phred = prob2phred(prob);
     return phred;
 }
-/*
-unsigned int Hdf5BasFile::getPhred(int posReadAl,
-                                   ,int posReadMatch
-                                   ,int posReadTemplate
-                                   ,int templateSize
-                                   ,const MatchMismatches& matches
-                                   ,char tBase
-                                   ,const string& window
-                                   ,size_t relPos)
-{
-    if ( (matchSize <= tempSize)
-          || (posReadAl < tempSize && (matchSize < posReadAl + tempSize)) )
-    {
-        return getPhred(posReadAl, window, relPos);
-    }
-    else
-    {
-        unsigned int N = 0;
-        unsigned int K = 0;
-        unsigned int totalPhred = 0.0;
-
-        long double logPk;
-
-        for ( int copyMatchPos = posReadMatch % tempSize
-              ; copyMatchPos < matches.size()
-              ; copyMatchPos += tempSize )
-        {
-            const int phred = getPhred(copyPos, window, relPos);
-            totalPhred += phred;
-            N++;
-            K += (matches[copPos] == tBase) ? 0 : 1;
-        }
-
-        long double avPhred = (long double)totalPhred/(long double)N;
-        long double pvalue = Zero;
-        for ( unsigned int i = K ; i <= N ; i++ )
-        {
-            logPk = - ((long double)i)*avPhred/Ten
-                    - p * log10(exp(One))
-                    - log_fac(i);
-            pvalue += pow(Ten, logPk);
-        }
-        return prob2phred(pvalue);
-    }
-}*/
 
 long double Hdf5BasFile::tagFactor(long double pPhred
                                       , long double pBackground

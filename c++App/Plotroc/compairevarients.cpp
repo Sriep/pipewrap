@@ -20,6 +20,19 @@ CompaireVarients::CompaireVarients(const QStringList &illuminaFiles
 {
     ReadFiles();
 }
+
+CompaireVarients::CompaireVarients(const QStringList &illuminaFiles
+                                   , const QStringList pacBioFiles
+                                   , QCommandLineParser &clp)
+    :   RocDataBase()
+   , illuminaFiles(illuminaFiles)
+   , pacBioFiles(pacBioFiles)
+   , lowerIndex(clp.value(lowersLocus).toInt())
+   , upperIndex(clp.value(upperLocus).toInt())
+   , graphTitle(clp.value(titleRoc))
+{
+   ReadFiles();
+}
 /*
 CompaireVarients::CompaireVarients(QCommandLineParser &clp)
 {
@@ -126,26 +139,47 @@ QVector<CompaireVarients::LocusData> CompaireVarients::readLocusData(
     if (inFile.open((QFile::ReadOnly)))
     {
         QTextStream inData(&inFile);
-        inData.readLine();
+        QString line = inData.readLine();
         while(!inData.atEnd())
         {
-            int locus;
-            char base;
-            int coverage;
-            int averageQality;
-            char pSNP;
-            int pSNPcount;
-            int pSNPpct;
-            double pValue;
-            char tab;
-
-            inData >> locus >> tab >> base >> coverage >> averageQality
-                   >> tab >> pSNP >> pSNPcount >> pSNPpct;
+            //int locus;
+            //char base;
+            //int coverage;
+            //int averageQality;
+            //char pSNP;
+            //int pSNPcount;
+            //int pSNPpct;
+            //double pValue;
+            //char tab;
+            //line = inData.readLine();
+            /*inData >> locus >> tab >> base >> tab >> coverage
+                   >> tab >> averageQality >> tab >> pSNP
+                   >> tab >> pSNPcount >> tab >> pSNPpct;
             inData.setRealNumberPrecision(64);
-            inData >> pValue;
-            if (lowerIndex < locus && locus < upperIndex)
+            inData >> tab >> pValue;*/
+
+            QString locus;
+            QString base;
+            QString coverage;
+            QString averageQality;
+            QString pSNP;
+            QString pSNPcount;
+            QString pSNPpct;
+            QString pValue;
+
+            //line = inData.readLine();
+            inData >> locus >> base >> coverage >> averageQality >> pSNP
+                   >> pSNPcount >> pSNPpct >> pValue;
+            int ilocus = locus.remove("\"").toInt();
+            if (lowerIndex < ilocus && ilocus <= upperIndex)
             {
-                LocusData data = { base, coverage, pSNPcount, pValue };
+                LocusData data =
+                {
+                    base.remove("\"").at(0).toLatin1()
+                    , coverage.remove("\"").toInt()
+                    , pSNPcount.remove("\"").toInt()
+                    , pValue.remove("\"").toDouble()
+                };
                 locusData << data;
             }
         }
@@ -167,10 +201,11 @@ QList<double> CompaireVarients::getFrequencies() const
 
 QString CompaireVarients::getTitle() const
 {
-    return QString("A ROC curve comparing pSNP calling across different\n"
-                   "sequencing experiments A ture positive is when both \n"
-                   "agree on a pSNP call. False positive or negitive when\n"
-                   "there is a disagreement");
+    return graphTitle;
+    //return QString("A ROC curve comparing pSNP calling across different\n"
+    //               "sequencing experiments A ture positive is when both \n"
+    //               "agree on a pSNP call. False positive or negitive when\n"
+    //               "there is a disagreement");
 }
 
 QString CompaireVarients::getPdfFilename() const

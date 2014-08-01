@@ -13,6 +13,9 @@ public:
                      ,const QStringList pacBioFiles
                      ,int lowerBound
                      ,int upperBoud);
+    CompaireVarients(const QStringList& illuminaFiles
+                     ,const QStringList pacBioFiles
+                     ,QCommandLineParser& clp);
     //CompaireVarients(QCommandLineParser& clp);
     virtual ~CompaireVarients();
     virtual void operator() ();
@@ -55,6 +58,7 @@ private:
 
     QList<QVector< double>> rocTprs;
     QList<QVector< double>> rocFprs;
+    QString graphTitle;
 };
 
 #endif // COMPAIREVARIENTS_H

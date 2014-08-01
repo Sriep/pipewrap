@@ -7,7 +7,9 @@
 
 FrequencyPartition::FrequencyPartition(const string& filename,
                                        const string& numBins)
-    : dataFile(filename), numBins(std::stoi(numBins))
+    : dataFile(filename)
+    , numBins(std::stoi(numBins))
+    //, totalBaseReads(std::stoi(totalBaseReads))
 {
 }
 
@@ -36,13 +38,13 @@ void FrequencyPartition::setParmeters(long long tReads,
                 binFreq.push_back(inBin);
                 binProportion.push_back(inProportion);
             };
-            int numBins = binFreq.size();
+            int totalBaseReads = binFreq.size();
             pMatch.push_back(1);
-            ratioPartitions.push_back((numBins*totalReads)/totalPsnps);
+            ratioPartitions.push_back((totalBaseReads*totalReads)/totalPsnps);
 
-            for (int i = 1 ; i<numBins ; i++ )
+            for (int i = 1 ; i<totalBaseReads ; i++ )
             {
-                pMatch.push_back((long double)i/(long double)numBins);
+                pMatch.push_back((long double)i/(long double)totalBaseReads);
                 ratioPartitions.push_back(1);
             }
     }

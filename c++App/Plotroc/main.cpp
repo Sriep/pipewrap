@@ -54,11 +54,14 @@ void compareIlluminaPacBioReads(QCommandLineParser& clp)
 
     if (illuminaData.size() > 0 && pacBioData.size() > 0)
     {
+        //CompaireVarients compiareData(illuminaData
+        //                              , pacBioData
+        //                              ,clp.value(lowersLocus).toInt()
+        //                              ,clp.value(upperLocus).toInt());
+
         CompaireVarients compiareData(illuminaData
                                       , pacBioData
-                                      ,clp.value(lowersLocus).toInt()
-                                      ,clp.value(upperLocus).toInt());
-
+                                      ,clp);
         //CompaireVarients compiareData(QCommandLineParser& clp));
         compiareData();
         PlotWindow pw(&compiareData);

@@ -152,7 +152,7 @@ void VarientCaller::hdf5()
 
 void VarientCaller::filterReads()
 {
-    bam_reader.Rewind();
+    /*bam_reader.Rewind();
     BamAlignment al;
     //unsigned long long totalPhred = 0;
     while(bam_reader.GetNextAlignment(al))
@@ -171,14 +171,15 @@ void VarientCaller::filterReads()
                     {
                         varients++;
                     }
-                   // assert(base + tMatch.offset(base) < al.Qualities.size());
                 }
                 totalBaseReads += tMatch.size();
                 totalReadVareints += varients;
         }
      }
-    //averagePhred = (long double) totalPhred / (long double) totalBaseReads;
+
     freqPartition.setParmeters(totalBaseReads, totalReadVareints);//, averagePhred);
+    */
+    freqPartition.setParmeters();
 }
 
 void VarientCaller::write()
@@ -255,7 +256,7 @@ void VarientCaller::writeLociInfo()
     if (methods.find(PValues::Poisson) != methods.end())
         lout << "\tpvPoissionan";
     if (methods.find(PValues::KnownFrequency) != methods.end())
-        lout << "\tKF\n";
+        lout << "\tpvKF";
     lout << "\n";
 
     for (unsigned int locus = 0 ; locus < t.length() ; locus++)
