@@ -382,6 +382,10 @@ void WorkflowTreeView::nextCommand()
         QFile file("temp_command_script.sh");
         file.remove();
         file.open(QIODevice::WriteOnly);
+        file.setPermissions(QFile::WriteOwner|QFile::ReadOwner|QFile::ExeOwner
+                            |QFile::WriteUser|QFile::ReadUser|QFile::ExeUser
+                            |QFile::WriteGroup|QFile::ReadGroup|QFile::ExeGroup
+                            |QFile::WriteOther|QFile::ReadOther|QFile::ExeOther);
         QTextStream out(&file);
         out << "#!/bin/bash\n";
         out << commandList[currentCommand];

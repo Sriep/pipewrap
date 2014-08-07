@@ -28,8 +28,9 @@ void MatchMismatches::untangle()
     {
         switch (cigar[i].Type)
         {
+        case 'H': /// Ignore hard clipped values.
+            break;
         case 'N':
-        case 'H':
         case 'S':
         case 'I':
             erase(sequPos, cigar[i].Length);

@@ -33,9 +33,11 @@ HEADERS  += workflowtreeview.h \
     assistant.h
 
 LIBS += -L"/opt/mysql/server-5.6/lib"
-LIBS += -L"/usr/local/pgsql/lib"
+#LIBS += -L"/usr/local/pgsql/lib"
+#LIBS += -L"/usr/lib/postgresql/9.3/lib"
 INCLUDEPATH += "/opt/mysql/server-5.6/include"
-INCLUDEPATH += "/usr/local/pgsql/include"
+#INCLUDEPATH += "/usr/include/postgresql"
+#INCLUDEPATH += "/usr/local/pgsql/include"
 #unix:LIBS += -L/usr/lib/x86_64-linux-gnu/mesa/
 
 RESOURCES += \

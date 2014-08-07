@@ -41,10 +41,10 @@ int main(int argc, char *argv[])
     //dialog->setDatabaseName("SqliteData.sqlite3");
     dialog->setDatabasePortNumber(portnumber);
     dialog->setDatabaseHostName("localhost");
-    dialog->setDatabaseUsername("piers");
+    dialog->setDatabaseUsername("pipewrap");
     dialog->setDatabaseDriverName("QPSQL");
     //dialog->setDatabaseDriverName("QSQLITE");
-    dialog->setDatabasePassword("piers");
+    dialog->setDatabasePassword("pipewrap");
 
     // enable the connect button if all the data is correct
     dialog->checkFormData();

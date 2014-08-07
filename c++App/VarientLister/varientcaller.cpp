@@ -5,7 +5,7 @@
 #include <iomanip>
 #include "chrono"
 #include "ctime"
-
+#include <qdebug.h>
 #include "H5Cpp.h"
 #include "varientcaller.h"
 #include "main.h"
@@ -375,13 +375,14 @@ void VarientCaller::populateLociInfo()
         // Position = 0 means read has not been mapped succesfully
         if (0 < al.Position)
         {
+//qDebug() << "read count" << readCount;
             if (NULL != basFile) basFile->setReadFromId(al.Name);
             MatchMismatches tMatch(al.QueryBases, al.CigarData);
             for (unsigned int mBase = 0 ; mBase < tMatch.size() ; mBase++)
             {
                 const unsigned int locus = (al.Position+ mBase) % t.size();
                 const unsigned int alBase = mBase + tMatch.offset(mBase);
-
+//qDebug() << "base" << mBase;
                 //if (goodEnoughRead(al.Qualities[alBase]))
                 if (goodEnoughRead(alBase, al, basFile))
                         //|| !trimEndsFactor(al.Position, mBase, t.size()))

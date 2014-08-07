@@ -5,3 +5,4 @@ op_command,op_string,op_data_type,op_short_description,op_long_description,op_op
 ./Simbas.sh,-o ,string,out prefix,Output prefix for bax.h5 and fastq filenames.,,,,,,
 ./Simbas.sh,-h,,help,Help information.,,,,,,
 ./Simbas.sh,-v,,version,Show program version information.,,,,,,
+./Simbas.sh,-l ,int,length,length of simulated sequences,,,,,,

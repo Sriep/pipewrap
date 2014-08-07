@@ -256,7 +256,8 @@ QVector<QWidget*> ToolOptionsDialog::getNextWidget()
     else
     {
         QLineEdit* line_edit = new QLineEdit;
-        if (data_type == "double")
+        //Might want to add shell varable for numeric field
+        /*if (data_type == "double")
         {
             QDoubleValidator* validator = new QDoubleValidator;
             line_edit->setValidator(validator);
@@ -265,7 +266,7 @@ QVector<QWidget*> ToolOptionsDialog::getNextWidget()
         {
             QIntValidator* validator = new QIntValidator;
             line_edit->setValidator(validator);
-        }
+        }*/
 
         QString option = m_tool_option_table->value(1).toString(); //op_string
         SetEditFromExistingItem(m_tree_item, option, line_edit);

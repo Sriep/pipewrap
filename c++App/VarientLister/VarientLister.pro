@@ -16,9 +16,9 @@ CONFIG  += c++11
 
 TEMPLATE = app
 
-LIBS += -L/media/sdb2/Projects/Source/Dissertation/c++App/bamtools/lib -lbamtools
-DEPENDPATH += /media/sdb2/Projects/Source/Dissertation/c++App/bamtools/include
-INCLUDEPATH += /media/sdb2/Projects/Source/Dissertation/c++App/bamtools/include
+LIBS += -L../bamtools/lib -lbamtools
+DEPENDPATH += ../bamtools/include
+INCLUDEPATH += ../bamtools/include
 
 LIBS += -L/usr/local/hdf5/lib -lhdf5
 LIBS += -L/usr/local/hdf5/lib -lhdf5_cpp

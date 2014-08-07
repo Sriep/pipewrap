@@ -60,7 +60,7 @@ PacBio sequencers produce two types of characteristic reads as below.
   Continuous Long Read (CLR)    : long and high error rate.
   Circular consensus Read (CCS) : short and low error rate.
 We have developed a PacBio reads simulater (called PBSIM) in which
-sampling-based and model-based simulations are implemented.",pbsim,,1
+sampling-based and model-based simulations are implemented.",./pbsim,,1
 alchemy,Simulate pacific bioscience reads,./alchemy,,1
 Plotroc,Display ROC curves,./Plotroc,,1
 VarientLister,Create varient data,./VarientLister.sh,,1
