@@ -13,6 +13,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Plotroc
 #CONFIG   += console
 #CONFIG   -= app_bundle
+LIBS += -L/usr/lib/fglrx -lGL
 
 TEMPLATE = app
 CONFIG += c++11

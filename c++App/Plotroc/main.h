@@ -10,14 +10,8 @@ void plotSimRoc(QCommandLineParser& clp);
 void compareIlluminaPacBioReads(QCommandLineParser& clp);
 
 static string programName = "plotroc";
-static string version = "1.0.0.1";
-//static QCommandLineParser clp;
-/*const QCommandLineOption inPvPath(
-            QStringList() << "i" << "in-sufix",
-            "File contianing list of pvalues",
-            "filename",
-            "");
-            */
+static string version = "1.0.0.2";
+
 const QCommandLineOption inpSNPs(
             QStringList() << "s" << "pSNPs",
            "Output file from pSNPgenerator.R",
