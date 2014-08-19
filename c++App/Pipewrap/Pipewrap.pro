@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Pipewrap
 TEMPLATE = app
 CONFIG += c++11
+LIBS += -L/usr/lib/fglrx -lGL
 #QTPLUGIN += qsqlmysql
 #QTPLUGIN += qsqlpsql
 

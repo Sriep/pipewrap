@@ -1,14 +1,22 @@
 1,pSNPgeneartor,,Rscript pSNPgenerator.R,,1
 2,pIRS simulate,,./pirs simulate,,1
-4,BWA,,BWA,,1
-5,stampy.py,,./stampy.py,,1
+4,Stampy,,./stampy.py,,1
+5,varscan somatic,,java -jar  VarScan.v2.3.6.jar somatic,,1
 7,samtools view,,samtools view,,1
 8,samtools sort,,samtools sort,,1
 9,samtools index,,samtools index,,1
-10,Samtools mpileup,,Samtools mpileup,,1
-11,pbsim,,pbsim,,1
-12,alchemy,,./alchemy,,1
-13,Plotroc,,./Plotroc,,1
-14,VarientLister,,./VarientLister.sh,,1
-15,Blasr,,./blasr,,1
-16,varscan somatic,,java -jar  VarScan.v2.3.6.jar somatic,,1
+10,samtools mpileup,,samtools mpileup,,1
+11,samtools merge,,samtools merge,,1
+12,pbsim,,./pbsim,,1
+13,alchemy,,./alchemy,,1
+14,Plotroc,,./Plotroc,,1
+15,VarientLister,,./VarientLister.sh,,1
+16,Blasr,,./blasr,,1
+17,Bwa bwasw,,./bwa bwasw,,1
+18,Bwa index,,./bwa index,,1
+19,Bwa mem,,./bwa mem,,1
+20,simbas,,./Simbas.sh,,1
+21,AnalyseBax,,./AnalyseBax.sh,,1
+22,Bwa aln,,./bwa aln,,1
+23,Bwa sampe,,./bwa sampe,,1
+,,,,,1

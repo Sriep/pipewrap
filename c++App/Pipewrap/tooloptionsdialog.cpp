@@ -201,7 +201,7 @@ QVector<QWidget*> ToolOptionsDialog::getFilenameWidget()
     SetEditFromExistingItem(m_tree_item, option, line_edit);
     QVector<QWidget*> rtv;
     rtv.append(line_edit);
-    rtv.append(setFileBut);
+    //rtv.append(setFileBut);
     return rtv;
 }
 
