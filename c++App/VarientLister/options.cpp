@@ -5,8 +5,8 @@
 
 static const int showHelp = 1;
 static const int showVersion = 1;
-const string Options::shortOptions = "i:t:x:r:l:b:p:k:f:d:e:u:q:a:hv";
-const string Options::optionIndexes = "itxrlbpkfdeuqahv";
+const string Options::shortOptions = "i:t:x:r:l:b:p:k:f:d:e:u:q:a:c:hv";
+const string Options::optionIndexes = "itxrlbpkfdeuqachv";
 const struct option Options::longOptions[NumOptionTypes+1] =
 {
     {"in-bam", required_argument, NULL, shortOptions[0]}
@@ -25,7 +25,7 @@ const struct option Options::longOptions[NumOptionTypes+1] =
     ,{"subs-threshold", required_argument, NULL, shortOptions[11]}
     ,{"prequal-threshold", required_argument, NULL, shortOptions[12]}
     ,{"postqual-threshold", required_argument, NULL, shortOptions[13]}
-
+    ,{"calculate-factorials", required_argument, NULL, shortOptions[14]}
 
     ,{"help", no_argument, &flags[4], showHelp}
     ,{"version", no_argument, &flags[5], showVersion}
@@ -52,6 +52,7 @@ const string Options::descriptions[NumOptionTypes] =
     ,"Threhold for pre filtering by substitutionQV"
     ,"Threhold for pre filtering by aggregate quality value"
     ,"Threhold for post filtering by aggreagate quality value"
+    ,"Precalculate factorails to improve poisson and bionomial methds"
 
     ,"Help information"
     ,"Show program version information"

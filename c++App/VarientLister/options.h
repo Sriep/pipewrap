@@ -30,6 +30,7 @@ public:
         ,FilterSubsThreshold
         ,PreFilterQuality
         ,PostFilterQuality
+        ,PreCalculateFactorials
 
         ,Help
         ,Version

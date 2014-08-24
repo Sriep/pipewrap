@@ -21,7 +21,13 @@ int main(int argc, char *argv[])
             if (Options::get(Options::InBamFile).size() > 0
                 && Options::get(Options::TemplateFile).size() > 0)
             {
-                    runProgram();
+                if (Options::get(Options::PreCalculateFactorials).size()>0)
+                {
+                    unsigned int preCalFactorials = stoul(
+                                Options::get(Options::PreCalculateFactorials));
+                    preCalculateLogFactorials(preCalFactorials);
+                }
+                runProgram();
             }
         }
         catch (const exception& ex)
