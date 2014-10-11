@@ -5,34 +5,105 @@
     </head>
     <body style="font-size:12pt;font-family:helvetica">
 
-        <p><center><h2>Simple Text Viewer</h2></center></p>
+        <p><center><h2>Pipewrap</h2></center></p>
 
         <p>
-        The Simple Text Viewer enables the user to select and view
-        existing files.
+        Pipewrap is a GUI application written in C++ which allows the
+        construction and running of sequences of shell commands.
         </p>
 
-        <p><center>
-        <img src="images/mainwindow.png" />
-        </center></p>
 
         <p>
-        HTML files is displayed using rich text, while
-        other files are presented as plain text. The application
-        provides a file dialog allowing the user to search for files
-        using wildcard matching. The search is performed within in the
-        specified directory, and the user is given an option to browse
-        the existing file system to find the relevant directory.
+        It enables the setting of parameters to third-party and bespoke
+        software in the software pipeline. After a pipeline is run all the
+        results are moved to a folder in a timestamped results sub-directory.
+        </p>
+
+        <p>
+        As well as the command result files, three documents are created by
+        Pipewrap.
+        <OL>
+        <LI>
+        The first of these files is a shell script containing the
+        shell commands executed. Running this script will re-run the pipeline.
+        </LI>
+        <LI>
+        The second is a log .cvs file containing the list of commands executed
+        along with the time taken and exit values.
+        </LI>
+        <LI>
+        The third file is a colour-coded output log containing a dump of all
+        the standard output and standard error produced by the Pipewrap commands.
+        </LI>
+        <LI>
+        This file also contains the commands run, start and end times and exit codes.
+        </LI>
+        </OL>
+        </p>
+
+        <p>
+        The main Pipewrap display contains two columns. The first column has
+        the list of commands in the pipeline to be run with each option
+        appearing underneath. The second column contains the options' input values.
+        <p>
+
+        <p>
+        Commands can be added either by using the Add button in the toolbar,
+        the main menu or the context menu. This brings up a list of supported
+        commands. Selecting one of these commands further brings up a dialog
+        where the command options can be entered. The list of commands supported
+        and the details of the options available for each of these commands is
+        held in a database. One database table contains the list of commands
+        and a second table contains a the list of options for each command.
+        </p>
+
+        <p>
+        A new command can be supported by adding a row to the SQL database
+        Biotools table with a row for each option to the ToolOptions table
+        </p>
+
+        <p>
+        Shell commands currently supported by Pipewrap are the third-party
+        tools
+        <li>pIRS simulate</li>
+        <li>Stampy</li>
+        <li>VarScan somatic</li>
+        <li>samtools view</li>
+        <li>samtools sort</li>
+        <li>samtools index</li>
+        <li>samtools mpileup</li>
+        <li>samtools merge</li>
+        <li>PBSIM</li>
+        <li>Alchemy</li>
+        <li>BLASR</li>
+        <li>BWA bwasw</li>
+        <li>BWA index</li>
+        <li>BWA mem</li>
+        <li>BWA aln</li>/home/piers/Documents/pipewrap/c++App/Pipewrap/Documents/html/variantLister.html
+        <li>BWA sampe</li>
+        </p>
+
+        <p>
+        The following tools developed here are also supported.
+        <ul>
+            <li><a href="SNPgenerator.html">SNPgenerator</a></li>
+            <li><a href="simbas.html">Simbas</a></li>
+            <li><a href="analyseBax.html">AnalyseBax</a></li>
+            <li><a href="variantLister.html">VariantLister</a></li>
+            <li><a href="plotroc.html">Plotroc</a></li>
+
+        </ul>
+        </p>
+
+        <p>
+        The Pipewrap user interface can be split into three areas:
+        the main menu, toolbar and context menu on the central area.
         </p>
 
         <ul>
-            <li><a href="findfile.html">Find File</a></li>
-            <ul>
-                <li><a href="filedialog.html">File Dialog</a></li>
-                <li><a href="wildcardmatching.html">WildCard Matching</a></li>
-                <li><a href="browse.html">Browse</a></li>
-            </ul>
-            <li><a href="openfile.html">Open File</a></li>
+            <li><a href="mainMenu.html">Main menu</a></li>
+            <li><a href="toolbar.html">Toolbar</a></li>
+            <li><a href="contextMenu.html">Context menu</a></li>
         </ul>
     </body>
 </html>

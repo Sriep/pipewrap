@@ -51,11 +51,15 @@ OTHER_FILES += \
     Documents/about.txt \
     Documents/pipewrap.qhcp \
     Documents/pipewrap.qhp \
-    Documents/html/analysebax.html \
     Documents/html/index.html \
     Documents/html/openpipe.html \
+    Documents/html/varientlister.html \
+    Documents/html/contextMenu.html \
+    Documents/html/mainMenu.html \
+    Documents/html/SNPgenerator.html \
+    Documents/html/toolbar.html \
+    Documents/html/variantLister.html \
+    Documents/html/analyseBax.html \
     Documents/html/plotroc.html \
-    Documents/html/simbas.html \
-    Documents/html/Tools.html \
-    Documents/html/varientlister.html
+    Documents/html/simbas.html
 
