@@ -45,6 +45,11 @@ void MainWindow::init()
     resize(800, 600);
 }
 
+void MainWindow::closeEvent(QCloseEvent *)
+{
+    delete assistant;
+}
+
 void MainWindow::openSlot()
 {
     QString fileName = QFileDialog::getOpenFileName(this

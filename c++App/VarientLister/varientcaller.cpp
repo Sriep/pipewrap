@@ -16,59 +16,9 @@
 
 using namespace H5;
 
-
-VarientCaller::VarientCaller(const string& bamInfile,
-                             const string& tepInile,
-                             const string &freqPartFile,
-                             const string& basH5file,
-                             const string &numFreqPart,
-                             const string &readOutfile,
-                             const string &lociOutfile,
-                             const string &fisherFilename,
-                             const string &bionomialFilename,
-                             const string &poissonFilename,
-                             const string &poissonBinomialFilename,
-                             const string &knownFrequencyFilename)
-    : freqPartition(freqPartFile, numFreqPart),
-      basH5file(basH5file),
-      readOutfile(readOutfile),
-      lociOutfile(lociOutfile)
-{
-    pvMethodsFilename.clear();
-    if (fisherFilename.size() > 0)
-    {
-        pvMethodsFilename[PValues::FisherExact] = fisherFilename;
-        methods.insert(PValues::FisherExact);
-    }
-    if (bionomialFilename.size() > 0)
-    {
-        pvMethodsFilename[PValues::Bionomial] = bionomialFilename;
-        methods.insert(PValues::Bionomial);
-    }
-    if (poissonFilename.size() > 0)
-    {
-        pvMethodsFilename[PValues::Poisson] = poissonFilename;
-        methods.insert(PValues::Poisson);
-    }
-    if (poissonBinomialFilename.size() > 0)
-    {
-        pvMethodsFilename[PValues::PiossonBionomial] = poissonBinomialFilename;
-        methods.insert(PValues::PiossonBionomial);
-    }
-    if (knownFrequencyFilename.size() > 0)
-    {
-        pvMethodsFilename[PValues::KnownFrequency] = knownFrequencyFilename;
-        methods.insert(PValues::KnownFrequency);
-    }
-   bam_reader.Open(bamInfile);
-    t = getFileContents(tepInile.c_str());
-    basesFromFasta();
-    init();
-}
-
 VarientCaller::VarientCaller()
     : freqPartition("", Options::get(Options::NumFrequencyPartitions))
-      ,basH5file(Options::get(Options::BaxH5File))
+      //,basH5file(Options::get(Options::BaxH5File))
       ,readOutfile(Options::get(Options::ReadOutFile))
       ,lociOutfile(Options::get(Options::LociOutFile))
       ,insThreshold(stoul(Options::get(Options::FilterInsThreshold)))
@@ -123,7 +73,6 @@ void VarientCaller::operator()()
 
 void VarientCaller::init()
 {
-    //Hdf5BasFile* basFile = new Hdf5BasFile(basH5file);
     for (unsigned int i = 0 ; i < t.length() ; i++ )
     {
         als_info.push_back(unique_ptr<LocusInfo>(
@@ -135,50 +84,8 @@ void VarientCaller::init()
 
 }
 
-void VarientCaller::hdf5()
-{
-    /*H5::H5File h5file(basH5file, H5F_ACC_RDONLY);
-    FileAccPropList propList = h5file.getAccessPlist();
-    hsize_t nob = h5file.getNumObjs();
-    vector<H5std_string> names;
-    for ( unsigned int i = 0 ; i < h5file.getNumObjs() ; i++ )
-    {
-        H5std_string name = h5file.getObjnameByIdx(i);
-        names.push_back(name);
-    }
-
-    h5file.close();*/
-}
-
 void VarientCaller::filterReads()
 {
-    /*bam_reader.Rewind();
-    BamAlignment al;
-    //unsigned long long totalPhred = 0;
-    while(bam_reader.GetNextAlignment(al))
-    {
-        // Position = 0 means read has not been mapped succesfully
-        if (0 < al.Position)
-        {
-            MatchMismatches tMatch(al.QueryBases, al.CigarData);
-            unsigned int varients = 0;
-                for ( unsigned int base = 0 ; base < tMatch.size() ; base++)
-                {
-                    if (basesDiffer(tMatch[base]
-                                    , t[(base + al.Position) % t.size()]))
-                    //if (!compareBases(tMatch[base]
-                    //                  , t[(base + al.Position) % t.size()]))
-                    {
-                        varients++;
-                    }
-                }
-                totalBaseReads += tMatch.size();
-                totalReadVareints += varients;
-        }
-     }
-
-    freqPartition.setParmeters(totalBaseReads, totalReadVareints);//, averagePhred);
-    */
     freqPartition.setParmeters();
 }
 
@@ -195,6 +102,118 @@ void VarientCaller::write()
         if (methods.find(method) != methods.end())
             write(method);
     }
+}
+
+
+
+void VarientCaller::basesFromFasta()
+{
+    if ('>' == t[0])
+        t.erase(0, t.find_first_of('\n'));
+
+    //http://en.cppreference.com/w/cpp/algorithm/remove
+    t.erase(std::remove_if(t.begin(),
+                              t.end(),
+                              [](char x){return std::isspace(x);}),
+               t.end());
+}
+
+char VarientCaller::visBase(char bamChar)
+{
+    if (bamChar == 'a' || bamChar == 'A' || bamChar == 'c' || bamChar == 'C'
+            || bamChar == 't' || bamChar == 'T' || bamChar == 'g'
+            || bamChar == 'G' || bamChar == 'u' || bamChar == 'U')
+    {
+        return bamChar;
+    }
+    return '-';
+}
+
+bool VarientCaller::goodEnoughRead(char phred)
+{
+    return phred-33 >= preQualThreshold;
+}
+
+bool VarientCaller::goodEnoughRead(unsigned short position
+                                    , const BamAlignment& al)
+{
+   return al.Qualities[position] - 33 >= preQualThreshold;
+}
+
+bool VarientCaller::trimEndsFactor(int alPos, int mBase, int tSize)
+{
+    return alPos + mBase < trimEnds
+            || alPos + mBase > tSize * numTRepeats - trimEnds;
+}
+
+
+void VarientCaller::populateLociInfo()
+{
+    bam_reader.Rewind();
+    BamAlignment al;
+    cout << "Untangling reads.\n";
+    int readCount = 0;
+    while(bam_reader.GetNextAlignment(al))
+    {
+        // Position = 0 means read has not been mapped succesfully
+        if (0 < al.Position)
+        {
+            MatchMismatches tMatch(al.QueryBases, al.CigarData);
+            for (unsigned int mBase = 0 ; mBase < tMatch.size() ; mBase++)
+            {
+                const unsigned int locus = (al.Position+ mBase) % t.size();
+                const unsigned int alBase = mBase + tMatch.offset(mBase);
+                if (goodEnoughRead(alBase, al))
+                {
+                    if (!basesDiffer(tMatch[mBase], t[locus]))
+                    {
+                        int phard = al.Qualities[alBase]-33;
+                        //als_info[locus]->inc_calls(al.QueryBases[alBase],phard);
+                        als_info[locus]->inc_calls(
+                                    al.QueryBases[alBase],al.MapQuality);
+                    }
+                    else if (tMatch[mBase] != '-')
+                    {
+                        int phard;
+                        phard = al.Qualities[alBase]-33;
+                        if (phard > postQualThrehold)
+                            //als_info[locus]->inc_calls( al.QueryBases[alBase],phard);
+                            als_info[locus]->inc_calls(
+                                       al.QueryBases[alBase],al.MapQuality);
+                    }
+                }
+            }
+        }
+        if (0 == (++readCount % 10000))
+            cout << readCount << " reads processed\n";
+    }
+}
+
+
+void VarientCaller::calculatePvalues()
+{
+    unsigned int nextOut = t.length() /10;
+    unsigned int pct = 0;
+    chrono::time_point<chrono::system_clock> start;
+    start = chrono::system_clock::now();
+    cout << "Calculating pvalues.\n";
+
+    for (unsigned int i = 0 ; i < t.length() ; i++ )
+    {
+        als_info[i]->populate();
+
+        if (i == nextOut)
+        {
+            chrono::time_point<chrono::system_clock> current;
+            current = chrono::system_clock::now();
+            chrono::duration<double> elapsed = current - start;
+            nextOut += t.length()/10;
+            pct += 10;
+            cout << pct << "% done. Time ellapsed "
+                 << elapsed.count() << " seconds\n";
+        }
+    }
+    cout << "Wrinting data to file.\n";
 }
 
 void VarientCaller::writeReadInfo()
@@ -284,7 +303,6 @@ void VarientCaller::writeLociInfo()
                  << als_info[locus]->getPValue(PValues::KnownFrequency);
         lout << "\"\n";
     }
-
 }
 
 void VarientCaller::write(PValues::Method method)
@@ -297,170 +315,6 @@ void VarientCaller::write(PValues::Method method)
         pvout << setprecision(64) << als_info[locus]->getPValue(method) << "\n";
     }
 }
-
-void VarientCaller::basesFromFasta()
-{
-    if ('>' == t[0])
-        t.erase(0, t.find_first_of('\n'));
-
-    //http://en.cppreference.com/w/cpp/algorithm/remove
-    t.erase(std::remove_if(t.begin(),
-                              t.end(),
-                              [](char x){return std::isspace(x);}),
-               t.end());
-}
-
-char VarientCaller::visBase(char bamChar)
-{
-    if (bamChar == 'a' || bamChar == 'A' || bamChar == 'c' || bamChar == 'C'
-            || bamChar == 't' || bamChar == 'T' || bamChar == 'g'
-            || bamChar == 'G' || bamChar == 'u' || bamChar == 'U')
-    {
-        return bamChar;
-    }
-    return '-';
-}
-
-bool VarientCaller::goodEnoughRead(char phred)
-{
-    return phred-33 >= preQualThreshold;
-}
-
-bool VarientCaller::goodEnoughRead(unsigned short position
-                                    , const BamAlignment& al
-                                    , const Hdf5BasFile *baxFile)
-{
-    if (NULL == baxFile)
-    {
-        return al.Qualities[position] - 33 >= preQualThreshold;
-    }
-    else
-    {
-        //char q = al.Qualities[position] - 33;
-        //char i = baxFile->getInsertionQV(position);
-        //char d = baxFile->getDeletionQV(position);
-        //char s = baxFile->getSubstitutionQV(position);
-        //return i>insThreshold && d >delThreshold && s>subsThreshold;
-        return  baxFile->getInsertionQV(position) >= insThreshold
-                && baxFile->getDeletionQV(position) >= delThreshold
-                && baxFile->getSubstitutionQV(position) >= subsThreshold
-                && al.Qualities[position] - 33 >= preQualThreshold;
-    }
-}
-
-bool VarientCaller::trimEndsFactor(int alPos, int mBase, int tSize)
-{
-    return alPos + mBase < trimEnds
-            || alPos + mBase > tSize * numTRepeats - trimEnds;
-}
-
-void VarientCaller::populateLociInfo()
-{
-    bam_reader.Rewind();
-    BamAlignment al;
-
-    //unsigned int nextOut = /t.length() /10;
-    //unsigned int pct = 0;
-    //chrono::time_point<chrono::system_clock> start;
-    //start = chrono::system_clock::now();
-    cout << "Untangling reads.\n";
-    int readCount = 0;
-
-
-    Hdf5BasFile* basFile = NULL;
-    if (basH5file != "") basFile = new Hdf5BasFile(basH5file);
-
-    while(bam_reader.GetNextAlignment(al))
-    {
-        // Position = 0 means read has not been mapped succesfully
-        if (0 < al.Position)
-        {
-//qDebug() << "read count" << readCount;
-            if (NULL != basFile) basFile->setReadFromId(al.Name);
-            MatchMismatches tMatch(al.QueryBases, al.CigarData);
-            for (unsigned int mBase = 0 ; mBase < tMatch.size() ; mBase++)
-            {
-                const unsigned int locus = (al.Position+ mBase) % t.size();
-                const unsigned int alBase = mBase + tMatch.offset(mBase);
-//qDebug() << "base" << mBase;
-                //if (goodEnoughRead(al.Qualities[alBase]))
-                if (goodEnoughRead(alBase, al, basFile))
-                        //|| !trimEndsFactor(al.Position, mBase, t.size()))
-                {
-                    if (!basesDiffer(tMatch[mBase], t[locus]))
-                    //if (compareBases(tMatch[mBase], t[locus]))
-                    {
-                        int phard = (NULL == basFile)
-                                    ? al.Qualities[alBase]-33
-                                    : basFile->getPhred(alBase);
-                        als_info[locus]->inc_calls(al.QueryBases[alBase],phard);
-                    }
-                    else if (tMatch[mBase] != '-')
-                    {
-                        int phard;
-                        if(NULL == basFile)
-                        {
-                            phard = al.Qualities[alBase]-33;
-                        }
-                        else
-                        {
-                            if (0 == windowSize)
-                            {
-                                phard = basFile->getPhred(alBase);
-                            }
-                            else
-                            {
-                                const unsigned int start =
-                                        (unsigned int)max(0, (int)(locus-windowSize));
-                                const unsigned int end =
-                                                t.size() < locus + windowSize
-                                              ? t.size() : locus + windowSize;
-                                const unsigned int l = (locus < windowSize)
-                                                        ? locus : windowSize;
-                                string window = t.substr(start, end - start);
-                                phard = basFile->getPhred(alBase, window, l);
-                            }
-                        }
-                        if (phard > postQualThrehold)
-                            als_info[locus]->inc_calls(
-                                        al.QueryBases[alBase],phard);
-                    }
-                }
-            }
-        }
-        if (0 == (++readCount % 10000))
-            cout << readCount << " reads processed\n";
-    }
-    if (NULL != basFile) delete(basFile);
-}
-
-void VarientCaller::calculatePvalues()
-{
-    unsigned int nextOut = t.length() /10;
-    unsigned int pct = 0;
-    chrono::time_point<chrono::system_clock> start;
-    start = chrono::system_clock::now();
-    cout << "Calculating pvalues.\n";
-
-    for (unsigned int i = 0 ; i < t.length() ; i++ )
-    {
-        als_info[i]->populate();
-
-        if (i == nextOut)
-        {
-            chrono::time_point<chrono::system_clock> current;
-            current = chrono::system_clock::now();
-            chrono::duration<double> elapsed = current - start;
-            nextOut += t.length()/10;
-            pct += 10;
-            cout << pct << "% done. Time ellapsed "
-                 << elapsed.count() << " seconds\n";
-        }
-    }
-    cout << "Wrinting data to file.\n";
-}
-
-
 
 
 

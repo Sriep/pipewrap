@@ -11,30 +11,10 @@ class Options
 public:
     enum OptionTypes
     {
-        /// In Files
-        InBamFile
-        ,TemplateFile
-        ,BaxH5File
-
-        /// Out Files
-        ,ReadOutFile
-        ,LociOutFile
-        ,BionomialFile
-        ,PoissonFile
-        ,KfFile
-        ,VcfOutput
-
-        /// Algorithm parameters
-        ,NumFrequencyPartitions
-        ,FilterDelsThreshold
-        ,FilterInsThreshold
-        ,FilterSubsThreshold
-        ,PreFilterQuality
-        ,PostFilterQuality
-        ,PreCalculateFactorials
-        ,PValueThreshold
-        ,CoverageThreshold
-
+        VariantData
+        ,TrueData
+        ,OutData
+        ,LogPValueThreshold
         ,Help
         ,Version
         ,NumOptionTypes
@@ -43,8 +23,7 @@ public:
     Options();
     static string get(OptionTypes option);
     static int flag(OptionTypes flag);
-    static void readOptions(int argc, char *argv[]);
-
+    static int readOptions(int argc, char *argv[]);
 
 private:
     static void writeHelpInfo(ostream &outs);

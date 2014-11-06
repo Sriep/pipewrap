@@ -15,50 +15,37 @@
 using namespace std;
 using namespace BamTools;
 
-class Hdf5BasFile;
 class LocusInfo;
 
 class VarientCaller
 {
 public:
-    VarientCaller(const string& bamInfile,
-                  const string& tepInile,
-                  const string& freqPartFile,
-                  const string& basH5file,
-                  const string& numFreqPart,
-                  const string& readOutfile,
-                  const string& lociOutfile,
-                  const string& fisherFilename,
-                  const string& bionomialFilename,
-                  const string& poissonFilename,
-                  const string& poissonBinomialFilename,
-                  const string &knownFrequencyFilename);
     VarientCaller();
     ~VarientCaller();
     void operator() ();
+protected:
+    bool goodEnoughRead(unsigned short position, const BamAlignment& al);
+    virtual void populateLociInfo();
 private:
     void write();
     void writeReadInfo();
     void writeLociInfo();
     void write(PValues::Method method);
-    void hdf5();
     bool goodEnoughRead(char phred);
-    bool goodEnoughRead(unsigned short position
-                        , const BamAlignment& al
-                        , const Hdf5BasFile* baxFile);
+
     void calculatePvalues();
 
     void init();
     void filterReads();
     void basesFromFasta();
-    char visBase(char bamChar);
-    void populateLociInfo();
+    char visBase(char bamChar);    
     char baseToCompare(BamAlignment al, int base);
 
     FrequencyPartition freqPartition;
+
+protected: //should sort this out, make privazte somehow.
     BamReader bam_reader;
     string t;
-    string basH5file;
     string readOutfile;
     string lociOutfile;
 
@@ -69,7 +56,8 @@ private:
     //unsigned int errorThreshold;
     long long totalBaseReads = 0;
     long long totalReadVareints = 0;
-    long double averagePhred = 0.0;
+    long double averagePhred = 0.0;   
+
     unsigned int windowSize = 20;
     unsigned char insThreshold = 5;
     unsigned char delThreshold = 0;

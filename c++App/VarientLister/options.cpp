@@ -5,8 +5,8 @@
 
 static const int showHelp = 1;
 static const int showVersion = 1;
-const string Options::shortOptions = "i:t:x:r:l:b:p:k:f:d:e:u:q:a:c:hv";
-const string Options::optionIndexes = "itxrlbpkfdeuqachv";
+const string Options::shortOptions = "i:t:x:r:l:b:p:k:V:f:d:e:u:q:a:c:hv";
+const string Options::optionIndexes = "itxrlbpkVfdeuqachv";
 const struct option Options::longOptions[NumOptionTypes+1] =
 {
     {"in-bam", required_argument, NULL, shortOptions[0]}
@@ -18,14 +18,17 @@ const struct option Options::longOptions[NumOptionTypes+1] =
     ,{"bionomial", required_argument, NULL, shortOptions[5]}
     ,{"poisson", required_argument, NULL, shortOptions[6]}
     ,{"kf", required_argument, NULL, shortOptions[7]}
+    ,{"VcfOutput", required_argument, NULL, shortOptions[8]}
 
-    ,{"freq-partionts", required_argument, NULL, shortOptions[8]}
-    ,{"del-threshold", required_argument, NULL, shortOptions[9]}
-    ,{"ins-threshold", required_argument, NULL, shortOptions[10]}
-    ,{"subs-threshold", required_argument, NULL, shortOptions[11]}
-    ,{"prequal-threshold", required_argument, NULL, shortOptions[12]}
-    ,{"postqual-threshold", required_argument, NULL, shortOptions[13]}
-    ,{"calculate-factorials", required_argument, NULL, shortOptions[14]}
+    ,{"freq-partionts", required_argument, NULL, shortOptions[9]}
+    ,{"del-threshold", required_argument, NULL, shortOptions[10]}
+    ,{"ins-threshold", required_argument, NULL, shortOptions[11]}
+    ,{"subs-threshold", required_argument, NULL, shortOptions[12]}
+    ,{"prequal-threshold", required_argument, NULL, shortOptions[13]}
+    ,{"postqual-threshold", required_argument, NULL, shortOptions[14]}
+    ,{"calculate-factorials", required_argument, NULL, shortOptions[15]}
+    ,{"pValue-threshold", required_argument, NULL, shortOptions[16]}
+    ,{"Coverage-threshold", required_argument, NULL, shortOptions[17]}
 
     ,{"help", no_argument, &flags[4], showHelp}
     ,{"version", no_argument, &flags[5], showVersion}
@@ -45,6 +48,7 @@ const string Options::descriptions[NumOptionTypes] =
     "<.pvalues.csv> stem will be added to filename"
     ,"Output filename prefix for known freqyency p_values"
     "<.pvalues.csv> stem will be added to filename"
+    ,"Output results as VCF file"
 
     ,"Number of frequency bins used in FK pvalue estimation"
     ,"Threhold for pre filtering by deletetionQV"
@@ -53,13 +57,15 @@ const string Options::descriptions[NumOptionTypes] =
     ,"Threhold for pre filtering by aggregate quality value"
     ,"Threhold for post filtering by aggreagate quality value"
     ,"Precalculate factorails to improve poisson and bionomial methds"
+    ,"Threhold pValue for calling a pSNP"
+    ,"Threshold coverfage for calling a pSNP"
 
     ,"Help information"
     ,"Show program version information"
 };
 const string Options::defaults[NumOptionTypes] =
 {
-    "","","","",""  ,"","","","10","0"  ,"0","0","0","0"
+    "","","",""     ,"","","","","",""  ,"0","0","0","0","","","",""
 };
 
 string Options::values[NumOptionTypes] = defaults;

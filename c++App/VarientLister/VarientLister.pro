@@ -31,7 +31,10 @@ SOURCES += main.cpp \
     frequencypartition.cpp \
     matchmismatches.cpp \
     hdf5basfile.cpp \
-    options.cpp
+    options.cpp \
+    varientcallerHdf5.cpp \
+    vcfwriter.cpp \
+    minedatawriter.cpp
 HEADERS += \
     varientcaller.h \
     main.h \
@@ -40,6 +43,9 @@ HEADERS += \
     frequencypartition.h \
     matchmismatches.h \
     hdf5basfile.h \
-    options.h
+    options.h \
+    varientcallerHdf5.h \
+    vcfwriter.h \
+    minedatawriter.h
 
 

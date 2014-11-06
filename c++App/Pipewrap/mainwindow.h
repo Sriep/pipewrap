@@ -14,6 +14,9 @@ public:
     QString getName() const;
     void clearName();
 
+protected:
+    void closeEvent(QCloseEvent *event);
+
 signals:
 
 private slots:
