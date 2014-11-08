@@ -51,7 +51,7 @@ void runProgram()
         //if (logPvThreshold > variantData.currentLogPvalue())
         if (freqThrehold < variantData.currentPsnpFrequency())
         {
-            outf << variantData.getWindowDataARFF() << ",";
+            outf << variantData.getWindowData() << ",";
             outf << truePsnps.hasPosition(variantData.currentPosition());
             outf << "\n";
         }

@@ -57,6 +57,26 @@ int PositionData::getLineCount(const string &filename)
     return atoi(buf);
 }
 
+uint PositionData::getRunLenght(uint index) const
+{
+    if (index > 2*windowSize) return 0;
+    string base = refBase[index];
+    uint runLength = 1;
+    int i = index-1;
+    while ( i >= 0 && refBase[i] == base)
+    {
+        runLength++;
+        i--;
+    }
+    i = index+1;
+    while ( i <= 2*windowSize && refBase[i] == base)
+    {
+        runLength++;
+        i++;
+    }
+    return runLength;
+}
+
 void PositionData::popline()
 {
     position.pop_front();
@@ -154,75 +174,6 @@ string PositionData::getWindowData() const
     int aCount = 0;
     int cCount = 0;
     int gCount = 0;
-    for ( uint i = 0 ; i <= 2*windowSize ; i++)
-    {
-        int logPValue = (int) log10(ldPValue[i]);
-
-        data += to_string(logPValue);
-        data += ",";
-        data += refBase[i];
-        aCount += refBase[i][1] == 'a' || refBase[i][1] == 'A' ? 1 : 0;
-        cCount += refBase[i][1] == 'c' || refBase[i][1] == 'C' ? 1 : 0;
-        gCount += refBase[i][1] == 'g' || refBase[i][1] == 'G' ? 1 : 0;
-        data += ",";
-        data += psnp[i];
-        data += ",";
-        data += to_string((double)intPsnpCount[i]/(double)intCoverage[i]);
-        //data += psnpFrequ[i];
-        data += ",";
-    }
-    data += coverage[windowSize];
-    data += ",";
-    data += psnpCount[windowSize];
-    data += ",";
-    data += quality[windowSize];
-    data += ",";
-    data += to_string(aCount);
-    data += ",";
-    data += to_string(cCount);
-    data += ",";
-    data += to_string(gCount);
-
-    return data;
-}
-
-string PositionData::getDataHeader() const
-{
-    string data;
-
-    for ( uint i = 1 ; i <= 2*windowSize+1 ; i++)
-    {
-        data += "log pValue " + to_string(i);
-        data += ",";
-        data += "Ref Base " + to_string(i);
-        data += ",";
-        data += "pSNP Base " + to_string(i);
-        data += ",";
-        data += "pSNP Freq " + to_string(i);
-        data += ",";
-    }
-    data += "coverage";
-    data += ",";
-    data += "psnpCount";
-    data += ",";
-    data += "quality";
-    data += ",";
-    data += "A count";
-    data += ",";
-    data += "C count";
-    data += ",";
-    data += "G count";
-    data += "\n";
-    return data;
-}
-
-string PositionData::getWindowDataARFF() const
-{
-    string data;
-    //const string sep = ",";
-    int aCount = 0;
-    int cCount = 0;
-    int gCount = 0;
     int tCount = 0;
     for ( uint i = 0 ; i <= 2*windowSize ; i++)
     {
@@ -239,7 +190,8 @@ string PositionData::getWindowDataARFF() const
         data += psnp[i];
         data += ",";
         data += to_string((double)intPsnpCount[i]/(double)intCoverage[i]);
-        //data += psnpFrequ[i];
+        data += ",";
+        data += to_string(getRunLenght(i));
         data += ",";
     }
     data += coverage[windowSize];
@@ -282,6 +234,7 @@ string PositionData::getDataHeaderARFF() const
         data += attribute +  "RefBase" + to_string(i) + " {A,G,C,T}" + "\n";
         data += attribute +  "psnpBase" + to_string(i) + " {A,G,C,T,=}" + "\n";
         data += attribute +  "psnpFreq" + to_string(i) + " " + numeric + "\n";
+        data += attribute +  "runLength" + to_string(i) + " " + numeric + "\n";
     }
     data += attribute +  "coverage " + numeric + "\n";
     data += attribute +  "psnpCount " + numeric + "\n";

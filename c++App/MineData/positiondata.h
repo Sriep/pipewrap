@@ -15,7 +15,6 @@ public:
     double currentPsnpFrequency() const;
     string getWindowData() const;
     string getDataHeader() const;
-    string getWindowDataARFF() const;
     string getDataHeaderARFF() const;
     int currentPosition() const;
 
@@ -53,6 +52,7 @@ private:
     deque<long double> ldPValue;
 
     int getLineCount(const string &filename);
+    uint getRunLenght(uint index) const;
     void pushline();
     void popline();
 };
