@@ -12,7 +12,8 @@ GeneratedPsnps::GeneratedPsnps(const string& psnpFilename)
 
 bool GeneratedPsnps::hasPosition(int pos) const
 {
-    return positions.find(pos) != positions.end();
+    bool found = positions.find(pos) != positions.end();
+    return found;
 }
 
 void GeneratedPsnps::init()
@@ -28,7 +29,7 @@ void GeneratedPsnps::init()
         while (!inf.eof())
         {
             inf.getline(inBuffer.data(),bufferSize,'\t');
-            stripQuotes(inBuffer.data());
+            //stripQuotes(inBuffer.data());
             inf.getline(inBuffer.data(),bufferSize,'\t');
             position.push_back(atoi(inBuffer.data()));
             positions.insert(atoi(inBuffer.data()));

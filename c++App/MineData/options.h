@@ -15,6 +15,8 @@ public:
         ,TrueData
         ,OutData
         ,LogPValueThreshold
+        ,FrequencyThreholdPct
+        ,SnipEnds
         ,Help
         ,Version
         ,NumOptionTypes

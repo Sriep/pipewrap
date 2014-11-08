@@ -1,0 +1,8 @@
+op_command,op_string,op_data_type,op_short_description,op_long_description,op_optional,op_in_out,op_group,op_postion,op_default_text,op_default_int
+./MineData, -V,string,Data file output by VariantLister.,,,,,1,,
+./MineData, -T,string,True pSNP data from pSNPgenerator.R,,,,,1,,
+./MineData, -O,string,"Output arff file, new data ammended at end.",,,,,1,,
+./MineData, -t,int,"Log of Thresold pValue, store data if log10 of pvalue is this below threshold.",,,,,1,,
+./MineData, -s,int,Trim reads off each end,,,,,1,,
+./MineData, -h,,Show Help information,,,,,1,,
+./MineData, -v,,Show version number,,,,,1,,

@@ -76,3 +76,5 @@ Find the SA coordinates of the input reads. Maximum maxSeedDiff differences are 
 Bwa sampe,"bwa sampe [-a maxInsSize] [-o maxOcc] [-n maxHitPaired] [-N maxHitDis] [-P] <in.db.fasta> <in1.sai> <in2.sai> <in1.fq> <in2.fq> > <out.sam>
 
 Generate alignments in the SAM format given paired-end reads. Repetitive read pairs will be placed randomly. ",./bwa sampe,,1
+lofreq somatic,somatic mutation caler,lofreq somatic,,1
+MineData,create  arff files from VarientLister output,./MineData,,1

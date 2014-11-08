@@ -6,24 +6,28 @@
 static const int showHelp = 1;
 static const int showVersion = 1;
 
-const string Options::shortOptions = "V:T:O:t:hv";
-const string Options::optionIndexes = "VTOthv";
+const string Options::shortOptions = "V:T:O:t:F:s:hv";
+const string Options::optionIndexes = "VTOtFshv";
 const struct option Options::longOptions[NumOptionTypes+1] =
 {
     {"variant-data", required_argument, NULL, shortOptions[0]}
     ,{"true-data", required_argument, NULL, shortOptions[1]}
     ,{"Out-data", required_argument, NULL, shortOptions[2]}
     ,{"PV-threshold", required_argument, NULL, shortOptions[3]}
-    ,{"help", no_argument, &flags[4], showHelp}
-    ,{"version", no_argument, &flags[5], showVersion}
+    ,{"Freq-threshold", required_argument, NULL, shortOptions[4]}
+    ,{"Snip-ends", required_argument, NULL, shortOptions[5]}
+    ,{"help", no_argument, &flags[6], showHelp}
+    ,{"version", no_argument, &flags[7], showVersion}
     ,{NULL, 0, NULL, 0}
 };
 const string Options::descriptions[NumOptionTypes] =
 {
     "Data file output by VariantLister."
     ,"True pSNP data from pSNPgenerator.R"
-    ,"Output data file, new data ammended at end."
-    ,"Log of Thresold pValue, store data if log10 of pvalue is this below threshold."
+    ,"Output arff file, new data ammended at end."
+    ,"Log of thresold pValue, store data if log10 of pvalue is this below threshold."
+    ,"Percentage frequency thresold pValue, store data if psnp frequecy is this below the threshold."
+    ,"Trim reads off each end"
     ,"Show Help information"
     ,"Show version number"
 };
@@ -32,7 +36,9 @@ const string Options::defaults[NumOptionTypes] =
     ""
     ,""
     ,"outdata.csv"
-    ,"12"
+    ,""
+    ,"0.4"
+    ,"0"
     ,""
     ,""
 };

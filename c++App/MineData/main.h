@@ -10,6 +10,6 @@ const int bufferSize = 256;
 
 void runProgram();
 
-void stripQuotes(string theBuffer, char quote = '"');
+string stripQuotes(string theBuffer, char quote = '"');
 
 #endif // MAIN_H

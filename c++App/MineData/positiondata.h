@@ -12,8 +12,11 @@ public:
     PositionData(const string& dataFilename, uint windowSize);
     bool next();
     long double  currentLogPvalue() const;
+    double currentPsnpFrequency() const;
     string getWindowData() const;
     string getDataHeader() const;
+    string getWindowDataARFF() const;
+    string getDataHeaderARFF() const;
     int currentPosition() const;
 
 private:
@@ -27,6 +30,9 @@ private:
 
     void init();
     const uint windowSize;
+    const uint skip;
+    uint linesRead = 0;
+    uint totalLines = 0;
 
     deque<string> position;
     deque<string> refBase;
@@ -38,15 +44,15 @@ private:
     deque<string> pValue;
 
     deque<int> intPosition;
-    /*deque<char> refBase;
-    deque<int> coverage;
+    deque<int> intCoverage;
+    deque<int> intPsnpCount;
+    /*deque<char> refBase;  
     deque<int> quality;
-    deque<char> psnp;
-    deque<int> psnpCount;
+    deque<char> psnp;  
     deque<float> psnpFrequ;*/
     deque<long double> ldPValue;
 
-
+    int getLineCount(const string &filename);
     void pushline();
     void popline();
 };
