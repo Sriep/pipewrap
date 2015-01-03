@@ -13,6 +13,7 @@
 #include "matchmismatches.h"
 #include "hdf5basfile.h"
 #include "options.h"
+#include "vcfwriter.h"
 
 using namespace H5;
 
@@ -21,12 +22,14 @@ VarientCaller::VarientCaller()
       //,basH5file(Options::get(Options::BaxH5File))
       ,readOutfile(Options::get(Options::ReadOutFile))
       ,lociOutfile(Options::get(Options::LociOutFile))
+      ,vcfOutfile(Options::get(Options::VcfOutput))
       ,insThreshold(stoul(Options::get(Options::FilterInsThreshold)))
       ,delThreshold(stoul(Options::get(Options::FilterDelsThreshold)))
       ,subsThreshold(stoul(Options::get(Options::FilterSubsThreshold)))
       ,preQualThreshold(stoul(Options::get(Options::PreFilterQuality)))
       ,postQualThrehold(stoul(Options::get(Options::PostFilterQuality)))
-{
+      ,pVThreshold(stoul(Options::get(Options::PValueThreshold)))
+{    
     pvMethodsFilename.clear();
     //if (fisherFilename.size() > 0)
     //{
@@ -89,23 +92,6 @@ void VarientCaller::filterReads()
     freqPartition.setParmeters();
 }
 
-void VarientCaller::write()
-{
-    if (!readOutfile.empty()) writeReadInfo();
-    if (!lociOutfile.empty()) writeLociInfo();
-
-    for (int m = PValues::FisherExact;
-             m != PValues::NumOfMethods;
-             m++)
-    {
-        PValues::Method method = static_cast<PValues::Method>(m);
-        if (methods.find(method) != methods.end())
-            write(method);
-    }
-}
-
-
-
 void VarientCaller::basesFromFasta()
 {
     if ('>' == t[0])
@@ -167,7 +153,7 @@ void VarientCaller::populateLociInfo()
                 {
                     if (!basesDiffer(tMatch[mBase], t[locus]))
                     {
-                        int phard = al.Qualities[alBase]-33;
+                        //int phard = al.Qualities[alBase]-33;
                         //als_info[locus]->inc_calls(al.QueryBases[alBase],phard);
                         als_info[locus]->inc_calls(
                                     al.QueryBases[alBase],al.MapQuality);
@@ -216,6 +202,22 @@ void VarientCaller::calculatePvalues()
     cout << "Wrinting data to file.\n";
 }
 
+void VarientCaller::write()
+{
+    if (!readOutfile.empty()) writeReadInfo();
+    if (!lociOutfile.empty()) writeLociInfo();
+    if (!vcfOutfile.empty()) writeVcfFile();
+
+    for (int m = PValues::FisherExact;
+             m != PValues::NumOfMethods;
+             m++)
+    {
+        PValues::Method method = static_cast<PValues::Method>(m);
+        if (methods.find(method) != methods.end())
+            write(method);
+    }
+}
+
 void VarientCaller::writeReadInfo()
 {
     bam_reader.Rewind();
@@ -230,7 +232,7 @@ void VarientCaller::writeReadInfo()
         {
             for (int base = 0 ; base < al.Length ; base++)
             {
-                int locus =(base + al.Position) % t.size();
+                uint locus =(base + al.Position) % t.size();
                 //if (al.AlignedBases[base] != t[locus])
                 if (basesDiffer(al.AlignedBases[base], t[locus]))
                 //if (!compareBases(al.AlignedBases[base], t[locus]))
@@ -241,7 +243,7 @@ void VarientCaller::writeReadInfo()
                         << "\"\t\"" << (base + al.Position +1)% t.size()
                         << "\"\t\"" << visBase(t[locus])
                         << "\"\t\"" << al.Qualities[base]-33;
-                    if (locus  < t.length() && locus >= 0)
+                    if (locus  < t.length())// && locus >= 0)
                     {
                         rout << "\"\t\"" << als_info[locus]->getAvePhred()
                             << "\"\t\"" << als_info[locus]->getCoverage();
@@ -303,6 +305,19 @@ void VarientCaller::writeLociInfo()
                  << als_info[locus]->getPValue(PValues::KnownFrequency);
         lout << "\"\n";
     }
+}
+
+void VarientCaller::writeVcfFile()
+{
+    if (pVThreshold > 0) pVThreshold = -1*pVThreshold;
+    VcfWriter vcfw(Options::get(Options::VcfOutput)
+                   , als_info
+                   , Options::commandLine
+                   , t
+                   , Options::get(Options::TemplateFile)
+                   , pVThreshold
+                   , PValues::Method::KnownFrequency);
+    vcfw();
 }
 
 void VarientCaller::write(PValues::Method method)

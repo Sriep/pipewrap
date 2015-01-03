@@ -72,7 +72,8 @@ void Assistant::showDocumentation(const QString &page)
     QByteArray ba("SetSource ");
     //ba.append("file:///media/sdb2/Projects/Source/Dissertation/c++App/Pipewrap/Documents/html/");
     ba.append("../Pipewrap/Documents/html/");
-    proc->write(ba + page.toLocal8Bit() + '\n');
+    //Bproc->write(ba + page + "\n");
+    //proc->write(ba + page.toLocal8Bit() + '\n');
 }
 //! [1]
 

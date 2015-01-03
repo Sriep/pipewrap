@@ -108,7 +108,7 @@ string VcfWriter::date()
     return date;
 }
 
-
+ 
 
 
 

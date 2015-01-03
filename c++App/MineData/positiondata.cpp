@@ -68,11 +68,11 @@ uint PositionData::getRunLenght(uint index) const
         runLength++;
         i--;
     }
-    i = index+1;
-    while ( i <= 2*windowSize && refBase[i] == base)
+    uint j = index+1;
+    while ( j <= 2*windowSize && refBase[j] == base)
     {
         runLength++;
-        i++;
+        j++;
     }
     return runLength;
 }
@@ -175,12 +175,13 @@ string PositionData::getWindowData() const
     int cCount = 0;
     int gCount = 0;
     int tCount = 0;
+    data += position[windowSize];
+    data += ",";
     for ( uint i = 0 ; i <= 2*windowSize ; i++)
     {
-        int logPValue = (int) log10(ldPValue[i]);
-
-        data += to_string(logPValue);
-        data += ",";
+        //int logPValue = (int) log10(ldPValue[i]);
+        //data += to_string(logPValue);
+        //data += ",";
         data += refBase[i];
         aCount += refBase[i][0] == 'a' || refBase[i][0] == 'A' ? 1 : 0;
         cCount += refBase[i][0] == 'c' || refBase[i][0] == 'C' ? 1 : 0;
@@ -194,12 +195,12 @@ string PositionData::getWindowData() const
         data += to_string(getRunLenght(i));
         data += ",";
     }
-    data += coverage[windowSize];
-    data += ",";
-    data += psnpCount[windowSize];
-    data += ",";
-    data += quality[windowSize];
-    data += ",";
+    //data += coverage[windowSize];
+    //data += ",";
+    //data += psnpCount[windowSize];
+    //data += ",";
+    //data += quality[windowSize];
+    //data += ",";
     data += to_string(aCount);
     data += ",";
     data += to_string(cCount);
@@ -228,17 +229,18 @@ string PositionData::getDataHeaderARFF() const
     data += Options::get(Options::TrueData) + "\n";
     data += relation + "varientData/n";
     data += "\n";
+    data += attribute + "position " + numeric + "\n";
     for ( uint i = 1 ; i <= 2*windowSize+1 ; i++)
     {
-        data += attribute +  "logPValue" + to_string(i) + " " + numeric + "\n";
+        //data += attribute +  "logPValue" + to_string(i) + " " + numeric + "\n";
         data += attribute +  "RefBase" + to_string(i) + " {A,G,C,T}" + "\n";
         data += attribute +  "psnpBase" + to_string(i) + " {A,G,C,T,=}" + "\n";
         data += attribute +  "psnpFreq" + to_string(i) + " " + numeric + "\n";
         data += attribute +  "runLength" + to_string(i) + " " + numeric + "\n";
     }
-    data += attribute +  "coverage " + numeric + "\n";
-    data += attribute +  "psnpCount " + numeric + "\n";
-    data += attribute +  "quality " + numeric + "\n";
+    //data += attribute +  "coverage " + numeric + "\n";
+    //data += attribute +  "psnpCount " + numeric + "\n";
+    //data += attribute +  "quality " + numeric + "\n";
     data += attribute +  "Acount " + numeric + "\n";
     data += attribute +  "Ccount " + numeric + "\n";
     data += attribute +  "Gcount " + numeric + "\n";

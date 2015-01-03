@@ -33,7 +33,8 @@ int main(int argc, char *argv[])
 void runProgram()
 {
     GeneratedPsnps truePsnps(Options::get(Options::TrueData));
-    PositionData variantData(Options::get(Options::VariantData), 5);
+    int windowSize = atoi(Options::get(Options::WindowSize).c_str());
+    PositionData variantData(Options::get(Options::VariantData), windowSize);
 
     ofstream outf(Options::get(Options::OutData).c_str(), ios_base::out | ios_base::app);
     //ofstream outf(Options::get(Options::OutData).c_str(), ios_base::out | ios_base::trunc);

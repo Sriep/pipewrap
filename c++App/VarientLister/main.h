@@ -1,7 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 #include <QCoreApplication>
-#include <QCommandLineParser>
+//#include <QCommandLineParser>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -12,11 +12,11 @@ static const long double One = 1.0;
 static const long double Zero = 0.0;
 
 static const string programName = "VarientLister";
-static const string version = "1.0.0.0";
+static const string version = "1.1.0.0";
 
 //-i big_simbas_blasr.bam -t Sc8915bp_cs.fasta -l locinfo.csv -k h5_x1000_ -5  big_simbas.bax.h5
 
-void configCommandLineParser(QCommandLineParser& parser);
+//void configCommandLineParser(QCommandLineParser& parser);
 void runProgram();//QCommandLineParser& parser);
 bool compareBases(char c1, char c2);
 bool basesDiffer(char c1, char c2);
@@ -42,7 +42,7 @@ unsigned int prob2phred(long double prob);
 
 //command line options
 //input Bam file
-const QCommandLineOption bamFilename(
+/*const QCommandLineOption bamFilename(
             QStringList() << "i" << "in-Bam",
             "Input BAM file to be searched for pSNPs",
             "filename",
@@ -124,7 +124,7 @@ const QCommandLineOption knownFrequencyFilename(
             "Output filename prefix for known freqyency p_values"
             "<.pvalues.csv> stem will be added to filename",
             "filename",
-            "");
+            "");*/
 
 
 

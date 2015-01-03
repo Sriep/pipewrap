@@ -43,8 +43,8 @@ public:
     Options();
     static string get(OptionTypes option);
     static int flag(OptionTypes flag);
-    static void readOptions(int argc, char *argv[]);
-
+    static void readOptions(int argc, char *argv[]);    
+    static string commandLine;
 
 private:
     static void writeHelpInfo(ostream &outs);

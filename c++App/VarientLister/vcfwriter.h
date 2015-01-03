@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <fstream>
+#include "pvalues.h"
 
 using namespace std;
 class LocusInfo;
@@ -31,10 +32,12 @@ public:
     const string typeString = "String";
 
     VcfWriter(const string& VcfOutFile
-              ,const vector<unique_ptr<LocusInfo>>&als_info
+              , const vector<unique_ptr<LocusInfo>>&als_info
               , const string& source
               , const string& ref
-              , const string& refFilename);
+              , const string& refFilename
+              , int pVThreshold
+              , PValues::Method calMethod);
     void operator() ();
 private:
     const string VcfOutFile;
@@ -42,6 +45,9 @@ private:
     string vSource;
     string ref;
     string refFilename;
+    int pVThreshold;
+    PValues::Method calMethod;
+
     ofstream vout;
 
 
@@ -55,8 +61,8 @@ private:
     void WriteMetaFilter();
     void WriteMetaFormat();
     void WriteDataHeader();
-    void WriteDataLine();
-
+    void WriteDataLine(uint pos);
+    string date();
 };
 
 #endif // VCFWRITER_H

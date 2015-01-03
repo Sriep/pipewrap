@@ -30,6 +30,7 @@ private:
     void write();
     void writeReadInfo();
     void writeLociInfo();
+    void writeVcfFile();
     void write(PValues::Method method);
     bool goodEnoughRead(char phred);
 
@@ -48,7 +49,7 @@ protected: //should sort this out, make privazte somehow.
     string t;
     string readOutfile;
     string lociOutfile;
-
+    string vcfOutfile;
 
     map<PValues::Method, string> pvMethodsFilename;
     set<PValues::Method> methods;
@@ -64,6 +65,7 @@ protected: //should sort this out, make privazte somehow.
     unsigned char subsThreshold = 0;
     unsigned char preQualThreshold = 10;
     unsigned char postQualThrehold = 10;
+    int pVThreshold = 0;
 
     bool trimEndsFactor(int alPos, int mBase, int tSize);
     int trimEnds = 300;

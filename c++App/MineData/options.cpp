@@ -6,8 +6,8 @@
 static const int showHelp = 1;
 static const int showVersion = 1;
 
-const string Options::shortOptions = "V:T:O:t:F:s:hv";
-const string Options::optionIndexes = "VTOtFshv";
+const string Options::shortOptions = "V:T:O:t:F:s:w:hv";
+const string Options::optionIndexes = "VTOtFswhv";
 const struct option Options::longOptions[NumOptionTypes+1] =
 {
     {"variant-data", required_argument, NULL, shortOptions[0]}
@@ -16,8 +16,9 @@ const struct option Options::longOptions[NumOptionTypes+1] =
     ,{"PV-threshold", required_argument, NULL, shortOptions[3]}
     ,{"Freq-threshold", required_argument, NULL, shortOptions[4]}
     ,{"Snip-ends", required_argument, NULL, shortOptions[5]}
-    ,{"help", no_argument, &flags[6], showHelp}
-    ,{"version", no_argument, &flags[7], showVersion}
+    ,{"Window", required_argument, NULL, shortOptions[6]}
+    ,{"help", no_argument, &flags[7], showHelp}
+    ,{"version", no_argument, &flags[8], showVersion}
     ,{NULL, 0, NULL, 0}
 };
 const string Options::descriptions[NumOptionTypes] =
@@ -28,6 +29,7 @@ const string Options::descriptions[NumOptionTypes] =
     ,"Log of thresold pValue, store data if log10 of pvalue is this below threshold."
     ,"Percentage frequency thresold pValue, store data if psnp frequecy is this below the threshold."
     ,"Trim reads off each end"
+    ,"Size of one side of sliding window"
     ,"Show Help information"
     ,"Show version number"
 };
@@ -39,6 +41,7 @@ const string Options::defaults[NumOptionTypes] =
     ,""
     ,"0.4"
     ,"0"
+    ,"7"
     ,""
     ,""
 };

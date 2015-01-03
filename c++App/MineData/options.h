@@ -13,10 +13,11 @@ public:
     {
         VariantData
         ,TrueData
-        ,OutData
+        ,OutData       
         ,LogPValueThreshold
         ,FrequencyThreholdPct
         ,SnipEnds
+        ,WindowSize
         ,Help
         ,Version
         ,NumOptionTypes

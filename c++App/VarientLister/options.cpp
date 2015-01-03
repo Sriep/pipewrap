@@ -5,8 +5,9 @@
 
 static const int showHelp = 1;
 static const int showVersion = 1;
-const string Options::shortOptions = "i:t:x:r:l:b:p:k:V:f:d:e:u:q:a:c:hv";
-const string Options::optionIndexes = "itxrlbpkVfdeuqachv";
+const string Options::shortOptions = "i:t:x:r:l:b:p:k:V:f:d:e:u:q:a:F:P:c:hv";
+const string Options::optionIndexes = "itxrlbpkVfdeuqaFPchv";
+string Options::commandLine="";
 const struct option Options::longOptions[NumOptionTypes+1] =
 {
     {"in-bam", required_argument, NULL, shortOptions[0]}
@@ -65,7 +66,32 @@ const string Options::descriptions[NumOptionTypes] =
 };
 const string Options::defaults[NumOptionTypes] =
 {
-    "","","",""     ,"","","","","",""  ,"0","0","0","0","","","",""
+    "" //InBamFile
+    ,"" //TemplateFile
+    ,"" //BaxH5File
+
+    /// Out Files
+    ,"" //ReadOutFile
+    ,"" //LociOutFile
+    ,"" //BionomialFile
+    ,"" //PoissonFile
+    ,"" //KfFile
+    ,"" //VcfOutput
+
+    /// Algorithm parameters
+    ,"10" //NumFrequencyPartitions
+    ,"0" //FilterDelsThreshold
+    ,"0" //FilterInsThreshold
+    ,"0" //FilterSubsThreshold
+    ,"0" //PreFilterQuality
+    ,"0" //PostFilterQuality
+    ,"0" //PreCalculateFactorials
+    ,"20" //PValueThreshold
+    ,"0" //CoverageThreshold
+
+    ,"" //Help
+    ,"" //Version
+    //NumOptionTypes
 };
 
 string Options::values[NumOptionTypes] = defaults;
@@ -87,6 +113,8 @@ int Options::flag(Options::OptionTypes flag)
 
 void Options::readOptions(int argc, char *argv[])
 {
+    for (int i = 0 ; i < argc ; i++) commandLine += argv[i];
+
     int optionIndex = 0;
     int option = -1;
     bool finished = false;
@@ -101,13 +129,20 @@ void Options::readOptions(int argc, char *argv[])
         if (!finished && 0 != option && '?' != option)
         {
             const unsigned int index = optionIndexes.find_first_of(option);
-            if (NULL == optarg)
+            if (index < optionIndexes.size())
             {
-                flags[index] = longOptions[index].val;
+                if (NULL == optarg)
+                {
+                    flags[index] = longOptions[index].val;
+                }
+                else
+                {
+                    values[index].assign(optarg);
+                }
             }
             else
             {
-                values[index].assign(optarg);
+                throw(std::invalid_argument("Unrecognised option" + option));
             }
         }
     } while(!finished);
