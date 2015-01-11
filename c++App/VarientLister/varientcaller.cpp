@@ -173,6 +173,7 @@ void VarientCaller::populateLociInfo()
         if (0 == (++readCount % 10000))
             cout << readCount << " reads processed\n";
     }
+    cout << "Total reads" << readCount << "\n";
 }
 
 

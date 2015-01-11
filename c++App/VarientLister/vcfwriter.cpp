@@ -4,9 +4,15 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <main.h>
 
 #include "locusinfo.h"
 #include "vcfwriter.h"
+
+VcfWriter::~VcfWriter()
+{
+
+}
 
 VcfWriter::VcfWriter(const string &VcfOutFile
                      , const vector<unique_ptr<LocusInfo> > &als_info
@@ -16,14 +22,13 @@ VcfWriter::VcfWriter(const string &VcfOutFile
                      , int pVThreshold
                      , PValues::Method calMethod = PValues::KnownFrequency)
 
-    : VcfOutFile(VcfOutFile)
+    : VcfOutFile(VcfOutFile + ".vcf")
     , als_info(als_info)
     , vSource(source)
     , ref(reference)
     , refFilename(referenceFile)
     , pVThreshold(pVThreshold)
     , calMethod(calMethod)
-
 {
 }
 
@@ -36,6 +41,8 @@ void VcfWriter::operator()()
     WriteMetaLine(reference, refFilename);
     WriteMetaInfo("DP", "1", "Integer", "Raw Depth","","");
     WriteMetaInfo("AF", "1", "Float", "Allele Frequency","","");
+    WriteMetaFormat("GT", "1", "Integer", "Genotype");
+    WriteMetaFormat("GQ", "1", "Integer", "Genotype Quality");
     WriteDataHeader();
 
     for (unsigned int pos = 0 ; pos < als_info.size() ; pos++)
@@ -46,11 +53,13 @@ void VcfWriter::operator()()
             WriteDataLine(pos);
         }
     }
+    if (vout.is_open())
+        vout.close();
 }
 
 void VcfWriter::WriteMetaLine(const string &left, const string &right)
 {
-    vout << "##" << left << "=" << right << "\"\n";
+    vout << "##" << left << "=" << right << "\n";
 }
 
 void VcfWriter::WriteMetaInfo(const string& id
@@ -70,29 +79,57 @@ void VcfWriter::WriteMetaInfo(const string& id
     {
         vout << ",Version""" << version << """";
     }
-    vout << ">" << "\"\n";
+    vout << ">" << "\n";
+    hasInfo = true;
+}
+
+void VcfWriter::WriteMetaFilter(const string &id, const string &description)
+{
+    vout << "##FILTER<" << "ID=" << id <<  ",Description=""" << description << """";
+    vout << ">" << "\n";
+    hasFilter = true;
+}
+
+void VcfWriter::WriteMetaFormat(const string &id, const string &number, const string &type, const string &description)
+{
+    vout << "##FORMAT<" << "ID=" << id <<  ",Number=" << number
+         << ",Type=" << type << ",Description=""" << description << """";
+    vout << ">" << "\n";
+    hasFormat = true;
 }
 
 void  VcfWriter::WriteDataHeader()
 {
-    vout << "#CHROM" << "\"\t\"" << "POS" << "\"\t\"" << "ID" << "\"\t\""
-         << "REF"   << "\"\t\""  << "ALT" << "\"\t\"" << "QUAL" << "\"\t\""
-         << "FILTER" << "\"\t\"" "INFO";
-    vout <<  "\"\n";
+    vout << "#CHROM" << "\t" << "POS" << "\t" << "ID" << "\t"
+         << "REF"   << "\t"  << "ALT" << "\t" << "QUAL" << "\t"
+         << "FILTER";
+    //if (hasFilter) vout << "\t" "FILTER";
+    if (hasInfo) vout << "\t" "INFO";
+    if (hasFormat) vout << "\t" "FORMAT" <<  "\t"  << "1";
+    vout <<  "\n";
 }
 
 void VcfWriter::WriteDataLine(uint pos)
 {
-    vout << "chrom" <<  "\"\t\""
-         << pos <<  "\"\t\""
-         << "." << "\"\t\""
-         << ref[pos] <<  "\"\t\""
-         << als_info[pos]->bestbaseEx() << "\"\t\""
-         << als_info[pos]->getAvePhred() << "\"\t\""
-         << "." << "\"\t\""
+    long double pValue = als_info[pos]->getPValue(PValues::Method::KnownFrequency);
+    int varQual = prob2phred(pValue);
+    if (varQual>100) varQual = 100;
+
+    vout << "Sc_consensus"
+         << "\t" << pos
+         << "\t" << "."
+         << "\t" << ref[pos]
+         << "\t" << als_info[pos]->bestbaseEx()
+         << "\t" << als_info[pos]->getAvePhred()
+         << "\t" << ".";
+
+    vout << "\t"
          << "DP=" << als_info[pos]->countBestEx()
-         << ";AF=" << als_info[pos]->getPValue(PValues::Method::KnownFrequency)
-         << "\n";
+         << ";AF=" << pValue;
+
+    vout << "\t" << "GT:GQ"
+         << "\t" << "0|1:" << varQual;
+    vout << "\n";
 }
 
 string VcfWriter::date()

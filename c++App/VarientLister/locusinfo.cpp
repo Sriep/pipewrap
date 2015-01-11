@@ -135,9 +135,7 @@ void LocusInfo::populate()
     }
 
     for (int m = PValues::FisherExact ; m != PValues::NumOfMethods ; m++)
-    //for ( unsigned int i = 0 ; i < methods.size() ; i++ )
     {
-        //pValues.push_back(PValues::pValue(static_cast<PValues::Method>(method),
         PValues::Method method = static_cast<PValues::Method>(m);
         if (methods.find(method) != methods.end())
         {

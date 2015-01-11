@@ -31,6 +31,7 @@ public:
     const string typeCharacter = "Character";
     const string typeString = "String";
 
+    virtual ~VcfWriter();
     VcfWriter(const string& VcfOutFile
               , const vector<unique_ptr<LocusInfo>>&als_info
               , const string& source
@@ -47,6 +48,9 @@ private:
     string refFilename;
     int pVThreshold;
     PValues::Method calMethod;
+    bool hasInfo = false;
+    bool hasFilter = false;
+    bool hasFormat = false;
 
     ofstream vout;
 
@@ -58,8 +62,12 @@ private:
                       ,const string& description
                       ,const string& source
                       ,const string& version);
-    void WriteMetaFilter();
-    void WriteMetaFormat();
+    void WriteMetaFilter(const string& id
+                         ,const string& description);
+    void WriteMetaFormat(const string& id
+                         ,const string& number
+                         ,const string& type
+                         ,const string& description);
     void WriteDataHeader();
     void WriteDataLine(uint pos);
     string date();
