@@ -2,8 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <ui_browserwidget.h>
+
 class WorkflowTreeView;
 class Assistant;
+class Browser;
 
 class MainWindow : public QMainWindow
 {
@@ -28,6 +31,7 @@ private slots:
     void documentModifiedSlot();
     void ShowHelpSlot();
     void newSlot();
+    void sqlSlot();
 
 private:
     void createActions();
@@ -78,10 +82,13 @@ private:
 
     QAction *aboutAct;
     QAction *assistantAct;
+    QAction *sqlAct;
 
     enum { MaxRecentFiles = 5 };
     QAction *recentFileActs[MaxRecentFiles];
 
+    QMainWindow* sqlWin;
+    Browser* sqlBrowser;
 };
 
 #endif // MAINWINDOW_H

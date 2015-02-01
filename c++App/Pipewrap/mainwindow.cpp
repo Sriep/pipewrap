@@ -9,6 +9,13 @@
 #include <QMenu>
 #include <QToolBar>
 #include <QStatusBar>
+
+
+#include <QtCore>
+#include <QtWidgets>
+#include <QtSql>
+#include "browser.h"
+
 #include "assistant.h"
 #include "mainwindow.h"
 #include "workflowtreeview.h"
@@ -148,6 +155,12 @@ void MainWindow::createActions()
     assistantAct->setStatusTip(tr("Show applicaton help"));
     connect(assistantAct, SIGNAL(triggered()), this, SLOT(ShowHelpSlot()));
 
+    sqlAct = new QAction(QIcon(":/images/sql.png"),
+                               tr("Edit Commands"), this);
+    sqlAct->setShortcuts(QKeySequence::HelpContents);
+    sqlAct->setStatusTip(tr("Edit the SQL database of commands"));
+    connect(sqlAct, SIGNAL(triggered()), this, SLOT(sqlSlot()));
+
 
     executeAct = new QAction(QIcon(":/images/star.png"),tr("Exe&cute"), this);
     //executeAct->setShortcuts("x");
@@ -230,6 +243,7 @@ void MainWindow::createToolBars()
     editToolBar->addAction(downAct);
     helpToolBar = addToolBar(tr("Help"));
     helpToolBar->addAction(assistantAct);
+    helpToolBar->addAction(sqlAct);
     //helpToolBar->addAction(aboutAct);
 }
 
@@ -298,6 +312,7 @@ void MainWindow::createMenus()
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(assistantAct);
+    helpMenu->addAction(sqlAct);
     helpMenu->addAction(aboutAct);
 }
 
@@ -411,4 +426,35 @@ void MainWindow::ShowHelpSlot()
 void MainWindow::newSlot()
 {
 
+}
+
+void MainWindow::sqlSlot()
+{
+    //QMainWindow sqlWin(this);
+    sqlWin = new QMainWindow();
+    //sqlWin = new QWindow(this);
+
+    sqlWin->setWindowTitle(QObject::tr("Qt SQL Browser"));
+
+    //Browser browser(sqlWin);
+    sqlBrowser = new Browser(sqlWin);
+
+    sqlWin->setCentralWidget(sqlBrowser);
+
+    QMenu *fileMenu = sqlWin->menuBar()->addMenu(QObject::tr("&File"));
+    fileMenu->addAction(QObject::tr("Add &Connection..."), sqlBrowser, SLOT(addConnection()));
+    fileMenu->addSeparator();
+    fileMenu->addAction(QObject::tr("&Quit"), sqlWin, SLOT(quit()));
+
+    QMenu *helpMenu = sqlWin->menuBar()->addMenu(QObject::tr("&Help"));
+    helpMenu->addAction(QObject::tr("About"), sqlBrowser, SLOT(about()));
+    helpMenu->addAction(QObject::tr("About Qt"), qApp, SLOT(aboutQt()));
+
+    QObject::connect(sqlBrowser, SIGNAL(statusMessage(QString)),
+                     sqlWin->statusBar(), SLOT(showMessage(QString)));
+
+    //addConnectionsFromCommandline(app.arguments(), &browser);
+    sqlWin->show();
+    if (QSqlDatabase::connectionNames().isEmpty())
+        QMetaObject::invokeMethod(sqlBrowser, "addConnection", Qt::QueuedConnection);
 }

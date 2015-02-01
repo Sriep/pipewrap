@@ -20,12 +20,13 @@ int main(int argc, char *argv[])
     db.setDatabaseName( "It1" );
     db.setUserName( "root" );
     db.setPassword( "" );
-
+*/
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setHostName( "main" );
-    db.setDatabaseName( "SqliteData" );//SqliteData.sqlite3
-    db.setUserName( "" );
+    db.setHostName( "localhost" );
+    db.setDatabaseName( "SqliteData.sqlite3" );//SqliteData.sqlite3
+    db.setUserName( "pipewrap" );
     db.setPassword( "" );
+    db.setPort(5432);
 
     if( !db.open() )
     {
@@ -33,7 +34,7 @@ int main(int argc, char *argv[])
         qFatal( "Failed to connect." );
     }    
     qDebug( "Connected!" );
-*/
+/*
     int portnumber = 5432;
     DatabaseConnectionDialog* dialog = new DatabaseConnectionDialog(0);
     // optional: set the data that will be presented to the user as auto-filled form
@@ -53,10 +54,10 @@ int main(int argc, char *argv[])
              SIGNAL(databaseConnect(QSqlDatabase&)),
              &a,
              SLOT(slotHandleNewDatabaseConnection(QSqlDatabase&)));
-*/
+
      // show the dialog (without auto-connection)
     dialog->run(false);
-
+*/
 
     MainWindow mw;
     mw.show();

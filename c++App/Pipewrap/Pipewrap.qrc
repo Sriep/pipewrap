@@ -18,5 +18,6 @@
         <file>images/up.png</file>
         <file>images/busy.png</file>
         <file>images/help-browser.png</file>
+        <file>images/sql.png</file>
     </qresource>
 </RCC>

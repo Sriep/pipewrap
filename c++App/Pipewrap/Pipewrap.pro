@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += sql core gui
+QT       += sql widgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -22,7 +23,10 @@ SOURCES += main.cpp\
     mainwindow.cpp \
     databasedialog.cpp \
     pipestatus.cpp \
-    assistant.cpp
+    assistant.cpp \
+    browser.cpp \
+    connectionwidget.cpp \
+    qsqlconnectiondialog.cpp
 
 HEADERS  += workflowtreeview.h \
     main.h \
@@ -31,7 +35,10 @@ HEADERS  += workflowtreeview.h \
     mainwindow.h \
     databasedialog.h \
     pipestatus.h \
-    assistant.h
+    assistant.h \
+    browser.h \
+    connectionwidget.h \
+    qsqlconnectiondialog.h
 
 LIBS += -L"/opt/mysql/server-5.6/lib"
 #LIBS += -L"/usr/local/pgsql/lib"
@@ -62,4 +69,8 @@ OTHER_FILES += \
     Documents/html/analyseBax.html \
     Documents/html/plotroc.html \
     Documents/html/simbas.html
+
+FORMS += \
+    browserwidget.ui \
+    qsqlconnectiondialog.ui
 

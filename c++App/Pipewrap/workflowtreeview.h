@@ -143,11 +143,13 @@ private:
     void runPipe();
     void pipeFinshed();
     bool moveItems(QModelIndexList indexs, int amount);
+    void toolsToPaths(QSet<QString> tools);
 
     QSqlQueryModel* m_sql_list_model;
     QListView* m_list_view;
     QStandardItemModel* m_listview_model;
     QStandardItemModel* m_treeview_model;
+    QSet<QString> paths;
 
     QString shellScript;
 

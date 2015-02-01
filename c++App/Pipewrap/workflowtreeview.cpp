@@ -271,7 +271,10 @@ void WorkflowTreeView::runPipe()
         qDebug() << commandList[i];
 #endif
     process = new QProcess;
-    process->execute("PATH=PATH:$PWD");
+    QString setPathCommand = "PATH=PATH:$PWD";
+    setPathCommand += ":" + QStringList(paths.toList()).join(":");
+
+    process->execute(setPathCommand);
     //process->setReadChannel(QProcess::StandardError);
     //process->setProcessChannelMode(QProcess::ForwardedChannels);
     //process->setProcessChannelMode(QProcess::MergedChannels);
@@ -635,7 +638,8 @@ void WorkflowTreeView::addSlot()
     }
 
     m_sql_list_model = new QSqlQueryModel;
-    m_sql_list_model->setQuery("SELECT tool_name, tool_shell_string FROM BioTools");
+    m_sql_list_model->setQuery("SELECT tool_name, tool_shell_string, path_to_tool FROM BioTools");
+    //m_sql_list_model->setQuery("SELECT tool_name, tool_shell_string, FROM BioTools");
     m_sql_list_model->setHeaderData(0, Qt::Horizontal, tr("tool_name"));
 
     m_list_view  = new QListView();
@@ -656,6 +660,9 @@ void WorkflowTreeView::doubleClickedListViewSlot(const QModelIndex& index)
 
     QSqlRecord sql_record = m_sql_list_model->record(index.row());
     QString comd = sql_record.value("tool_shell_string").toString();
+    QString path = sql_record.value("path_to_tool").toString();
+    if (path != "" || path != ".")
+        paths.insert(path);
     tree_item->setData(comd, CommandStrRole);
 
     ToolOptionsDialog* options_dialog = new ToolOptionsDialog(tree_item);
@@ -663,7 +670,6 @@ void WorkflowTreeView::doubleClickedListViewSlot(const QModelIndex& index)
     if (rtv)
     {        
         tree_item->setEditable(false);
-        //m_treeview_model->appendRow(tree_item);
         m_treeview_model->insertRow(current_row_cludge, tree_item);
         m_list_view->close();
     }
@@ -684,34 +690,8 @@ QList<QStandardItem*> WorkflowTreeView::snipRows(QModelIndexList indexList)
         QStandardItem* parent = first_item->parent();
         return parent->takeRow(index.row());
     }
-    /*
-    item_clipboard.clear();
-    bool foundCommand = false;
-    for ( int i = 0 ; i < index_list.size() ; i++)
-    {
-        QModelIndex index = index_list[i];
-        QStandardItem* item = m_treeview_model->itemFromIndex(index);
-
-        uint usageType = item->data(UsageRole).toInt();
-        if (!foundCommand)
-        {
-            if (usageType == StructureUsageRole ||  usageType == ToolUsageRole)
-                foundCommand = true;
-        }
-        if (foundCommand)
-            if (usageType == StructureUsageRole ||  usageType == ToolUsageRole)
-                item_clipboard << m_treeview_model->takeRow(index.row());
-        else
-            m_treeview_model->removeRow(index.row(), index.parent());
-    }
-    emit pasteAvailable(foundCommand);
-    return item_clipboard;//QList<QStandardItem*>();*/
 }
-/*
-QList<QStandardItem*> WorkflowTreeView::getCopyOfRows(QModelIndexList indexList)
-{
-    return QList<QStandardItem*>();
-}*/
+
 
 void WorkflowTreeView::cutSlot()
 {
@@ -727,7 +707,6 @@ void WorkflowTreeView::cutSlot()
 
 void WorkflowTreeView::copySlot()
 {
-    //QModelIndexList index_list = selectedIndexes();
     item_clipboard = cloneItems(selectedIndexes());
     emit pasteAvailable(item_clipboard.size() > 0);
 
@@ -881,15 +860,6 @@ void WorkflowTreeView::cutRow(QDataStream& out, QStandardItem* parent,int level)
     m_treeview_model->takeItem(parent->row(), parent->column());
 }
 
-//void WorkflowTreeView::writeRow(QDataStream& out, int row)
-//{
-//    QList<QStandardItem*> row_items = m_treeview_model->takeRow(row);
-//    for (int i = 0; i < row_items.size(); ++i)
-//    {
-//        row_items.at(i)->write(out);
-//    }
-//}
-
 void WorkflowTreeView::write(QDataStream& out)
 {
     writeRow(out, m_treeview_model->invisibleRootItem());
@@ -916,19 +886,6 @@ void WorkflowTreeView::writeRow(QDataStream& out,
         }
     }
 }
-/*
-void WorkflowTreeView::pasteRow(QDataStream& in, QStandardItem* item)
-{
-    QList<QStandardItem*> row_items;
-    while (!in.atEnd())
-    {
-        QStandardItem* read_item = new QStandardItem;
-        read_item->read(in);
-        row_items.append(read_item);
-    }
-    m_treeview_model->insertRow(item->row(), row_items);
-}
-*/
 
 void WorkflowTreeView::newSlot()
 { 
@@ -937,6 +894,7 @@ void WorkflowTreeView::newSlot()
                 QStringList() << "Comands and options" << "Option values");
     setModel(m_treeview_model);
     getMainWindow()->clearName();
+    paths.clear();
 }
 
 void WorkflowTreeView::read(QDataStream& in, QStandardItem* root)
@@ -945,15 +903,18 @@ void WorkflowTreeView::read(QDataStream& in, QStandardItem* root)
         root = m_treeview_model->invisibleRootItem();
     QStandardItem* ancestsor;
     QList<QStandardItem*> list;
+    QSet<QString> toolSet;
     while (!in.atEnd())
     {
         QStandardItem* read_item = new QStandardItem;
         read_item->read(in);
+        //QString tx = read_item->text();
         int usage = read_item->data(UsageRole).toInt();
         switch (usage)
         {        
         case ToolUsageRole:
             root->appendRow(read_item);
+            toolSet.insert(read_item->text());
             qDebug() << "ToolUsageRole"<< read_item->text();
             ancestsor = read_item;
             break;
@@ -982,7 +943,29 @@ void WorkflowTreeView::read(QDataStream& in, QStandardItem* root)
     }
     emit copyAvailable(true);
     emit cutAvailable(true);
+    toolsToPaths(toolSet);
 }
+
+void WorkflowTreeView::toolsToPaths(QSet<QString> tools)
+{
+    QSqlQueryModel sqlModel;// = new QSqlQueryModel;
+    sqlModel.setQuery("SELECT tool_name, tool_shell_string, path_to_tool FROM BioTools");
+    sqlModel.setHeaderData(0, Qt::Horizontal, tr("tool_name"));
+
+    paths.clear();
+    for (int row=0 ; row <  sqlModel.rowCount() ; row ++)
+    {
+        QSqlRecord sqlRecord = sqlModel.record(row);
+        QString comd = sqlRecord.value("tool_shell_string").toString();
+        if (tools.contains(comd))
+        {
+            QString path = sqlRecord.value("path_to_tool").toString();
+            if (path != "" || path != ".")
+                paths.insert(path);
+        }
+    }
+}
+
 
 bool WorkflowTreeView::isFirstItem(const QModelIndex &index) const
 {
@@ -1026,13 +1009,6 @@ bool WorkflowTreeView::canPipeInto(const QModelIndex &index) const
 {
     if (isInFirstTool(index)) return false;
     return true;
-/*
-    QString select_query = "SELECT count(*)"
-        "FROM ToolOptions WHERE op_string like '%> %'";
-    QSqlQuery query = new QSqlQuery(select_query);
-    query->next();
-    return query->value(0).toInt();
-*/
 }
 
 bool WorkflowTreeView::canPipeOutof(const QModelIndex &index) const
