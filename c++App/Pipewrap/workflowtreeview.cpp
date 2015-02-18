@@ -222,9 +222,7 @@ void WorkflowTreeView::executeSlot()
             if (inForLoop)
             {
                 QString echoedCmd = "echo " + CmdEchoTag + " " + shellCommand;
-                //QString echoedCmd = "echo \"" + shellCommand + "\"";
                 echoedCmd.replace(";", "\\;");
-                //echoedCmd.replace("S", "\\$");
                 compoundComand += echoedCmd;
                 compoundComand += shellCommand;
                 if (0 == forLoopDepth)
@@ -245,21 +243,12 @@ void WorkflowTreeView::executeSlot()
         item = m_treeview_model->item(++row_num);        
     }
 
-    //QFile file(getMainWindow()->getName() + "_shell_script.sh");
     QFile file("shell_script.sh");
     file.remove();
     file.open(QIODevice::WriteOnly);
     QTextStream out(&file);
     out << shellScript;
     file.close();
-
-    //Pipe* runPipe =  new Pipe(commandList, this);
-
-    //connect(runPipe, SIGNAL(finished(int, QProcess::ExitStatus)),
-    //        this, SLOT(processFinishedSlot(int, QProcess::ExitStatus)));
-
-    //connect(runPipe, SIGNAL(finishedAll(int, QProcess::ExitStatus)),
-    //        this, SLOT(processFinishedSlot(int, QProcess::ExitStatus)));
 
     runPipe();
 }
@@ -271,13 +260,10 @@ void WorkflowTreeView::runPipe()
         qDebug() << commandList[i];
 #endif
     process = new QProcess;
-    QString setPathCommand = "PATH=PATH:$PWD";
-    setPathCommand += ":" + QStringList(paths.toList()).join(":");
+    //QString setPathCommand = "PATH=$PATH:$PWD";
+    //setPathCommand += ":" + QStringList(paths.toList()).join(":");
+    //process->execute(setPathCommand);
 
-    process->execute(setPathCommand);
-    //process->setReadChannel(QProcess::StandardError);
-    //process->setProcessChannelMode(QProcess::ForwardedChannels);
-    //process->setProcessChannelMode(QProcess::MergedChannels);
     process->setProcessChannelMode(QProcess::SeparateChannels);
     pipeStatus = new PipeStatus(this, process);
 
@@ -295,69 +281,15 @@ void WorkflowTreeView::runPipe()
     connect(process, SIGNAL(stateChanged(int, QProcess::ProcessState  )),
             this, SLOT(stateChangedSlot(int, QProcess::ProcessState  )));
 
-    //connect(process, SIGNAL(finished(int, QProcess::ExitStatus)),
-    //        pipeStatus, SLOT(commandFinish(int, QProcess::ExitStatus)));
-
-    //connect(this, SIGNAL(finishedAll()),
-    //        this, SLOT(processFinishedSlot(int, QProcess::ExitStatus)));
-
     pipeStatus->show();
     pipeStatus->pipeStarted();
     currentCommand = 0;
 
-    //process->start("./shell_script.sh");
     getMainWindow()->statusBar()->showMessage(tr("Executing pipe"));
     nextCommand();
 
-/*    qDebug() << shellScript;
-    process = new QProcess;
-    process->execute("PATH=PATH:$PWD");
-    process->setReadChannel(QProcess::StandardError);
-
-    //startPipeStatusThread();
-    pipeStatus = new PipeStatus(this);
-    pipeStatus->setWindowTitle("Pipe status");
-
-    connect(process, SIGNAL(readyReadStandardError()),
-            this, SLOT(processStdErrSlot()));
-
-    connect(process, SIGNAL(finished(int, QProcess::ExitStatus)),
-            pipeStatus, SLOT(processFinishedSlot(int, QProcess::ExitStatus)));
-    connect(process, SIGNAL(error(QProcess::ProcessError)),
-            pipeStatus, SLOT(processErrorSlot(QProcess::ProcessError)));
-    pipeStatus->show();
-
-
-    connect(process, SIGNAL(finished(int, QProcess::ExitStatus)),
-            this, SLOT(processFinishedSlot(int, QProcess::ExitStatus)));
-
-    //connect(cameraControl,
-    //        SIGNAL(finished(int , QProcess::ExitStatus )),
-    //        this, SLOT(on_cameraControlExit(int , QProcess::ExitStatus )));
-
-    //process->execute("./shell_script.sh");
-    process->start("./shell_script.sh");
-
-    //pipeStatus->close();
-    //process = NULL;
-    //copyResultFiles();*/
-}
-/*
-void WorkflowTreeView::processStdErrSlot()
-{
-    QByteArray ba = process->readAllStandardError();
-    QString message(ba);
-    //emit  processStdErr(message);
-    pipeStatus->processStdErrSlot(message);
 }
 
-void PipeStatus::processStdOutSlot()
-{
-    QByteArray ba = process->readAllStandardOutput();
-
-    stdOut(ba);
-}
-*/
 void WorkflowTreeView::stateChangedSlot(int, QProcess::ProcessState newState)
 {
     if (QProcess::NotRunning == newState)
@@ -391,6 +323,12 @@ void WorkflowTreeView::nextCommand()
                             |QFile::WriteOther|QFile::ReadOther|QFile::ExeOther);
         QTextStream out(&file);
         out << "#!/bin/bash\n";
+//DEBUG code
+        QString setPathCommand = "PATH=$PATH:$PWD";
+        setPathCommand += ":" + QStringList(paths.toList()).join(":");
+        setPathCommand += '\n';
+        out << setPathCommand;
+//End debug code
         out << commandList[currentCommand];
         file.close();
         pipeStatus->commandStart(commandList[currentCommand]);
@@ -956,8 +894,11 @@ void WorkflowTreeView::toolsToPaths(QSet<QString> tools)
     for (int row=0 ; row <  sqlModel.rowCount() ; row ++)
     {
         QSqlRecord sqlRecord = sqlModel.record(row);
-        QString comd = sqlRecord.value("tool_shell_string").toString();
-        if (tools.contains(comd))
+        //QString comd = sqlRecord.value("tool_shell_string").toString();
+        //if (tools.contains(comd))
+
+        QString name = sqlRecord.value("tool_name").toString();
+        if (tools.contains(name))
         {
             QString path = sqlRecord.value("path_to_tool").toString();
             if (path != "" || path != ".")
