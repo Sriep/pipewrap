@@ -1,3 +1,4 @@
+#include <stdexcept>
 #include "options.h"
 #include "cassert"
 #include "iostream"

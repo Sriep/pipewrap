@@ -5,7 +5,7 @@
 #include <iomanip>
 #include "chrono"
 #include "ctime"
-#include <qdebug.h>
+//#include <qdebug.h>
 #include "H5Cpp.h"
 #include "varientcaller.h"
 #include "varientcallerHdf5.h"

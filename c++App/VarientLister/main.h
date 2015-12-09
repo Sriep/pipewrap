@@ -1,6 +1,6 @@
 #ifndef MAIN_H
 #define MAIN_H
-#include <QCoreApplication>
+//#include <QCoreApplication>
 //#include <QCommandLineParser>
 #include <fstream>
 #include <string>

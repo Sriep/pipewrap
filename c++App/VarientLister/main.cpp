@@ -1,7 +1,7 @@
-#include <QCommandLineParser>
-#include <QCommandLineOption>
-#include <QCoreApplication>
-#include <QString>
+//#include <QCommandLineParser>
+//#include <QCommandLineOption>
+//#include <QCoreApplication>
+//#include <QString>
 #include <algorithm>
 #include <fstream>
 #include <string>

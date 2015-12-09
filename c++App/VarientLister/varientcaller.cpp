@@ -3,9 +3,10 @@
 #include <cctype>
 #include <sstream>
 #include <iomanip>
+#include  <algorithm>
 #include "chrono"
 #include "ctime"
-#include <qdebug.h>
+//#include <qdebug.h>
 #include "H5Cpp.h"
 #include "varientcaller.h"
 #include "main.h"

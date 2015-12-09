@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <vector>
-#include <QDebug>
-#include <QProcess>
+//#include <QDebug>
+//#include <QProcess>
 #include  <cstdlib>
 #include "pvalues.h"
 #include "main.h"
