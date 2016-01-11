@@ -1,0 +1,13 @@
+INPUT(
+./debug\main.o
+./debug\varientcaller.o
+./debug\pvalues.o
+./debug\locusinfo.o
+./debug\frequencypartition.o
+./debug\matchmismatches.o
+./debug\hdf5basfile.o
+./debug\options.o
+./debug\varientcallerHdf5.o
+./debug\vcfwriter.o
+./debug\minedatawriter.o
+);

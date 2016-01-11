@@ -69,7 +69,7 @@ private:
                          ,const string& type
                          ,const string& description);
     void WriteDataHeader();
-    void WriteDataLine(uint pos);
+    void WriteDataLine(unsigned int pos);
     string date();
 };
 

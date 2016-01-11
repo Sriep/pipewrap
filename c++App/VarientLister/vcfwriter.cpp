@@ -109,7 +109,7 @@ void  VcfWriter::WriteDataHeader()
     vout <<  "\n";
 }
 
-void VcfWriter::WriteDataLine(uint pos)
+void VcfWriter::WriteDataLine(unsigned int pos)
 {
     long double pValue = als_info[pos]->getPValue(PValues::Method::KnownFrequency);
     int varQual = prob2phred(pValue);

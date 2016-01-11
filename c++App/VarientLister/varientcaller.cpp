@@ -234,7 +234,7 @@ void VarientCaller::writeReadInfo()
         {
             for (int base = 0 ; base < al.Length ; base++)
             {
-                uint locus =(base + al.Position) % t.size();
+                unsigned int locus =(base + al.Position) % t.size();
                 //if (al.AlignedBases[base] != t[locus])
                 if (basesDiffer(al.AlignedBases[base], t[locus]))
                 //if (!compareBases(al.AlignedBases[base], t[locus]))

@@ -1,0 +1,13 @@
+INPUT(
+./release\main.o
+./release\varientcaller.o
+./release\pvalues.o
+./release\locusinfo.o
+./release\frequencypartition.o
+./release\matchmismatches.o
+./release\hdf5basfile.o
+./release\options.o
+./release\varientcallerHdf5.o
+./release\vcfwriter.o
+./release\minedatawriter.o
+);
